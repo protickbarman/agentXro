@@ -1,0 +1,295 @@
+================================================================================
+                    XRO AGENT SYSTEM ARCHITECTURE
+                          VISUAL SUMMARY
+================================================================================
+
+LAYER 1: BEHAVIORAL FRAMEWORK
+================================================================================
+                              soul.md
+                    (Principles: Curious, Empathetic, Honest)
+                              |
+                    (All agents must follow these principles)
+
+LAYER 2: SKILLS (8 total)
+================================================================================
+agent-creation         job-queue-deployment      external-integrations
+    |                          |                          |
+    v                          v                          v
+  Skill.md              Skill.md                    Skill.md
+  scripts/              scripts/                    scripts/
+  references/           deploy-agent.js             test-integration.js
+
+
+agent-memory           llm-prompt-management      pause-resume-execution
+    |                          |                          |
+    v                          v                          v
+  Skill.md              Skill.md                    Skill.md
+  scripts/              scripts/                    scripts/
+  consolidate           import-prompts.js          recover-executions.js
+                        cost-report.js
+
+
+agent-communication      code-execution-visualization
+      |                              |
+      v                              v
+   Skill.md                        Skill.md
+   (messaging)                     scripts/
+                                   run-code.js
+
+================================================================================
+
+LAYER 3: SERVICES (15 total singletons)
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  SINGLETON SERVICES (all exported as: module.exports = new Class())    │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  AGENT MANAGEMENT:                                                      │
+│    - AgentFactory.js         (Create agents from definitions)           │
+│    - AgentRegistry.js        (In /agents/, singleton)                   │
+│                                                                         │
+│  COMMUNICATION & DELEGATION:                                            │
+│    - AgentMessenger.js       (Agent-to-agent messaging)                │
+│    - TaskDelegator.js        (Task delegation between agents)          │
+│    - CollaborationManager.js (Multi-agent workflows)                   │
+│    - ConflictResolver.js     (Resolve agent disagreements)             │
+│                                                                         │
+│  MEMORY & PERSISTENCE:                                                  │
+│    - MemoryManager.js        (Store/retrieve agent memories)           │
+│    - PromptRegistry.js       (Prompt template versioning)              │
+│    - ExecutionManager.js     (Pause/resume/cancel execution)           │
+│                                                                         │
+│  CODE & VISUALIZATION:                                                  │
+│    - SandboxManager.js       (Secure code execution)                   │
+│    - VisualizationEngine.js  (Data visualization generation)           │
+│                                                                         │
+│  OPTIMIZATION & TRACKING:                                               │
+│    - TokenOptimizer.js       (Optimize token usage)                    │
+│    - CostTracker.js          (Track LLM costs)                         │
+│                                                                         │
+│  INTEGRATIONS:                                                          │
+│    - IntegrationManager.js   (Manage external services)                │
+│      ├─ DiscordClient.js                                               │
+│      ├─ GitHubClient.js                                                │
+│      ├─ JiraClient.js                                                  │
+│      └─ SlackClient.js                                                 │
+│                                                                         │
+│  CORE:                                                                  │
+│    - AuthService.js          (Authentication)                          │
+│    - QueueManager.js         (Job queue - Bull Redis)                  │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+
+LAYER 4: AGENT ORCHESTRATION (5 agents)
+================================================================================
+
+                         ┌──────────────┐
+                         │  MainAgent   │  ← ORCHESTRATOR
+                         │  (routes)    │
+                         └──────┬───────┘
+                                |
+                    ┌───────────┼───────────┐
+                    |           |           |
+                    v           v           v
+              ┌─────────┐ ┌──────────┐ ┌─────────┐
+              │WebAgent │ │CodeAgent │ │SearchAgent
+              │ (web)   │ │ (code)   │ │ (search)
+              └─────────┘ └──────────┘ └─────────┘
+                    |           |           |
+              ┌─────────────────┴───────────┘
+              v
+         ┌──────────────┐
+         │DatabaseAgent │
+         │  (database)  │
+         └──────────────┘
+
+ROUTING LOGIC:
+  User Query
+    ↓
+  MainAgent analyzes complexity
+    ↓
+  Simple? → Direct tool execution (Calculator, WebSearch, etc.)
+  Complex? → Delegate to sub-agent(s) (Web, Code, Database, Search)
+    ↓
+  Combine results
+    ↓
+  Stream response to user (via WebSocket)
+
+================================================================================
+
+LAYER 5: TOOLS (4 total + Registry)
+================================================================================
+
+                      ┌──────────────────┐
+                      │  ToolRegistry    │ (Singleton)
+                      │  (Central store) │
+                      └─────────┬────────┘
+                                |
+                ┌───────────────┼───────────────┬───────────────┐
+                |               |               |               |
+                v               v               v               v
+            ┌─────────┐   ┌──────────┐   ┌──────────┐   ┌─────────┐
+            │Calculator   │WebSearch  │   │JSON      │   │Timer    │
+            │Tool      │   │Tool      │   │Parser    │   │Tool     │
+            │(math)    │   │(DuckDuck)│   │Tool      │   │(timing) │
+            └─────────┘   └──────────┘   └──────────┘   └─────────┘
+
+All extend: Tool base class (tools/base/Tool.js)
+
+TOOL EXECUTION PATTERN:
+  1. LLM sees tool schema
+  2. LLM decides which tool to use
+  3. Tool.validate(params)
+  4. Tool.executeWithRetry() [auto-retry + timeout]
+  5. Return result to agent
+
+================================================================================
+
+FULL REQUEST FLOW
+================================================================================
+
+User sends message
+    ↓
+REST API: POST /new
+    ↓
+aiController.sendMessage()
+    ↓
+Create Conversation & Message records
+    ↓
+Get MainAgent from registry
+    ↓
+MainAgent.execute(context)
+    ├─ Load relevant memories (MemoryManager)
+    ├─ Analyze query complexity
+    ├─ Route decision:
+    │   ├─ Simple → _executeWithTools()
+    │   │   ├─ Get tool schemas
+    │   │   ├─ Send to LLM with tools available
+    │   │   ├─ LLM calls tool
+    │   │   ├─ Execute tool via ToolRegistry
+    │   │   └─ Return result
+    │   │
+    │   └─ Complex → _delegateToSubAgents()
+    │       ├─ Determine which agents needed
+    │       ├─ TaskDelegator.delegate()
+    │       │   └─ AgentMessenger.send()
+    │       │       └─ Sub-agent executes
+    │       ├─ Collect results
+    │       └─ Synthesize response
+    │
+    ├─ Stream progress via WebSocket
+    ├─ Extract & store new memories (MemoryManager)
+    └─ Return final response
+    ↓
+Response streamed to client
+    ↓
+Message saved to database
+    ↓
+User sees response in UI
+
+================================================================================
+
+DATABASE SCHEMA (High-Level)
+================================================================================
+
+Core Tables:
+  - conversations (user, title, created_at)
+  - messages (conversation_id, role, content)
+  - users (authentication)
+
+Skill Tables:
+  - agent_definitions (agent metadata)
+  - agent_memories (persistent memory)
+  - prompt_templates, prompt_versions (LLM prompts)
+  - task_delegations (task routing)
+  - code_executions (code run history)
+  - integration_logs (external service calls)
+  - execution_states (pause/resume state)
+  - token_usage (cost tracking)
+
+================================================================================
+
+KEY PATTERNS
+================================================================================
+
+1. SINGLETON SERVICES
+   Every service is instantiated once and exported
+   module.exports = new ServiceClass();
+   Usage: const service = require('../services/ServiceName');
+
+2. TOOL REGISTRY PATTERN
+   Tools registered at startup, accessed by name
+   toolRegistry.register('name', toolInstance);
+   toolRegistry.get('name').execute(params);
+
+3. AGENT REGISTRY PATTERN
+   Agents registered at startup, routed by MainAgent
+   agentRegistry.register('name', agentInstance);
+   agentRegistry.get('name').execute(context);
+
+4. SKILL → SERVICE → DATABASE
+   Each skill maps to one or more services
+   Services implement business logic
+   Database tables store persistent data
+
+5. DELEGATION PATTERN
+   MainAgent routes to sub-agents via TaskDelegator
+   Sub-agents receive structured task objects
+   Results aggregated and returned to user
+
+6. SOUL.MD ALIGNMENT
+   All agents follow soul.md behavioral principles
+   Every skill execution should align with soul.md
+   Agents should be curious, empathetic, honest
+
+================================================================================
+
+ADDING NEW CAPABILITY
+================================================================================
+
+New Skill:
+  1. /skills/new-skill/SKILL.md (definition)
+  2. /services/NewService.js (singleton implementation)
+  3. /skills/new-skill/scripts/*.js (CLI tools)
+  4. Database tables (in SKILL.md)
+  5. /routes/new-resource.js (API endpoints)
+  6. Register in config/agentInit.js or config/toolInit.js
+
+New Tool:
+  1. /tools/shared/MyTool.js (extend Tool base class)
+  2. Register in /config/toolInit.js
+  3. Immediately available to all agents
+
+New Agent:
+  1. /agents/agent-type/MyAgent.js (extend Agent base class)
+  2. Register in /config/agentInit.js
+  3. MainAgent can delegate tasks to it
+
+================================================================================
+
+QUICK COMMAND REFERENCE
+================================================================================
+
+Test Skill via CLI:
+  node skills/agent-memory/scripts/consolidate-memories.js --user-id <id>
+
+Test Service Direct:
+  node -e "const S = require('./services/MemoryManager'); S.store({...})"
+
+Test Tool via API:
+  POST /api/tools/calculator/execute
+  { "params": { "expression": "2+2" } }
+
+List all agents:
+  GET /api/agents
+
+List all tools:
+  GET /api/tools
+
+View agent capabilities:
+  GET /api/agents/:agentName
+
+================================================================================

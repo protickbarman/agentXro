@@ -1,0 +1,20 @@
+{
+  "request": "What is 15 + 27? Explain step by step.",
+  "searchQueries": [
+    "What is 15 + 27? Explain step by step."
+  ],
+  "results": [
+    {
+      "query": "What is 15 + 27? Explain step by step.",
+      "results": [
+        {
+          "title": "Result for \"What is 15 + 27? Explain step by step.\"",
+          "snippet": "Web search results for your query would appear here. In production, integrate with a real search API.",
+          "url": "https://example.com/search?q=What%20is%2015%20%2B%2027%3F%20Explain%20step%20by%20step."
+        }
+      ]
+    }
+  ],
+  "synthesis": "I'll solve this step by step without needing external search, as this is a straightforward arithmetic problem.\n\n## Step-by-Step Solution: 15 + 27\n\n### Step 1: Align the numbers by place value\n```\n  15\n+ 27\n----\n```\n\n### Step 2: Add the ones column\n- 5 + 7 = **12**\n- Write down **2**, carry over **1** to the tens column\n\n### Step 3: Add the tens column (including the carry)\n- 1 + 2 + 1 (carried) = **4**\n\n### Final Answer\n```\n  15\n+ 27\n----\n  42\n```\n\n**15 + 27 = 42**\n\n---\n\n### Alternative verification method:\n- 15 + 20 = 35\n- 35 + 7 = **42** ✓",
+  "timestamp": "2026-05-23T17:29:26.630Z"
+}

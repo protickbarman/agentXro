@@ -1,0 +1,20 @@
+{
+  "request": "What is the current price of Bitcoin?",
+  "searchQueries": [
+    "What is the current price of Bitcoin?"
+  ],
+  "results": [
+    {
+      "query": "What is the current price of Bitcoin?",
+      "results": [
+        {
+          "title": "Result for \"What is the current price of Bitcoin?\"",
+          "snippet": "Web search results for your query would appear here. In production, integrate with a real search API.",
+          "url": "https://example.com/search?q=What%20is%20the%20current%20price%20of%20Bitcoin%3F"
+        }
+      ]
+    }
+  ],
+  "synthesis": "I understand you're asking for the current price of Bitcoin, but I need to clarify a important limitation based on the information provided:\n\n**The search results you've shared contain only a placeholder note**, not actual live data:  \n> *\"Web search results for your query would appear here. In production, integrate with a real search API.\"*\n\nThis indicates that in this specific environment, **no real-time search functionality is active**, and therefore **I cannot retrieve or verify the current Bitcoin price** from live market data.\n\n### Why I Can't Provide the Price:\n- Cryptocurrency prices fluctuate constantly (often by the second).\n- My training data only goes up to **July 2024** and does not include real-time market feeds.\n- Without access to a live price API (like CoinGecko, CoinMarketCap, or exchange APIs), any price I state would be **guesswork or outdated**, which could be misleading for financial decisions.\n\n### What You Should Do Instead:\nFor an **accurate, real-time Bitcoin price**, I recommend checking one of these trusted sources directly:\n- **Financial data sites**: [CoinMarketCap](https://coinmarketcap.com/currencies/bitcoin/), [CoinGecko](https://www.coingecko.com/en/coins/bitcoin)\n- **Major exchanges**: [Binance](https://www.binance.com/en/trade/BTC_USDT), [Coinbase](https://www.coinbase.com/price/bitcoin), [Kraken](https://www.kraken.com/price/bitcoin)\n- **Search engines**: Simply Google *\"Bitcoin price\"* or ask a voice assistant (Siri, Google Assistant) for live updates.\n\n### Important Note:\nIf you're using this information for trading or investment, **always verify prices on multiple reputable sources** and consider transaction fees/spreads. Cryptocurrency markets are highly volatile — prices can change significantly in short periods.\n\nLet me know if you'd like help understanding *how* to track Bitcoin prices reliably, or if you have other questions I can assist with using my existing knowledge base! 😊",
+  "timestamp": "2026-05-22T17:17:09.071Z"
+}

@@ -1,0 +1,20 @@
+{
+  "request": "What is the current price of Bitcoin?",
+  "searchQueries": [
+    "What is the current price of Bitcoin?"
+  ],
+  "results": [
+    {
+      "query": "What is the current price of Bitcoin?",
+      "results": [
+        {
+          "title": "Result for \"What is the current price of Bitcoin?\"",
+          "snippet": "Web search results for your query would appear here. In production, integrate with a real search API.",
+          "url": "https://example.com/search?q=What%20is%20the%20current%20price%20of%20Bitcoin%3F"
+        }
+      ]
+    }
+  ],
+  "synthesis": "As a Search Agent, I must base my response **strictly on the provided search results**. In this case, the search results for the query \"What is the current price of Bitcoin?\" explicitly state:  \n> *\"Web search results for your query would appear here. In production, integrate with a real search API.\"*  \n\n**No actual search results (e.g., live price data, timestamps, or source links) were provided** in the input. Therefore, I **cannot** retrieve or report a real-time Bitcoin price, as:  \n1. I lack live internet access or real-time data capabilities.  \n2. The simulated search results contain no actionable data to summarize.  \n\n### Well-Organized Summary Based on Given Constraints:\n- **Limitation Acknowledged**: Without integrated search API access or provided result data, I cannot deliver a current Bitcoin price.  \n- **User Guidance**: For real-time pricing, users should consult:  \n  - Major cryptocurrency exchanges (e.g., Coinbase, Binance, Kraken).  \n  - Financial data platforms (e.g., TradingView, CoinMarketCap, Yahoo Finance).  \n  - Search engines with live market integrations (e.g., Google \"Bitcoin price\" query).  \n- **Contextual Note**: Bitcoin’s price is highly volatile and changes frequently (often by the minute). Any price shared without a real-time source risks being outdated or inaccurate.  \n- **My Knowledge Cutoff**: My training data extends only until July 2024, so I cannot provide historical \"current\" prices beyond that point.  \n\n### Recommendation:\nTo obtain an accurate, up-to-the-minute price, **perform a live web search via a trusted financial service or exchange**. If you have specific search results (e.g., from a real API) you’d like me to analyze, please provide them, and I will generate a concise, sourced summary immediately.  \n\n*Note: In a production environment with live search integration, this response would include a timestamped price, 24h change, and citable sources (e.g., \"As of [time] on [date], Bitcoin traded at $X,XXX on [exchange] per [source]\").*",
+  "timestamp": "2026-05-22T17:15:53.047Z"
+}

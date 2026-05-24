@@ -1,0 +1,122 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: xro-postgres
+    environment:
+      POSTGRES_DB: defaultdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: xro-redis
+    command: redis-server --requirepass redis_password
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Node.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: xro-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: defaultdb
+      DB_USER: postgres
+      DB_PASSWORD: postgres_password
+      DB_SSL: "false"
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: redis_password
+      # LLM (use dummy values for testing)
+      NIM_API_KEY: dummy_key
+      NIM_BASE_URL: https://integrate.api.nvidia.com
+      FALLBACK_LLM_KEY: dummy_key
+      FALLBACK_LLM_MODEL: gpt-3.5-turbo
+      # JWT
+      JWT_SECRET: your_secret_key_change_in_production
+      JWT_EXPIRY: 24h
+      REFRESH_TOKEN_EXPIRY: 7d
+      # WebSocket
+      WEBSOCKET_ENABLED: "true"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Bull Queue Worker
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: xro-worker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: defaultdb
+      DB_USER: postgres
+      DB_PASSWORD: postgres_password
+      DB_SSL: "false"
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: redis_password
+      # Logging
+      LOG_LEVEL: debug
+    command: npm run worker
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: xro-network

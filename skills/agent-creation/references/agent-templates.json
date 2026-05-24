@@ -1,0 +1,56 @@
+[
+  {
+    "name": "default-web-agent",
+    "type": "web",
+    "description": "Web scraping and data extraction agent",
+    "llmConfig": { "provider": "nim", "model": "meta/llama-3.3-70b-instruct", "temperature": 0.3, "maxTokens": 4096 },
+    "tools": ["web_search", "http_client", "dom_parser", "browser", "cookie_manager"],
+    "capabilities": { "supportsParallel": false, "supportsMemory": true, "supportsCommunication": true, "supportedTasks": ["web_scraping", "data_extraction", "form_submission", "content_analysis"] },
+    "config": { "timeout": 25000, "maxRetries": 3, "useSoul": true }
+  },
+  {
+    "name": "default-code-agent",
+    "type": "code",
+    "description": "Code execution, analysis, and debugging agent",
+    "llmConfig": { "provider": "nim", "model": "deepseek-ai/deepseek-v4-flash", "temperature": 0.2, "maxTokens": 8192 },
+    "tools": ["code_executor", "syntax_validator", "code_analyzer", "debugger"],
+    "capabilities": { "supportsParallel": false, "supportsMemory": true, "supportsCommunication": true, "supportedTasks": ["code_execution", "debugging", "code_review", "refactoring"] },
+    "config": { "timeout": 30000, "maxRetries": 3, "useSoul": true }
+  },
+  {
+    "name": "default-search-agent",
+    "type": "search",
+    "description": "Multi-source search and information synthesis agent",
+    "llmConfig": { "provider": "nim", "model": "deepseek-ai/deepseek-v4-flash", "temperature": 0.3, "maxTokens": 4096 },
+    "tools": ["web_search", "multi_source_search", "info_synthesis", "source_tracker", "data_extractor"],
+    "capabilities": { "supportsParallel": true, "supportsMemory": true, "supportsCommunication": true, "supportedTasks": ["search", "research", "information_synthesis", "fact_checking"] },
+    "config": { "timeout": 25000, "maxRetries": 3, "useSoul": true }
+  },
+  {
+    "name": "default-database-agent",
+    "type": "database",
+    "description": "Database query generation, schema analysis, and data management agent",
+    "llmConfig": { "provider": "nim", "model": "meta/llama-3.3-70b-instruct", "temperature": 0.1, "maxTokens": 4096 },
+    "tools": ["query_builder", "schema_analyzer", "transaction", "data_transform"],
+    "capabilities": { "supportsParallel": false, "supportsMemory": true, "supportsCommunication": true, "supportedTasks": ["query_generation", "schema_analysis", "data_migration", "optimization"] },
+    "config": { "timeout": 25000, "maxRetries": 3, "useSoul": true }
+  },
+  {
+    "name": "research-agent-template",
+    "type": "search",
+    "description": "Deep research agent for comprehensive topic analysis",
+    "llmConfig": { "provider": "nim", "model": "nvidia/nemotron-3-super-120b-a12b", "temperature": 0.3, "maxTokens": 8192 },
+    "tools": ["web_search", "multi_source_search", "info_synthesis", "source_tracker"],
+    "capabilities": { "supportsParallel": true, "supportsMemory": true, "supportsCommunication": true, "supportedTasks": ["deep_research", "competitive_analysis", "literature_review", "technical_research"] },
+    "config": { "timeout": 60000, "maxRetries": 5, "useSoul": true }
+  },
+  {
+    "name": "monitor-agent-template",
+    "type": "custom",
+    "description": "System monitoring and health check agent",
+    "llmConfig": { "provider": "nim", "model": "meta/llama-3.3-70b-instruct", "temperature": 0.1, "maxTokens": 2048 },
+    "tools": ["web_search", "http_client"],
+    "capabilities": { "supportsParallel": false, "supportsMemory": true, "supportsCommunication": false, "supportedTasks": ["monitoring", "health_check", "alerting", "reporting"] },
+    "config": { "timeout": 15000, "maxRetries": 2, "useSoul": true }
+  }
+]

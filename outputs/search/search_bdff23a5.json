@@ -1,0 +1,20 @@
+{
+  "request": "reserch about btc on the internet",
+  "searchQueries": [
+    "reserch about btc on the internet"
+  ],
+  "results": [
+    {
+      "query": "reserch about btc on the internet",
+      "results": [
+        {
+          "title": "Result for \"reserch about btc on the internet\"",
+          "snippet": "Web search results for your query would appear here. In production, integrate with a real search API.",
+          "url": "https://example.com/search?q=reserch%20about%20btc%20on%20the%20internet"
+        }
+      ]
+    }
+  ],
+  "synthesis": "",
+  "timestamp": "2026-05-23T18:45:37.491Z"
+}

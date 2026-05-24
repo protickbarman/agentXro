@@ -1,0 +1,20 @@
+{
+  "request": "What is the price of Bitcoin?",
+  "searchQueries": [
+    "What is the price of Bitcoin?"
+  ],
+  "results": [
+    {
+      "query": "What is the price of Bitcoin?",
+      "results": [
+        {
+          "title": "Result for \"What is the price of Bitcoin?\"",
+          "snippet": "Web search results for your query would appear here. In production, integrate with a real search API.",
+          "url": "https://example.com/search?q=What%20is%20the%20price%20of%20Bitcoin%3F"
+        }
+      ]
+    }
+  ],
+  "synthesis": "Based on the search results provided, here is a comprehensive summary:\n\n## Bitcoin Price Information\n\n### Current Price\nThe search results indicate that this is a simulated search environment. In a production setting, the live Bitcoin price would be retrieved from financial data APIs or real-time web sources.\n\n### Where to Find Current Bitcoin Prices\nSince real-time data is not available in this test environment, you can check Bitcoin's current price from these reliable sources:\n\n| Source | Type | URL |\n|--------|------|-----|\n| CoinMarketCap | Crypto aggregator | coinmarketcap.com |\n| CoinGecko | Crypto aggregator | coingecko.com |\n| Binance | Exchange | binance.com |\n| Coinbase | Exchange | coinbase.com |\n| Yahoo Finance | Traditional finance | finance.yahoo.com |\n\n### Key Factors Affecting Bitcoin Price\n- **Market demand and supply**\n- **Institutional adoption** (ETFs, corporate treasuries)\n- **Regulatory developments**\n- **Macroeconomic conditions** (interest rates, inflation)\n- **Network activity and halving events**\n\n### Additional Context\n- Bitcoin (BTC) is the first and largest cryptocurrency by market capitalization\n- Prices are typically quoted in USD, but available in most fiat currencies\n- The crypto market operates 24/7, unlike traditional stock markets\n\n---\n\n**Note:** For the actual current price, please check one of the sources listed above, as this response is based on placeholder search results without live market data.",
+  "timestamp": "2026-05-22T18:47:24.651Z"
+}

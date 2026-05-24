@@ -1,0 +1,20 @@
+{
+  "request": "What is the current price of Bitcoin?",
+  "searchQueries": [
+    "What is the current price of Bitcoin?"
+  ],
+  "results": [
+    {
+      "query": "What is the current price of Bitcoin?",
+      "results": [
+        {
+          "title": "Result for \"What is the current price of Bitcoin?\"",
+          "snippet": "Web search results for your query would appear here. In production, integrate with a real search API.",
+          "url": "https://example.com/search?q=What%20is%20the%20current%20price%20of%20Bitcoin%3F"
+        }
+      ]
+    }
+  ],
+  "synthesis": "Based solely on the provided search results for the query \"What is the current price of Bitcoin?\", there is **no actual price data available** in the simulated output. The results explicitly state:  \n> *\"Web search results for your query would appear here. In production, integrate with a real search API.\"*  \n\nThis indicates that the search functionality is not connected to a live data source in this environment, and therefore, no real-time Bitcoin price can be retrieved or reported from the given information.  \n\n### Important Context for Users:\n- Bitcoin's price is highly volatile and changes constantly (often by the second) across global exchanges (e.g., Binance, Coinbase, Kraken).  \n- For accurate, up-to-the-minute pricing, users should consult:  \n  - Major cryptocurrency exchanges (their trading interfaces or price tickers).  \n  - Financial data platforms like Bloomberg, Reuters, or TradingView.  \n  - Dedicated crypto price trackers such as CoinGecko or CoinMarketCap.  \n- Always verify timestamps and sources, as prices can differ slightly between platforms due to liquidity, fees, and regional demand.  \n\nSince no live data was accessible via the provided search results, I cannot supply a current price figure. For the most reliable information, please use a real-time financial or cryptocurrency service directly.",
+  "timestamp": "2026-05-22T17:13:54.201Z"
+}
