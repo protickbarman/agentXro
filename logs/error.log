@@ -432,3 +432,455 @@
 {"error":"Invalid email or password","level":"error","message":"Unhandled error","method":"POST","path":"/api/auth/login","service":"xro-agent-backend","stack":"AuthenticationError: Invalid email or password\n    at AuthService.login (/home/xro/Desktop/Xro Agent/services/AuthService.js:57:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async /home/xro/Desktop/Xro Agent/controllers/authController.js:38:18","timestamp":"2026-05-23 23:14:07"}
 {"error":"","level":"error","message":"Database query error","params":["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjRiNzUxNThiLWQ0MTAtNGVjYy1hYmIwLTg3M2Q5MTFmY2Q1YSIsImVtYWlsIjpudWxsLCJpYXQiOjE3Nzk1NTY0ODMsImV4cCI6MTc4MDE2MTI4M30.PmYniURsil-c2O0sAzDdgIiWgimm57RNOaqfhBUoDxQ"],"query":"SELECT id, user_id, refresh_token, expires_at\n       FROM sessions WHERE refresh_token = $1 AND is_r","service":"xro-agent-backend","timestamp":"2026-05-24 13:36:55"}
 {"error":"","level":"error","message":"Unhandled error","method":"POST","path":"/api/auth/refresh","service":"xro-agent-backend","stack":"AggregateError [ECONNREFUSED]: \n    at /home/xro/Desktop/Xro Agent/node_modules/pg-pool/index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async query (/home/xro/Desktop/Xro Agent/config/database.js:36:20)\n    at async getOne (/home/xro/Desktop/Xro Agent/config/database.js:61:20)\n    at async AuthService.refreshToken (/home/xro/Desktop/Xro Agent/services/AuthService.js:103:23)\n    at async /home/xro/Desktop/Xro Agent/controllers/authController.js:75:18","timestamp":"2026-05-24 13:36:55"}
+{"error":"Invalid email or password","level":"error","message":"Unhandled error","method":"POST","path":"/api/auth/login","service":"xro-agent-backend","stack":"AuthenticationError: Invalid email or password\n    at AuthService.login (/home/runner/workspace/services/AuthService.js:57:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async /home/runner/workspace/controllers/authController.js:38:18","timestamp":"2026-05-24 16:11:27"}
+{"error":"agentRegistry.setMainAgent is not a function","level":"error","message":"Failed to initialize agents","service":"xro-agent-backend","timestamp":"2026-05-24 17:17:13"}
+{"error":"agentRegistry.setMainAgent is not a function","level":"error","message":"Failed to initialize agents","service":"xro-agent-backend","timestamp":"2026-05-24 17:17:16"}
+{"error":"agentRegistry.setMainAgent is not a function","level":"error","message":"Failed to initialize agents","service":"xro-agent-backend","timestamp":"2026-05-24 17:17:19"}
+{"level":"error","message":"Calculator execution failed: Invalid expression","service":"xro-agent-backend","timestamp":"2026-05-24 17:19:20"}
+{"level":"error","message":"Calculator execution failed: Expression is required","service":"xro-agent-backend","timestamp":"2026-05-24 17:19:20"}
+{"level":"error","message":"JSON parsing failed: Expected property name or '}' in JSON at position 1","service":"xro-agent-backend","timestamp":"2026-05-24 17:19:20"}
+{"level":"error","message":"JSON parsing failed: JSON string is required","service":"xro-agent-backend","timestamp":"2026-05-24 17:19:20"}
+{"level":"error","message":"Timer operation failed: Timer unknown not started","service":"xro-agent-backend","timestamp":"2026-05-24 17:19:20"}
+{"level":"error","message":"Calculator execution failed: Invalid expression","service":"xro-agent-backend","timestamp":"2026-05-24 17:20:01"}
+{"level":"error","message":"Calculator execution failed: Expression is required","service":"xro-agent-backend","timestamp":"2026-05-24 17:20:01"}
+{"level":"error","message":"JSON parsing failed: Expected property name or '}' in JSON at position 1","service":"xro-agent-backend","timestamp":"2026-05-24 17:20:01"}
+{"level":"error","message":"JSON parsing failed: JSON string is required","service":"xro-agent-backend","timestamp":"2026-05-24 17:20:01"}
+{"level":"error","message":"Timer operation failed: Timer unknown not started","service":"xro-agent-backend","timestamp":"2026-05-24 17:20:01"}
+{"email":"curltest@test.com","error":"Email already registered","level":"error","message":"Registration failed","service":"xro-agent-backend","timestamp":"2026-05-24 17:21:37"}
+{"error":"Email already registered","level":"error","message":"Unhandled error","method":"POST","path":"/api/auth/register","service":"xro-agent-backend","stack":"ConflictError: Email already registered\n    at AuthService.register (/home/runner/workspace/services/AuthService.js:22:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async /home/runner/workspace/controllers/authController.js:21:16","timestamp":"2026-05-24 17:21:37"}
+{"error":"Invalid email or password","level":"error","message":"Unhandled error","method":"POST","path":"/api/auth/login","service":"xro-agent-backend","stack":"AuthenticationError: Invalid email or password\n    at AuthService.login (/home/runner/workspace/services/AuthService.js:68:15)\n    at async /home/runner/workspace/controllers/authController.js:38:18","timestamp":"2026-05-24 17:21:37"}
+{"error":"Agent execution timeout (150s)","level":"error","message":"AI agent execution failed","service":"xro-agent-backend","timestamp":"2026-05-24 17:22:34"}
+{"level":"error","message":"Calculator execution failed: Invalid expression","service":"xro-agent-backend","timestamp":"2026-05-24 17:32:45"}
+{"level":"error","message":"Calculator execution failed: Expression is required","service":"xro-agent-backend","timestamp":"2026-05-24 17:32:45"}
+{"level":"error","message":"JSON parsing failed: Expected property name or '}' in JSON at position 1","service":"xro-agent-backend","timestamp":"2026-05-24 17:32:45"}
+{"level":"error","message":"JSON parsing failed: JSON string is required","service":"xro-agent-backend","timestamp":"2026-05-24 17:32:45"}
+{"level":"error","message":"Timer operation failed: Timer unknown not started","service":"xro-agent-backend","timestamp":"2026-05-24 17:32:45"}
+{"error":"Invalid email or password","level":"error","message":"Unhandled error","method":"POST","path":"/api/auth/login","service":"xro-agent-backend","stack":"AuthenticationError: Invalid email or password\n    at AuthService.login (/home/runner/workspace/services/AuthService.js:68:15)\n    at async /home/runner/workspace/controllers/authController.js:38:18","timestamp":"2026-05-24 17:35:31"}
+{"error":"Validation error: \"password\" length must be at least 8 characters long","level":"error","message":"Unhandled error","method":"POST","path":"/api/auth/register","service":"xro-agent-backend","stack":"Error: Validation error: \"password\" length must be at least 8 characters long\n    at validateOrThrow (/home/runner/workspace/utils/validation.js:81:17)\n    at /home/runner/workspace/controllers/authController.js:16:41\n    at /home/runner/workspace/middleware/errorHandler.js:31:19\n    at Layer.handle [as handle_request] (/home/runner/workspace/node_modules/express/lib/router/layer.js:95:5)\n    at next (/home/runner/workspace/node_modules/express/lib/router/route.js:149:13)\n    at /home/runner/workspace/node_modules/express-rate-limit/dist/index.cjs:659:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async /home/runner/workspace/node_modules/express-rate-limit/dist/index.cjs:576:5","timestamp":"2026-05-24 17:35:34"}
+{"error":"Agent execution timeout (150s)","level":"error","message":"AI agent execution failed","service":"xro-agent-backend","timestamp":"2026-05-24 17:38:20"}
+{"error":"socket hang up","level":"error","message":"NIM request error","service":"xro-agent-backend","timestamp":"2026-05-24 18:38:41"}
+{"error":"socket hang up","level":"error","message":"NIM request error","service":"xro-agent-backend","timestamp":"2026-05-24 18:39:07"}
+{"error":"socket hang up","level":"error","message":"NIM request error","service":"xro-agent-backend","timestamp":"2026-05-24 18:39:29"}
+{"code":"ECONNRESET","error":"socket hang up","level":"error","message":"NIM request error","service":"xro-agent-backend","stack":"Error: socket hang up\n    at TLSSocket.socketCloseListener (node:_http_client:477:27)\n    at TLSSocket.emit (node:events:536:35)\n    at node:net:343:12\n    at TCP.done (node:_tls_wrap:665:7)","timestamp":"2026-05-24 18:41:13"}
+{"code":"ECONNRESET","error":"socket hang up","level":"error","message":"NIM request error","service":"xro-agent-backend","stack":"Error: socket hang up\n    at TLSSocket.socketCloseListener (node:_http_client:477:27)\n    at TLSSocket.emit (node:events:536:35)\n    at node:net:343:12\n    at TCP.done (node:_tls_wrap:665:7)","timestamp":"2026-05-24 18:41:44"}
+{"body":"{\"error\":{\"message\":\"Invalid tool schema: 'any' is not valid under any of the given schemas\",\"type\":\"BadRequestError\",\"param\":null,\"code\":400}}","level":"error","message":"NIM HTTP error","service":"xro-agent-backend","status":400,"timestamp":"2026-05-24 19:40:06"}
+{"error":"NIM error 400: {\"error\":{\"message\":\"Invalid tool schema: 'any' is not valid under any of the given schemas\",\"type\":\"BadRequestError\",\"param\":null,\"code\":400}}","level":"error","message":"Orchestration fatal","service":"xro-agent-backend","timestamp":"2026-05-24 19:40:06"}
+{"error":"invalid input syntax for type uuid: \"1\"","level":"error","message":"Database query error","params":["7fa77300-2e37-46f6-a14b-703b62fb6a82",1,"hi what is 2+2?",null],"query":"INSERT INTO conversations (id, user_id, title, description, created_at, updated_at)\n       VALUES ($","service":"xro-agent-backend","timestamp":"2026-05-25 07:06:25"}
+{"error":"invalid input syntax for type uuid: \"1\"","level":"error","message":"Chat setup failed","service":"xro-agent-backend","timestamp":"2026-05-25 07:06:25"}
+{"body":"{\"error\":{\"object\":\"error\",\"message\":\"Internal server error: unhashable type: 'dict'\",\"type\":\"InternalServerError\",\"param\":null,\"code\":500}}","level":"error","message":"NIM HTTP error","service":"xro-agent-backend","status":500,"timestamp":"2026-05-25 07:41:34"}
+{"error":"NIM error 500: {\"error\":{\"object\":\"error\",\"message\":\"Internal server error: unhashable type: 'dict'\",\"type\":\"InternalServerError\",\"param\":null,\"code\":500}}","level":"error","message":"Orchestration fatal","service":"xro-agent-backend","timestamp":"2026-05-25 07:41:34"}
+{"body":"{\"error\":{\"object\":\"error\",\"message\":\"Internal server error: unhashable type: 'dict'\",\"type\":\"InternalServerError\",\"param\":null,\"code\":500}}","level":"error","message":"NIM HTTP error","service":"xro-agent-backend","status":500,"timestamp":"2026-05-25 07:45:58"}
+{"error":"NIM error 500: {\"error\":{\"object\":\"error\",\"message\":\"Internal server error: unhashable type: 'dict'\",\"type\":\"InternalServerError\",\"param\":null,\"code\":500}}","level":"error","message":"Orchestration fatal","service":"xro-agent-backend","timestamp":"2026-05-25 07:45:58"}
+{"body":"{\"error\":{\"object\":\"error\",\"message\":\"Internal server error: unhashable type: 'dict'\",\"type\":\"InternalServerError\",\"param\":null,\"code\":500}}","level":"error","message":"NIM HTTP error","service":"xro-agent-backend","status":500,"timestamp":"2026-05-25 07:46:15"}
+{"error":"NIM error 500: {\"error\":{\"object\":\"error\",\"message\":\"Internal server error: unhashable type: 'dict'\",\"type\":\"InternalServerError\",\"param\":null,\"code\":500}}","level":"error","message":"Orchestration fatal","service":"xro-agent-backend","timestamp":"2026-05-25 07:46:15"}
+{"body":"{\"error\":{\"object\":\"error\",\"message\":\"Internal server error: unhashable type: 'dict'\",\"type\":\"InternalServerError\",\"param\":null,\"code\":500}}","level":"error","message":"NIM HTTP error","service":"xro-agent-backend","status":500,"timestamp":"2026-05-25 07:46:30"}
+{"error":"NIM error 500: {\"error\":{\"object\":\"error\",\"message\":\"Internal server error: unhashable type: 'dict'\",\"type\":\"InternalServerError\",\"param\":null,\"code\":500}}","level":"error","message":"Orchestration fatal","service":"xro-agent-backend","timestamp":"2026-05-25 07:46:30"}
+{"body":"{\"error\":{\"object\":\"error\",\"message\":\"Internal server error: unhashable type: 'dict'\",\"type\":\"InternalServerError\",\"param\":null,\"code\":500}}","level":"error","message":"NIM HTTP error","service":"xro-agent-backend","status":500,"timestamp":"2026-05-25 07:47:34"}
+{"error":"NIM error 500: {\"error\":{\"object\":\"error\",\"message\":\"Internal server error: unhashable type: 'dict'\",\"type\":\"InternalServerError\",\"param\":null,\"code\":500}}","level":"error","message":"Orchestration fatal","service":"xro-agent-backend","timestamp":"2026-05-25 07:47:34"}
+{"error":"Cannot read properties of undefined (reading 'refreshToken')","level":"error","message":"Unhandled error","path":"/api/auth/refresh","service":"xro-agent-backend","timestamp":"2026-05-25 07:52:38"}
+{"error":"Cannot read properties of undefined (reading 'refreshToken')","level":"error","message":"Unhandled error","path":"/api/auth/refresh","service":"xro-agent-backend","timestamp":"2026-05-25 07:52:38"}
+{"error":"Cannot read properties of undefined (reading 'refreshToken')","level":"error","message":"Unhandled error","path":"/api/auth/refresh","service":"xro-agent-backend","timestamp":"2026-05-25 07:52:38"}
+{"error":"Cannot read properties of undefined (reading 'refreshToken')","level":"error","message":"Unhandled error","path":"/api/auth/refresh","service":"xro-agent-backend","timestamp":"2026-05-25 07:52:38"}
+{"error":"Validation error: \"email\" must be a valid email","level":"error","message":"Unhandled error","path":"/api/auth/login","service":"xro-agent-backend","timestamp":"2026-05-25 08:00:06"}
+{"error":"Cannot read properties of undefined (reading 'refreshToken')","level":"error","message":"Unhandled error","path":"/api/auth/refresh","service":"xro-agent-backend","timestamp":"2026-05-25 08:21:47"}
+{"error":"Cannot read properties of undefined (reading 'refreshToken')","level":"error","message":"Unhandled error","path":"/api/auth/refresh","service":"xro-agent-backend","timestamp":"2026-05-25 08:21:47"}
+{"error":"new row for relation \"messages\" violates check constraint \"messages_role_check\"","level":"error","message":"Database query error","params":["bf4c92b7-e4c5-4566-aec0-ceb6e172302f","6c4a6af2-cad6-409c-94f6-63548d1f775d","assistant","Hello! How can I help you today?","{}","[]","[]"],"query":"INSERT INTO messages (id, conversation_id, role, content, metadata, reasoning_steps, tool_calls, cre","service":"xro-agent-backend","timestamp":"2026-05-25 08:22:23"}
+{"error":"new row for relation \"messages\" violates check constraint \"messages_role_check\"","level":"error","message":"Database query error","params":["aaa089da-46ad-4c72-9fce-d4aeeef87bdd","60899e5b-1eb5-4e3d-8205-64d2c56bf1db","assistant","Hello! How can I help you today?","{}","[]","[]"],"query":"INSERT INTO messages (id, conversation_id, role, content, metadata, reasoning_steps, tool_calls, cre","service":"xro-agent-backend","timestamp":"2026-05-25 08:29:04"}
+{"error":"Cannot read properties of undefined (reading 'refreshToken')","level":"error","message":"Unhandled error","path":"/api/auth/refresh","service":"xro-agent-backend","timestamp":"2026-05-25 08:37:56"}
+{"error":"new row for relation \"messages\" violates check constraint \"messages_role_check\"","level":"error","message":"Database query error","params":["119be8b9-9c5a-481d-88e4-e8ccfa9307ad","6c4a6af2-cad6-409c-94f6-63548d1f775d","assistant","Hello! How can I assist you today? I have access to various tools for text processing, calculations, web requests, and more. What would you like me to help you with?","{}","[]","[]"],"query":"INSERT INTO messages (id, conversation_id, role, content, metadata, reasoning_steps, tool_calls, cre","service":"xro-agent-backend","timestamp":"2026-05-25 08:38:35"}
+{"level":"error","message":"NewsApiTool failed: Request failed with status code 404","service":"xro-agent-backend","timestamp":"2026-05-25 09:07:52"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:33"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:33"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:33"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:33"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:33"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:35"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:36"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:36"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:36"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:36"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:36"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:37"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:37"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:37"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:37"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:37"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:38"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:40"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:40"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:40"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:40"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:40"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:43"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:43"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:43"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:43"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:43"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:49"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:50"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:50"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:50"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:50"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:50"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:54"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:54"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:54"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:54"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:54"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:40:58"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:00"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:00"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:00"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:00"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:00"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:03"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:03"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:03"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:03"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:03"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:41:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:42:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:42:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:42:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:42:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:42:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:42:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:42:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:42:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:42:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:42:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:42:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:42:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:42:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:42:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:42:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:43:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:43:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:43:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:43:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:43:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:43:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:43:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:43:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:43:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:43:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:43:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:43:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:43:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:43:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:43:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:44:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:44:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:44:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:44:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:44:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:44:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:44:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:44:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:44:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:44:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:44:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:44:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:44:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:44:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:44:51"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:11"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:26"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:27"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:27"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:27"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:27"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:27"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:28"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:28"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:28"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:28"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:28"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:31"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:59"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:59"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:59"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:59"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:45:59"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:46:19"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:46:19"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:46:19"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:46:19"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:46:19"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:46:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:46:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:46:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:46:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:46:39"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveAgentExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:46:59"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveToolExecution]","service":"xro-agent-backend","timestamp":"2026-05-25 09:46:59"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveMessage]","service":"xro-agent-backend","timestamp":"2026-05-25 09:46:59"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [saveConversation]","service":"xro-agent-backend","timestamp":"2026-05-25 09:46:59"}
+{"error":"connect ECONNREFUSED 127.0.0.1:6379","level":"error","message":"Bull queue error [updateSession]","service":"xro-agent-backend","timestamp":"2026-05-25 09:46:59"}
+{"level":"error","message":"ReadFileTool failed: ENOENT: no such file or directory, open '/home/sandbox/test.txt'","service":"xro-agent-backend","timestamp":"2026-05-25 10:16:43"}
+{"level":"error","message":"ListDirTool failed: p is not defined","service":"xro-agent-backend","timestamp":"2026-05-25 10:17:12"}
+{"level":"error","message":"ListDirTool failed: ENOENT: no such file or directory, scandir '/home/sandbox'","service":"xro-agent-backend","timestamp":"2026-05-25 10:17:31"}
+{"level":"error","message":"ListDirTool failed: p is not defined","service":"xro-agent-backend","timestamp":"2026-05-25 10:17:53"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveMessage (user) failed","service":"xro-agent-backend","timestamp":"2026-05-25 10:35:03"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveConversation failed","service":"xro-agent-backend","timestamp":"2026-05-25 10:35:03"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveMessage (user) failed","service":"xro-agent-backend","timestamp":"2026-05-25 10:40:31"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveMessage (user) failed","service":"xro-agent-backend","timestamp":"2026-05-25 10:40:31"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveConversation failed","service":"xro-agent-backend","timestamp":"2026-05-25 10:40:31"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveConversation failed","service":"xro-agent-backend","timestamp":"2026-05-25 10:40:31"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveMessage (user) failed","service":"xro-agent-backend","timestamp":"2026-05-25 10:56:07"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveMessage (user) failed","service":"xro-agent-backend","timestamp":"2026-05-25 10:56:07"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveMessage (user) failed","service":"xro-agent-backend","timestamp":"2026-05-25 10:56:07"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveConversation failed","service":"xro-agent-backend","timestamp":"2026-05-25 10:56:07"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveConversation failed","service":"xro-agent-backend","timestamp":"2026-05-25 10:56:07"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveConversation failed","service":"xro-agent-backend","timestamp":"2026-05-25 10:56:07"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveMessage (user) failed","service":"xro-agent-backend","timestamp":"2026-05-25 11:00:35"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveMessage (user) failed","service":"xro-agent-backend","timestamp":"2026-05-25 11:00:35"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveConversation failed","service":"xro-agent-backend","timestamp":"2026-05-25 11:00:35"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveConversation failed","service":"xro-agent-backend","timestamp":"2026-05-25 11:00:35"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveMessage (user) failed","service":"xro-agent-backend","timestamp":"2026-05-25 11:05:16"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveMessage (user) failed","service":"xro-agent-backend","timestamp":"2026-05-25 11:05:16"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveMessage (user) failed","service":"xro-agent-backend","timestamp":"2026-05-25 11:05:16"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveConversation failed","service":"xro-agent-backend","timestamp":"2026-05-25 11:05:16"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveConversation failed","service":"xro-agent-backend","timestamp":"2026-05-25 11:05:16"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveConversation failed","service":"xro-agent-backend","timestamp":"2026-05-25 11:05:16"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveMessage (user) failed","service":"xro-agent-backend","timestamp":"2026-05-25 18:04:37"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveMessage (user) failed","service":"xro-agent-backend","timestamp":"2026-05-25 18:04:37"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveConversation failed","service":"xro-agent-backend","timestamp":"2026-05-25 18:04:37"}
+{"error":"Reached the max retries per request limit (which is 20). Refer to \"maxRetriesPerRequest\" option for details.","level":"error","message":"Queue saveConversation failed","service":"xro-agent-backend","timestamp":"2026-05-25 18:04:37"}
+{"error":"Invalid email or password","level":"error","message":"Unhandled error","path":"/api/auth/login","service":"xro-agent-backend","timestamp":"2026-05-25 23:35:32"}
+{"error":"{\"error\":{\"message\":\"1 validation error:\\n  {'type': 'list_type', 'loc': ('body', 'tools'), 'msg': 'Input should be a valid list', 'input': False}\\n\\n  File \\\"/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/utils.py\\\", line 35, in create_chat_completion\\n    POST /v1/chat/completions [{'type': 'list_type', 'loc': ('body', 'tools'), 'msg': 'Input should be a valid list', 'input': False}]\",\"type\":\"Bad Request\",\"param\":null,\"code\":400}}","level":"error","message":"NIM API error","service":"xro-agent-backend","status":400,"timestamp":"2026-05-26 00:09:57"}
+{"error":"{\"error\":{\"message\":\"1 validation error:\\n  {'type': 'list_type', 'loc': ('body', 'tools'), 'msg': 'Input should be a valid list', 'input': False}\\n\\n  File \\\"/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/utils.py\\\", line 35, in create_chat_completion\\n    POST /v1/chat/completions [{'type': 'list_type', 'loc': ('body', 'tools'), 'msg': 'Input should be a valid list', 'input': False}]\",\"type\":\"Bad Request\",\"param\":null,\"code\":400}}","level":"error","message":"NIM API error","service":"xro-agent-backend","status":400,"timestamp":"2026-05-26 00:10:43"}
+{"level":"error","message":"ExchangeRateTool failed: Request failed with status code 404","service":"xro-agent-backend","timestamp":"2026-05-26 01:33:41"}
+{"level":"error","message":"ExchangeRateTool failed: Request failed with status code 404","service":"xro-agent-backend","timestamp":"2026-05-26 01:33:43"}
+{"level":"error","message":"ExchangeRateTool failed: Request failed with status code 404","service":"xro-agent-backend","timestamp":"2026-05-26 01:33:45"}
+{"error":"insert or update on table \"messages\" violates foreign key constraint \"messages_conversation_id_fkey\"","level":"error","message":"Direct job [saveMessage] failed","service":"xro-agent-backend","timestamp":"2026-05-26 12:06:38"}
+{"error":"insert or update on table \"messages\" violates foreign key constraint \"messages_conversation_id_fkey\"","level":"error","message":"Direct job [saveMessage] failed","service":"xro-agent-backend","timestamp":"2026-05-26 12:06:41"}
+{"error":"invalid input syntax for type uuid: \"test-user\"","level":"error","message":"Direct job [saveConversation] failed","service":"xro-agent-backend","timestamp":"2026-05-26 12:06:42"}
+{"error":"insert or update on table \"messages\" violates foreign key constraint \"messages_conversation_id_fkey\"","level":"error","message":"Direct job [saveMessage] failed","service":"xro-agent-backend","timestamp":"2026-05-26 12:07:17"}
+{"error":"insert or update on table \"messages\" violates foreign key constraint \"messages_conversation_id_fkey\"","level":"error","message":"Direct job [saveMessage] failed","service":"xro-agent-backend","timestamp":"2026-05-26 12:25:36"}
+{"error":"insert or update on table \"messages\" violates foreign key constraint \"messages_conversation_id_fkey\"","level":"error","message":"Direct job [saveMessage] failed","service":"xro-agent-backend","timestamp":"2026-05-26 12:25:38"}
+{"email":"test@test.com","error":"Email already registered","level":"error","message":"Registration failed","service":"xro-agent-backend","timestamp":"2026-05-26 13:00:12"}
+{"error":"Email already registered","level":"error","message":"Unhandled error","path":"/api/auth/register","service":"xro-agent-backend","timestamp":"2026-05-26 13:00:12"}
+{"level":"error","message":"DictionaryTool failed: Request failed with status code 404","service":"xro-agent-backend","timestamp":"2026-05-26 13:14:16"}

@@ -1,6 +1,6 @@
-// Agent types
+// Agent and assistant types
 const AGENT_TYPES = {
-  MAIN: 'main',
+  AGENT: 'agent',
   WEB: 'web',
   CODE: 'code',
   DATABASE: 'database',
@@ -39,26 +39,26 @@ const TOOL_TYPES = {
   JSON_PARSER: 'json_parser',
   TIMER: 'timer',
 
-  // Web Agent
+  // Web Assistant
   BROWSER: 'browser',
   DOM_PARSER: 'dom_parser',
   HTTP_CLIENT: 'http_client',
   COOKIE_MANAGER: 'cookie_manager',
   FORM_SUBMISSION: 'form_submission',
 
-  // Code Agent
+  // Code Assistant
   CODE_EXECUTOR: 'code_executor',
   SYNTAX_VALIDATOR: 'syntax_validator',
   CODE_ANALYZER: 'code_analyzer',
   DEBUGGER: 'debugger',
 
-  // Database Agent
+  // Database Assistant
   QUERY_BUILDER: 'query_builder',
   SCHEMA_ANALYZER: 'schema_analyzer',
   TRANSACTION: 'transaction',
   DATA_TRANSFORM: 'data_transform',
 
-  // Search Agent
+  // Search Assistant
   MULTI_SOURCE_SEARCH: 'multi_source_search',
   INFO_SYNTHESIS: 'info_synthesis',
   SOURCE_TRACKER: 'source_tracker',

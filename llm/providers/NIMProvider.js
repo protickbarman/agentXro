@@ -22,6 +22,8 @@ class NIMProvider extends BaseProvider {
     this.baseUrl = config.baseUrl;
     this.client = null;
     this._loggedDeltaStructure = false;
+    this.reasoningBudget = config.reasoningBudget || 16384;
+    this.enableThinking = config.enableThinking !== false;
   }
 
   /**
@@ -100,15 +102,17 @@ class NIMProvider extends BaseProvider {
     try {
       const { onReasoning, onChunk, ...nimOptions } = options;
 
-      // Build messages array — content can be string OR array (multimodal)
-      const messages = [
-        ...conversationHistory.map(msg => {
-          const role = msg.role || 'user';
-          let content = msg.content || msg;
-          return { role, content };
-        }),
-        { role: 'user', content: prompt },
-      ];
+      // Build messages array — support pre-built messages or prompt+history
+      const messages = nimOptions.messages && nimOptions.messages.length
+        ? nimOptions.messages
+        : [
+            ...conversationHistory.map(msg => {
+              const role = msg.role || 'user';
+              let content = msg.content || msg;
+              return { role, content };
+            }),
+            { role: 'user', content: prompt },
+          ];
 
       // Prepare request payload
       const payload = {
@@ -120,7 +124,7 @@ class NIMProvider extends BaseProvider {
         stream: nimOptions.stream ?? false,
       };
       // Pass through supported NIM API options
-      for (const key of ['chat_template_kwargs', 'stop', 'frequency_penalty', 'presence_penalty', 'seed', 'tools', 'tool_choice']) {
+      for (const key of ['reasoning_budget', 'chat_template_kwargs', 'stop', 'frequency_penalty', 'presence_penalty', 'seed', 'tools', 'tool_choice']) {
         if (nimOptions[key] !== undefined) payload[key] = nimOptions[key];
       }
 
@@ -219,45 +223,74 @@ class NIMProvider extends BaseProvider {
 
       let fullContent = '';
       let reasoningContent = '';
+      let toolCalls = [];
+      let remainder = '';
 
+      outerLoop:
       for await (const chunk of response) {
-        const text = chunk.toString('utf-8');
-        const lines = text.split('\n');
+        const text = remainder + chunk.toString('utf-8');
+
+        const lastNewline = text.lastIndexOf('\n');
+        if (lastNewline === -1) {
+          remainder = text;
+          continue;
+        }
+        remainder = text.slice(lastNewline + 1);
+        const completeChunk = text.slice(0, lastNewline);
+
+        const lines = completeChunk.split('\n');
         for (const line of lines) {
           const trimmed = line.trim();
           if (!trimmed || !trimmed.startsWith('data: ')) continue;
           const jsonStr = trimmed.slice(6);
-          if (jsonStr === '[DONE]') break;
+          if (jsonStr === '[DONE]') break outerLoop;
 
           try {
             const parsed = JSON.parse(jsonStr);
             const delta = parsed.choices?.[0]?.delta || {};
 
-            // Log structure of first non-empty delta to understand API format
-            if (delta && Object.keys(delta).length > 0 && !this._loggedDeltaStructure) {
-              this._loggedDeltaStructure = true;
-              logger.debug('NIM SSE delta structure', { keys: Object.keys(delta), sample: JSON.stringify(delta).substring(0, 300) });
+            if (delta.content) fullContent += delta.content;
+            if (delta.reasoning_content) reasoningContent += delta.reasoning_content;
+            if (delta.tool_calls) {
+              for (const tc of delta.tool_calls) {
+                const existing = toolCalls.find(t => t.index === tc.index);
+                if (existing) {
+                  if (tc.function?.name) existing.function.name += tc.function.name;
+                  if (tc.function?.arguments) existing.function.arguments += tc.function.arguments;
+                } else {
+                  toolCalls.push({ index: tc.index, id: tc.id, type: tc.type, function: { name: tc.function?.name || '', arguments: tc.function?.arguments || '' } });
+                }
+              }
             }
 
-            // Try standard content field, fallback to other common fields
-            const chunkContent = delta.content || delta.text || delta.message?.content || '';
-            if (chunkContent) {
-              fullContent += chunkContent;
-              if (onChunk) onChunk(chunkContent);
-            }
-            if (delta.reasoning_content) {
-              reasoningContent += delta.reasoning_content;
-              if (onReasoning) onReasoning(delta.reasoning_content);
-            }
+            if (onChunk) onChunk(delta);
           } catch (e) {
-            logger.debug('Failed to parse SSE line', { preview: trimmed.substring(0, 120), error: e.message });
+            logger.warn('Failed to parse SSE line', { preview: trimmed.substring(0, 120), error: e.message });
+          }
+        }
+      }
+
+      if (remainder) {
+        const trimmed = remainder.trim();
+        if (trimmed && trimmed.startsWith('data: ')) {
+          const jsonStr = trimmed.slice(6);
+          if (jsonStr !== '[DONE]') {
+            try {
+              const parsed = JSON.parse(jsonStr);
+              const delta = parsed.choices?.[0]?.delta || {};
+              if (delta.content) fullContent += delta.content;
+              if (delta.reasoning_content) reasoningContent += delta.reasoning_content;
+              if (onChunk) onChunk(delta);
+            } catch (e) {
+              logger.debug('Failed to parse trailing SSE line', { preview: trimmed.substring(0, 120), error: e.message });
+            }
           }
         }
       }
 
       const finalContent = fullContent || (reasoningContent ? `[Thinking] ${reasoningContent}` : '');
 
-      if (!finalContent) {
+      if (!finalContent && !toolCalls.length) {
         logger.warn('NIM streaming accumulated empty content', {
           fullContentLength: fullContent.length,
           reasoningContentLength: reasoningContent.length,
@@ -268,17 +301,28 @@ class NIMProvider extends BaseProvider {
       const tokensUsed = this.countTokens(prompt + finalContent);
 
       return {
-        ...this.formatResponse(finalContent, { tokensUsed, finishReason: 'stop' }),
+        content: finalContent,
+        reasoningContent,
+        toolCalls,
+        tokensUsed,
+        finishReason: toolCalls.length ? 'tool_calls' : 'stop',
         id: `chatcmpl-${Date.now()}`,
         object: 'chat.completion',
         created: Math.floor(Date.now() / 1000),
         choices: [{
           index: 0,
-          message: { role: 'agent', content: finalContent },
-          finish_reason: 'stop',
+          message: {
+            role: 'agent',
+            content: finalContent || null,
+            tool_calls: toolCalls.length > 0 ? toolCalls.map(tc => ({
+              id: tc.id || `call_${Date.now()}_${tc.index}`,
+              type: 'function',
+              function: { name: tc.function.name, arguments: tc.function.arguments },
+            })) : undefined,
+          },
+          finish_reason: toolCalls.length ? 'tool_calls' : 'stop',
         }],
         usage: { prompt_tokens: 0, completion_tokens: tokensUsed, total_tokens: tokensUsed },
-        reasoningContent,
       };
     } catch (error) {
       logger.error('NVIDIA NIM streaming failed, falling back to non-streaming', { error: error.message });
@@ -290,6 +334,12 @@ class NIMProvider extends BaseProvider {
       if (reasoning && onReasoning) onReasoning(reasoning);
 
       const finalContent = content || (reasoning ? `[Thinking] ${reasoning}` : '');
+
+      // Emit via onChunk so WS clients get content even in fallback path
+      if (finalContent && onChunk) {
+        onChunk(finalContent);
+      }
+
       const tokensUsed = raw.usage?.total_tokens || this.countTokens(prompt + finalContent);
       return {
         ...this.formatResponse(finalContent, {

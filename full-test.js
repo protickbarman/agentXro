@@ -77,13 +77,13 @@ class TestSuite {
     console.log('-'.repeat(60));
     await this.test('Health check', 'GET', '/health', null, 200);
 
-    // 2. Agent Tests
-    console.log('\n📋 2. AGENT TESTS');
+    // 2. Agent & Assistant Tests
+    console.log('\n📋 2. AGENT & ASSISTANT TESTS');
     console.log('-'.repeat(60));
-    await this.test('List all agents', 'GET', '/api/agents', null, 200);
-    await this.test('Get agent stats', 'GET', '/api/agents/stats', null, 200);
-    await this.test('Get main agent', 'GET', '/api/agents/main', null, 200);
-    await this.test('Get nonexistent agent', 'GET', '/api/agents/fake', null, 404);
+    await this.test('List all assistants', 'GET', '/api/assistants', null, 200);
+    await this.test('Get agent stats', 'GET', '/api/agent/stats', null, 200);
+    await this.test('Get the agent', 'GET', '/api/agent', null, 200);
+    await this.test('Get nonexistent assistant', 'GET', '/api/assistants/fake', null, 404);
 
     // 3. Tools Tests
     console.log('\n📋 3. TOOLS TESTS');
@@ -148,7 +148,7 @@ class TestSuite {
     console.log('-'.repeat(60));
 
     if (this.tokens.access) {
-      await this.test('Get agent analytics', 'GET', '/api/analytics/agents', null, 200);
+      await this.test('Get agent analytics', 'GET', '/api/analytics/agent', null, 200);
       await this.test('Get usage analytics', 'GET', '/api/analytics/usage', null, 200);
     } else {
       this.log('Analytics requires auth token', 'warn');

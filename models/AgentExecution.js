@@ -18,7 +18,7 @@ class AgentExecution {
     status,
     complexityLevel,
     decisionReason,
-    subAgentsInvolved,
+    assistantsInvolved,
     executionTime,
     tokensUsed,
     llmProvider,
@@ -44,9 +44,9 @@ class AgentExecution {
       updates.push(`decision_reason = $${paramNum++}`);
       params.push(decisionReason);
     }
-    if (subAgentsInvolved !== undefined) {
+    if (assistantsInvolved !== undefined) {
       updates.push(`sub_agents_involved = $${paramNum++}`);
-      params.push(JSON.stringify(subAgentsInvolved));
+      params.push(JSON.stringify(assistantsInvolved));
     }
     if (executionTime !== undefined) {
       updates.push(`execution_time_ms = $${paramNum++}`);

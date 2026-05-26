@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../services/api.js';
 import { useAuthStore } from '../store/authStore.js';
-import { ws } from '../services/ws.js';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -18,7 +17,6 @@ export default function LoginPage() {
     try {
       const data = await login(form.email, form.password);
       setAuth(data.user, data.accessToken);
-      ws.connect();
       navigate('/new', { replace: true });
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Invalid email or password');

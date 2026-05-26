@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1779514462676" clover="3.2.0">
-  <project timestamp="1779514462676" name="All files">
-    <metrics statements="2524" coveredstatements="121" conditionals="1270" coveredconditionals="32" methods="414" coveredmethods="25" elements="4208" coveredelements="178" complexity="0" loc="2524" ncloc="2524" packages="16" files="56" classes="56"/>
+<coverage generated="1779643967060" clover="3.2.0">
+  <project timestamp="1779643967060" name="All files">
+    <metrics statements="2695" coveredstatements="121" conditionals="1329" coveredconditionals="32" methods="466" coveredmethods="25" elements="4490" coveredelements="178" complexity="0" loc="2695" ncloc="2695" packages="16" files="59" classes="59"/>
     <package name="agents">
       <metrics statements="28" coveredstatements="18" conditionals="8" coveredconditionals="3" methods="12" coveredmethods="6"/>
-      <file name="AgentRegistry.js" path="/home/xro/Desktop/Xro Agent/agents/AgentRegistry.js">
+      <file name="AgentRegistry.js" path="/home/runner/workspace/agents/AgentRegistry.js">
         <metrics statements="28" coveredstatements="18" conditionals="8" coveredconditionals="3" methods="12" coveredmethods="6"/>
         <line num="1" count="1" type="stmt"/>
         <line num="9" count="1" type="stmt"/>
@@ -36,9 +36,164 @@
         <line num="123" count="1" type="stmt"/>
       </file>
     </package>
+    <package name="agents.agent">
+      <metrics statements="146" coveredstatements="0" conditionals="103" coveredconditionals="0" methods="14" coveredmethods="0"/>
+      <file name="Agent.js" path="/home/runner/workspace/agents/agent/Agent.js">
+        <metrics statements="139" coveredstatements="0" conditionals="103" coveredconditionals="0" methods="13" coveredmethods="0"/>
+        <line num="1" count="0" type="stmt"/>
+        <line num="2" count="0" type="stmt"/>
+        <line num="3" count="0" type="stmt"/>
+        <line num="4" count="0" type="stmt"/>
+        <line num="8" count="0" type="stmt"/>
+        <line num="9" count="0" type="stmt"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="21" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="38" count="0" type="cond" truecount="0" falsecount="1"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="54" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="60" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="66" count="0" type="stmt"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="82" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="83" count="0" type="stmt"/>
+        <line num="92" count="0" type="stmt"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="98" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="99" count="0" type="stmt"/>
+        <line num="100" count="0" type="stmt"/>
+        <line num="101" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="103" count="0" type="cond" truecount="0" falsecount="6"/>
+        <line num="104" count="0" type="stmt"/>
+        <line num="107" count="0" type="stmt"/>
+        <line num="109" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="110" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="111" count="0" type="stmt"/>
+        <line num="113" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="114" count="0" type="stmt"/>
+        <line num="116" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="117" count="0" type="stmt"/>
+        <line num="119" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="120" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="121" count="0" type="stmt"/>
+        <line num="123" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="124" count="0" type="stmt"/>
+        <line num="126" count="0" type="stmt"/>
+        <line num="130" count="0" type="stmt"/>
+        <line num="131" count="0" type="stmt"/>
+        <line num="132" count="0" type="stmt"/>
+        <line num="133" count="0" type="stmt"/>
+        <line num="134" count="0" type="stmt"/>
+        <line num="135" count="0" type="stmt"/>
+        <line num="136" count="0" type="stmt"/>
+        <line num="138" count="0" type="stmt"/>
+        <line num="139" count="0" type="stmt"/>
+        <line num="140" count="0" type="stmt"/>
+        <line num="141" count="0" type="stmt"/>
+        <line num="143" count="0" type="stmt"/>
+        <line num="144" count="0" type="stmt"/>
+        <line num="146" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="155" count="0" type="stmt"/>
+        <line num="156" count="0" type="stmt"/>
+        <line num="157" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="158" count="0" type="stmt"/>
+        <line num="159" count="0" type="stmt"/>
+        <line num="162" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="163" count="0" type="stmt"/>
+        <line num="164" count="0" type="stmt"/>
+        <line num="166" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="167" count="0" type="stmt"/>
+        <line num="168" count="0" type="stmt"/>
+        <line num="170" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="171" count="0" type="stmt"/>
+        <line num="172" count="0" type="stmt"/>
+        <line num="174" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="175" count="0" type="stmt"/>
+        <line num="176" count="0" type="stmt"/>
+        <line num="179" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="180" count="0" type="stmt"/>
+        <line num="181" count="0" type="stmt"/>
+        <line num="184" count="0" type="stmt"/>
+        <line num="201" count="0" type="stmt"/>
+        <line num="202" count="0" type="stmt"/>
+        <line num="212" count="0" type="stmt"/>
+        <line num="213" count="0" type="stmt"/>
+        <line num="215" count="0" type="stmt"/>
+        <line num="222" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="223" count="0" type="stmt"/>
+        <line num="234" count="0" type="stmt"/>
+        <line num="247" count="0" type="stmt"/>
+        <line num="248" count="0" type="stmt"/>
+        <line num="253" count="0" type="stmt"/>
+        <line num="254" count="0" type="stmt"/>
+        <line num="258" count="0" type="stmt"/>
+        <line num="260" count="0" type="stmt"/>
+        <line num="261" count="0" type="stmt"/>
+        <line num="262" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="263" count="0" type="stmt"/>
+        <line num="264" count="0" type="stmt"/>
+        <line num="267" count="0" type="stmt"/>
+        <line num="269" count="0" type="stmt"/>
+        <line num="270" count="0" type="stmt"/>
+        <line num="278" count="0" type="stmt"/>
+        <line num="280" count="0" type="stmt"/>
+        <line num="286" count="0" type="stmt"/>
+        <line num="290" count="0" type="stmt"/>
+        <line num="292" count="0" type="stmt"/>
+        <line num="300" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="301" count="0" type="stmt"/>
+        <line num="307" count="0" type="stmt"/>
+        <line num="317" count="0" type="stmt"/>
+        <line num="319" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="320" count="0" type="stmt"/>
+        <line num="321" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="322" count="0" type="stmt"/>
+        <line num="331" count="0" type="stmt"/>
+        <line num="333" count="0" type="stmt"/>
+        <line num="341" count="0" type="stmt"/>
+        <line num="342" count="0" type="stmt"/>
+        <line num="347" count="0" type="stmt"/>
+        <line num="348" count="0" type="stmt"/>
+        <line num="349" count="0" type="stmt"/>
+        <line num="351" count="0" type="stmt"/>
+        <line num="352" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="353" count="0" type="cond" truecount="0" falsecount="3"/>
+        <line num="354" count="0" type="stmt"/>
+        <line num="356" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="357" count="0" type="stmt"/>
+        <line num="361" count="0" type="stmt"/>
+        <line num="363" count="0" type="stmt"/>
+        <line num="364" count="0" type="stmt"/>
+        <line num="369" count="0" type="stmt"/>
+        <line num="386" count="0" type="stmt"/>
+      </file>
+      <file name="config.js" path="/home/runner/workspace/agents/agent/config.js">
+        <metrics statements="7" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="1" count="0" type="stmt"/>
+        <line num="5" count="0" type="stmt"/>
+        <line num="6" count="0" type="stmt"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="8" count="0" type="stmt"/>
+        <line num="9" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+      </file>
+    </package>
     <package name="agents.base">
       <metrics statements="37" coveredstatements="0" conditionals="10" coveredconditionals="0" methods="15" coveredmethods="0"/>
-      <file name="Agent.js" path="/home/xro/Desktop/Xro Agent/agents/base/Agent.js">
+      <file name="AgentBase.js" path="/home/runner/workspace/agents/base/AgentBase.js">
         <metrics statements="23" coveredstatements="0" conditionals="3" coveredconditionals="0" methods="11" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -64,7 +219,7 @@
         <line num="110" count="0" type="stmt"/>
         <line num="119" count="0" type="stmt"/>
       </file>
-      <file name="AgentConfig.js" path="/home/xro/Desktop/Xro Agent/agents/base/AgentConfig.js">
+      <file name="AgentConfigBase.js" path="/home/runner/workspace/agents/base/AgentConfigBase.js">
         <metrics statements="14" coveredstatements="0" conditionals="7" coveredconditionals="0" methods="4" coveredmethods="0"/>
         <line num="7" count="0" type="stmt"/>
         <line num="8" count="0" type="stmt"/>
@@ -83,9 +238,9 @@
       </file>
     </package>
     <package name="agents.code">
-      <metrics statements="55" coveredstatements="0" conditionals="26" coveredconditionals="0" methods="7" coveredmethods="0"/>
-      <file name="CodeAgent.js" path="/home/xro/Desktop/Xro Agent/agents/code/CodeAgent.js">
-        <metrics statements="48" coveredstatements="0" conditionals="26" coveredconditionals="0" methods="6" coveredmethods="0"/>
+      <metrics statements="60" coveredstatements="0" conditionals="33" coveredconditionals="0" methods="9" coveredmethods="0"/>
+      <file name="CodeAssistant.js" path="/home/runner/workspace/agents/code/CodeAssistant.js">
+        <metrics statements="53" coveredstatements="0" conditionals="33" coveredconditionals="0" methods="8" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
         <line num="3" count="0" type="stmt"/>
@@ -99,43 +254,48 @@
         <line num="17" count="0" type="stmt"/>
         <line num="18" count="0" type="stmt"/>
         <line num="19" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="23" count="0" type="stmt"/>
+        <line num="23" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="24" count="0" type="stmt"/>
-        <line num="26" count="0" type="stmt"/>
-        <line num="27" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="28" count="0" type="stmt"/>
-        <line num="30" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="47" count="0" type="stmt"/>
-        <line num="53" count="0" type="stmt"/>
-        <line num="54" count="0" type="stmt"/>
-        <line num="56" count="0" type="stmt"/>
-        <line num="57" count="0" type="stmt"/>
-        <line num="60" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="61" count="0" type="stmt"/>
-        <line num="63" count="0" type="stmt"/>
-        <line num="64" count="0" type="stmt"/>
-        <line num="65" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="67" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="71" count="0" type="stmt"/>
-        <line num="72" count="0" type="stmt"/>
-        <line num="73" count="0" type="stmt"/>
-        <line num="76" count="0" type="stmt"/>
-        <line num="78" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="36" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="42" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="67" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="68" count="0" type="stmt"/>
+        <line num="79" count="0" type="stmt"/>
+        <line num="80" count="0" type="stmt"/>
+        <line num="82" count="0" type="stmt"/>
+        <line num="83" count="0" type="stmt"/>
+        <line num="86" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="87" count="0" type="stmt"/>
+        <line num="89" count="0" type="stmt"/>
         <line num="90" count="0" type="stmt"/>
-        <line num="91" count="0" type="stmt"/>
-        <line num="96" count="0" type="stmt"/>
+        <line num="91" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="93" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="97" count="0" type="stmt"/>
-        <line num="98" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="98" count="0" type="stmt"/>
+        <line num="99" count="0" type="stmt"/>
         <line num="102" count="0" type="stmt"/>
-        <line num="103" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="104" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="105" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="106" count="0" type="stmt"/>
-        <line num="110" count="0" type="stmt"/>
-        <line num="114" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="118" count="0" type="stmt"/>
+        <line num="104" count="0" type="stmt"/>
+        <line num="116" count="0" type="stmt"/>
+        <line num="117" count="0" type="stmt"/>
+        <line num="122" count="0" type="stmt"/>
+        <line num="123" count="0" type="stmt"/>
+        <line num="124" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="128" count="0" type="stmt"/>
+        <line num="129" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="130" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="131" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="132" count="0" type="stmt"/>
+        <line num="136" count="0" type="stmt"/>
+        <line num="140" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="144" count="0" type="stmt"/>
       </file>
-      <file name="config.js" path="/home/xro/Desktop/Xro Agent/agents/code/config.js">
+      <file name="config.js" path="/home/runner/workspace/agents/code/config.js">
         <metrics statements="7" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="5" count="0" type="stmt"/>
@@ -147,53 +307,61 @@
       </file>
     </package>
     <package name="agents.database">
-      <metrics statements="49" coveredstatements="0" conditionals="13" coveredconditionals="0" methods="7" coveredmethods="0"/>
-      <file name="DatabaseAgent.js" path="/home/xro/Desktop/Xro Agent/agents/database/DatabaseAgent.js">
-        <metrics statements="42" coveredstatements="0" conditionals="13" coveredconditionals="0" methods="6" coveredmethods="0"/>
+      <metrics statements="57" coveredstatements="0" conditionals="24" coveredconditionals="0" methods="10" coveredmethods="0"/>
+      <file name="DatabaseAssistant.js" path="/home/runner/workspace/agents/database/DatabaseAssistant.js">
+        <metrics statements="50" coveredstatements="0" conditionals="24" coveredconditionals="0" methods="9" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
         <line num="3" count="0" type="stmt"/>
         <line num="4" count="0" type="stmt"/>
         <line num="5" count="0" type="stmt"/>
         <line num="6" count="0" type="stmt"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
         <line num="13" count="0" type="stmt"/>
-        <line num="14" count="0" type="stmt"/>
-        <line num="15" count="0" type="stmt"/>
-        <line num="16" count="0" type="stmt"/>
-        <line num="20" count="0" type="stmt"/>
-        <line num="21" count="0" type="stmt"/>
-        <line num="23" count="0" type="stmt"/>
-        <line num="24" count="0" type="cond" truecount="0" falsecount="1"/>
+        <line num="17" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="18" count="0" type="stmt"/>
         <line num="26" count="0" type="stmt"/>
-        <line num="33" count="0" type="stmt"/>
-        <line num="39" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="30" count="0" type="cond" truecount="0" falsecount="1"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="34" count="0" type="stmt"/>
         <line num="41" count="0" type="stmt"/>
-        <line num="42" count="0" type="stmt"/>
-        <line num="44" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="45" count="0" type="stmt"/>
-        <line num="46" count="0" type="stmt"/>
-        <line num="47" count="0" type="stmt"/>
-        <line num="49" count="0" type="stmt"/>
+        <line num="49" count="0" type="cond" truecount="0" falsecount="4"/>
         <line num="50" count="0" type="stmt"/>
-        <line num="53" count="0" type="stmt"/>
-        <line num="56" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="61" count="0" type="stmt"/>
         <line num="63" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="66" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="68" count="0" type="stmt"/>
         <line num="69" count="0" type="stmt"/>
-        <line num="70" count="0" type="stmt"/>
         <line num="71" count="0" type="stmt"/>
-        <line num="76" count="0" type="stmt"/>
+        <line num="72" count="0" type="stmt"/>
+        <line num="75" count="0" type="stmt"/>
         <line num="78" count="0" type="stmt"/>
-        <line num="89" count="0" type="stmt"/>
-        <line num="90" count="0" type="stmt"/>
-        <line num="95" count="0" type="stmt"/>
+        <line num="80" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="87" count="0" type="stmt"/>
+        <line num="95" count="0" type="cond" truecount="0" falsecount="4"/>
         <line num="96" count="0" type="stmt"/>
-        <line num="97" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="98" count="0" type="stmt"/>
-        <line num="99" count="0" type="stmt"/>
-        <line num="100" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="104" count="0" type="stmt"/>
+        <line num="107" count="0" type="stmt"/>
+        <line num="108" count="0" type="stmt"/>
+        <line num="109" count="0" type="stmt"/>
+        <line num="114" count="0" type="stmt"/>
+        <line num="116" count="0" type="stmt"/>
+        <line num="127" count="0" type="stmt"/>
+        <line num="128" count="0" type="stmt"/>
+        <line num="133" count="0" type="stmt"/>
+        <line num="134" count="0" type="stmt"/>
+        <line num="135" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="136" count="0" type="stmt"/>
+        <line num="137" count="0" type="stmt"/>
+        <line num="138" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="142" count="0" type="stmt"/>
       </file>
-      <file name="config.js" path="/home/xro/Desktop/Xro Agent/agents/database/config.js">
+      <file name="config.js" path="/home/runner/workspace/agents/database/config.js">
         <metrics statements="7" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="5" count="0" type="stmt"/>
@@ -204,223 +372,57 @@
         <line num="17" count="0" type="stmt"/>
       </file>
     </package>
-    <package name="agents.main">
-      <metrics statements="163" coveredstatements="0" conditionals="140" coveredconditionals="0" methods="12" coveredmethods="0"/>
-      <file name="MainAgent.js" path="/home/xro/Desktop/Xro Agent/agents/main/MainAgent.js">
-        <metrics statements="156" coveredstatements="0" conditionals="140" coveredconditionals="0" methods="11" coveredmethods="0"/>
-        <line num="1" count="0" type="stmt"/>
-        <line num="2" count="0" type="stmt"/>
-        <line num="3" count="0" type="stmt"/>
-        <line num="4" count="0" type="stmt"/>
-        <line num="12" count="0" type="stmt"/>
-        <line num="13" count="0" type="stmt"/>
-        <line num="14" count="0" type="stmt"/>
-        <line num="15" count="0" type="stmt"/>
-        <line num="16" count="0" type="stmt"/>
-        <line num="24" count="0" type="stmt"/>
-        <line num="25" count="0" type="stmt"/>
-        <line num="34" count="0" type="stmt"/>
-        <line num="36" count="0" type="stmt"/>
-        <line num="37" count="0" type="cond" truecount="0" falsecount="1"/>
-        <line num="39" count="0" type="stmt"/>
-        <line num="45" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="46" count="0" type="stmt"/>
-        <line num="56" count="0" type="stmt"/>
-        <line num="57" count="0" type="stmt"/>
-        <line num="64" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="65" count="0" type="stmt"/>
-        <line num="66" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="67" count="0" type="stmt"/>
-        <line num="78" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="79" count="0" type="stmt"/>
-        <line num="93" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="94" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="95" count="0" type="stmt"/>
-        <line num="103" count="0" type="stmt"/>
-        <line num="105" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="106" count="0" type="stmt"/>
-        <line num="115" count="0" type="stmt"/>
-        <line num="119" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="120" count="0" type="stmt"/>
-        <line num="130" count="0" type="stmt"/>
-        <line num="131" count="0" type="stmt"/>
-        <line num="133" count="0" type="stmt"/>
-        <line num="141" count="0" type="stmt"/>
-        <line num="146" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="147" count="0" type="stmt"/>
-        <line num="156" count="0" type="stmt"/>
-        <line num="166" count="0" type="stmt"/>
-        <line num="167" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="168" count="0" type="stmt"/>
-        <line num="169" count="0" type="stmt"/>
-        <line num="170" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="173" count="0" type="cond" truecount="0" falsecount="6"/>
-        <line num="174" count="0" type="stmt"/>
-        <line num="177" count="0" type="stmt"/>
-        <line num="179" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="180" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="181" count="0" type="stmt"/>
-        <line num="183" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="184" count="0" type="stmt"/>
-        <line num="186" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="187" count="0" type="stmt"/>
-        <line num="189" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="190" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="191" count="0" type="stmt"/>
-        <line num="193" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="194" count="0" type="stmt"/>
-        <line num="197" count="0" type="stmt"/>
-        <line num="205" count="0" type="stmt"/>
-        <line num="207" count="0" type="stmt"/>
-        <line num="208" count="0" type="stmt"/>
-        <line num="209" count="0" type="stmt"/>
-        <line num="210" count="0" type="stmt"/>
-        <line num="211" count="0" type="stmt"/>
-        <line num="212" count="0" type="stmt"/>
-        <line num="214" count="0" type="stmt"/>
-        <line num="215" count="0" type="stmt"/>
-        <line num="216" count="0" type="stmt"/>
-        <line num="217" count="0" type="stmt"/>
-        <line num="220" count="0" type="stmt"/>
-        <line num="221" count="0" type="stmt"/>
-        <line num="224" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="233" count="0" type="stmt"/>
-        <line num="234" count="0" type="stmt"/>
-        <line num="235" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="236" count="0" type="stmt"/>
-        <line num="237" count="0" type="stmt"/>
-        <line num="241" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="242" count="0" type="stmt"/>
-        <line num="243" count="0" type="stmt"/>
-        <line num="245" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="246" count="0" type="stmt"/>
-        <line num="247" count="0" type="stmt"/>
-        <line num="249" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="250" count="0" type="stmt"/>
-        <line num="251" count="0" type="stmt"/>
-        <line num="253" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="254" count="0" type="stmt"/>
-        <line num="255" count="0" type="stmt"/>
-        <line num="259" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="260" count="0" type="stmt"/>
-        <line num="261" count="0" type="stmt"/>
-        <line num="264" count="0" type="stmt"/>
-        <line num="281" count="0" type="stmt"/>
-        <line num="283" count="0" type="stmt"/>
-        <line num="297" count="0" type="stmt"/>
-        <line num="298" count="0" type="stmt"/>
-        <line num="301" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="302" count="0" type="stmt"/>
-        <line num="312" count="0" type="stmt"/>
-        <line num="319" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="320" count="0" type="stmt"/>
-        <line num="331" count="0" type="stmt"/>
-        <line num="338" count="0" type="stmt"/>
-        <line num="339" count="0" type="stmt"/>
-        <line num="348" count="0" type="stmt"/>
-        <line num="349" count="0" type="stmt"/>
-        <line num="353" count="0" type="stmt"/>
-        <line num="355" count="0" type="stmt"/>
-        <line num="356" count="0" type="stmt"/>
-        <line num="357" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="358" count="0" type="stmt"/>
-        <line num="359" count="0" type="stmt"/>
-        <line num="363" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="364" count="0" type="stmt"/>
-        <line num="374" count="0" type="stmt"/>
-        <line num="375" count="0" type="stmt"/>
-        <line num="383" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="384" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="385" count="0" type="cond" truecount="0" falsecount="3"/>
-        <line num="386" count="0" type="stmt"/>
-        <line num="387" count="0" type="stmt"/>
-        <line num="399" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="400" count="0" type="stmt"/>
-        <line num="415" count="0" type="stmt"/>
-        <line num="421" count="0" type="stmt"/>
-        <line num="425" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="426" count="0" type="stmt"/>
-        <line num="436" count="0" type="stmt"/>
-        <line num="444" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="445" count="0" type="stmt"/>
-        <line num="451" count="0" type="stmt"/>
-        <line num="460" count="0" type="stmt"/>
-        <line num="461" count="0" type="stmt"/>
-        <line num="463" count="0" type="stmt"/>
-        <line num="471" count="0" type="stmt"/>
-        <line num="472" count="0" type="stmt"/>
-        <line num="481" count="0" type="stmt"/>
-        <line num="482" count="0" type="stmt"/>
-        <line num="483" count="0" type="stmt"/>
-        <line num="485" count="0" type="stmt"/>
-        <line num="486" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="487" count="0" type="cond" truecount="0" falsecount="3"/>
-        <line num="488" count="0" type="stmt"/>
-        <line num="489" count="0" type="stmt"/>
-        <line num="491" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="492" count="0" type="stmt"/>
-        <line num="496" count="0" type="stmt"/>
-        <line num="498" count="0" type="stmt"/>
-        <line num="499" count="0" type="stmt"/>
-        <line num="507" count="0" type="stmt"/>
-        <line num="524" count="0" type="stmt"/>
-      </file>
-      <file name="config.js" path="/home/xro/Desktop/Xro Agent/agents/main/config.js">
-        <metrics statements="7" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
-        <line num="1" count="0" type="stmt"/>
-        <line num="5" count="0" type="stmt"/>
-        <line num="6" count="0" type="stmt"/>
-        <line num="7" count="0" type="stmt"/>
-        <line num="8" count="0" type="stmt"/>
-        <line num="9" count="0" type="stmt"/>
-        <line num="16" count="0" type="stmt"/>
-      </file>
-    </package>
     <package name="agents.search">
-      <metrics statements="46" coveredstatements="0" conditionals="15" coveredconditionals="0" methods="10" coveredmethods="0"/>
-      <file name="SearchAgent.js" path="/home/xro/Desktop/Xro Agent/agents/search/SearchAgent.js">
-        <metrics statements="39" coveredstatements="0" conditionals="15" coveredconditionals="0" methods="9" coveredmethods="0"/>
+      <metrics statements="52" coveredstatements="0" conditionals="22" coveredconditionals="0" methods="12" coveredmethods="0"/>
+      <file name="SearchAssistant.js" path="/home/runner/workspace/agents/search/SearchAssistant.js">
+        <metrics statements="45" coveredstatements="0" conditionals="22" coveredconditionals="0" methods="11" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
         <line num="3" count="0" type="stmt"/>
         <line num="4" count="0" type="stmt"/>
         <line num="5" count="0" type="stmt"/>
+        <line num="9" count="0" type="stmt"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="11" count="0" type="stmt"/>
         <line num="12" count="0" type="stmt"/>
-        <line num="13" count="0" type="stmt"/>
-        <line num="14" count="0" type="stmt"/>
-        <line num="15" count="0" type="stmt"/>
-        <line num="19" count="0" type="stmt"/>
-        <line num="20" count="0" type="stmt"/>
-        <line num="22" count="0" type="stmt"/>
-        <line num="23" count="0" type="cond" truecount="0" falsecount="1"/>
+        <line num="16" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="17" count="0" type="stmt"/>
         <line num="25" count="0" type="stmt"/>
         <line num="26" count="0" type="stmt"/>
         <line num="28" count="0" type="stmt"/>
-        <line num="29" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="30" count="0" type="stmt"/>
+        <line num="29" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="31" count="0" type="stmt"/>
-        <line num="32" count="0" type="stmt"/>
         <line num="33" count="0" type="stmt"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="37" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="38" count="0" type="stmt"/>
         <line num="39" count="0" type="stmt"/>
-        <line num="44" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="45" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="53" count="0" type="stmt"/>
-        <line num="59" count="0" type="stmt"/>
-        <line num="60" count="0" type="stmt"/>
-        <line num="61" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="52" count="0" type="stmt"/>
+        <line num="54" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="55" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="63" count="0" type="stmt"/>
-        <line num="65" count="0" type="stmt"/>
-        <line num="71" count="0" type="stmt"/>
-        <line num="73" count="0" type="stmt"/>
-        <line num="77" count="0" type="stmt"/>
+        <line num="71" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="72" count="0" type="stmt"/>
         <line num="83" count="0" type="stmt"/>
         <line num="84" count="0" type="stmt"/>
+        <line num="85" count="0" type="stmt"/>
+        <line num="87" count="0" type="stmt"/>
         <line num="89" count="0" type="stmt"/>
-        <line num="90" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="91" count="0" type="stmt"/>
         <line num="95" count="0" type="stmt"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="101" count="0" type="stmt"/>
+        <line num="107" count="0" type="stmt"/>
+        <line num="108" count="0" type="stmt"/>
+        <line num="113" count="0" type="stmt"/>
+        <line num="114" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="115" count="0" type="stmt"/>
+        <line num="119" count="0" type="stmt"/>
       </file>
-      <file name="config.js" path="/home/xro/Desktop/Xro Agent/agents/search/config.js">
+      <file name="config.js" path="/home/runner/workspace/agents/search/config.js">
         <metrics statements="7" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="5" count="0" type="stmt"/>
@@ -432,9 +434,9 @@
       </file>
     </package>
     <package name="agents.web">
-      <metrics statements="53" coveredstatements="0" conditionals="9" coveredconditionals="0" methods="8" coveredmethods="0"/>
-      <file name="WebAgent.js" path="/home/xro/Desktop/Xro Agent/agents/web/WebAgent.js">
-        <metrics statements="46" coveredstatements="0" conditionals="9" coveredconditionals="0" methods="7" coveredmethods="0"/>
+      <metrics statements="59" coveredstatements="0" conditionals="16" coveredconditionals="0" methods="10" coveredmethods="0"/>
+      <file name="WebAssistant.js" path="/home/runner/workspace/agents/web/WebAssistant.js">
+        <metrics statements="52" coveredstatements="0" conditionals="16" coveredconditionals="0" methods="9" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
         <line num="3" count="0" type="stmt"/>
@@ -446,43 +448,49 @@
         <line num="12" count="0" type="stmt"/>
         <line num="13" count="0" type="stmt"/>
         <line num="14" count="0" type="stmt"/>
-        <line num="18" count="0" type="stmt"/>
+        <line num="18" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="19" count="0" type="stmt"/>
-        <line num="21" count="0" type="stmt"/>
-        <line num="22" count="0" type="cond" truecount="0" falsecount="1"/>
-        <line num="23" count="0" type="stmt"/>
-        <line num="24" count="0" type="stmt"/>
-        <line num="25" count="0" type="stmt"/>
-        <line num="27" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="27" count="0" type="stmt"/>
         <line num="28" count="0" type="stmt"/>
-        <line num="29" count="0" type="stmt"/>
         <line num="30" count="0" type="stmt"/>
-        <line num="31" count="0" type="stmt"/>
-        <line num="32" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="31" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="33" count="0" type="stmt"/>
-        <line num="34" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
         <line num="36" count="0" type="stmt"/>
         <line num="37" count="0" type="stmt"/>
-        <line num="38" count="0" type="stmt"/>
-        <line num="39" count="0" type="stmt"/>
+        <line num="39" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="40" count="0" type="stmt"/>
         <line num="41" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
         <line num="43" count="0" type="stmt"/>
-        <line num="44" count="0" type="stmt"/>
-        <line num="49" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="44" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="46" count="0" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="49" count="0" type="stmt"/>
         <line num="50" count="0" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="53" count="0" type="stmt"/>
         <line num="55" count="0" type="stmt"/>
+        <line num="56" count="0" type="stmt"/>
         <line num="61" count="0" type="stmt"/>
-        <line num="63" count="0" type="stmt"/>
-        <line num="66" count="0" type="stmt"/>
-        <line num="72" count="0" type="stmt"/>
-        <line num="73" count="0" type="stmt"/>
+        <line num="63" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="77" count="0" type="cond" truecount="0" falsecount="4"/>
         <line num="78" count="0" type="stmt"/>
-        <line num="79" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="83" count="0" type="stmt"/>
-        <line num="84" count="0" type="stmt"/>
-        <line num="88" count="0" type="stmt"/>
+        <line num="89" count="0" type="stmt"/>
+        <line num="91" count="0" type="stmt"/>
+        <line num="94" count="0" type="stmt"/>
+        <line num="100" count="0" type="stmt"/>
+        <line num="101" count="0" type="stmt"/>
+        <line num="106" count="0" type="stmt"/>
+        <line num="107" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="111" count="0" type="stmt"/>
+        <line num="112" count="0" type="stmt"/>
+        <line num="116" count="0" type="stmt"/>
       </file>
-      <file name="config.js" path="/home/xro/Desktop/Xro Agent/agents/web/config.js">
+      <file name="config.js" path="/home/runner/workspace/agents/web/config.js">
         <metrics statements="7" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="5" count="0" type="stmt"/>
@@ -494,9 +502,9 @@
       </file>
     </package>
     <package name="controllers">
-      <metrics statements="302" coveredstatements="0" conditionals="115" coveredconditionals="0" methods="25" coveredmethods="0"/>
-      <file name="aiController.js" path="/home/xro/Desktop/Xro Agent/controllers/aiController.js">
-        <metrics statements="65" coveredstatements="0" conditionals="36" coveredconditionals="0" methods="6" coveredmethods="0"/>
+      <metrics statements="306" coveredstatements="0" conditionals="118" coveredconditionals="0" methods="25" coveredmethods="0"/>
+      <file name="aiController.js" path="/home/runner/workspace/controllers/aiController.js">
+        <metrics statements="68" coveredstatements="0" conditionals="37" coveredconditionals="0" methods="6" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
         <line num="3" count="0" type="stmt"/>
@@ -547,23 +555,26 @@
         <line num="137" count="0" type="stmt"/>
         <line num="139" count="0" type="stmt"/>
         <line num="147" count="0" type="stmt"/>
-        <line num="152" count="0" type="cond" truecount="0" falsecount="3"/>
+        <line num="152" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="153" count="0" type="cond" truecount="0" falsecount="3"/>
-        <line num="154" count="0" type="cond" truecount="0" falsecount="3"/>
-        <line num="155" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="158" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="159" count="0" type="stmt"/>
-        <line num="167" count="0" type="stmt"/>
-        <line num="168" count="0" type="stmt"/>
+        <line num="154" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="155" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="156" count="0" type="cond" truecount="0" falsecount="3"/>
+        <line num="157" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="160" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="161" count="0" type="stmt"/>
         <line num="169" count="0" type="stmt"/>
-        <line num="174" count="0" type="stmt"/>
-        <line num="177" count="0" type="stmt"/>
+        <line num="170" count="0" type="stmt"/>
         <line num="179" count="0" type="stmt"/>
-        <line num="180" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="181" count="0" type="stmt"/>
+        <line num="180" count="0" type="stmt"/>
+        <line num="185" count="0" type="stmt"/>
+        <line num="188" count="0" type="stmt"/>
         <line num="190" count="0" type="stmt"/>
+        <line num="191" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="192" count="0" type="stmt"/>
+        <line num="201" count="0" type="stmt"/>
       </file>
-      <file name="authController.js" path="/home/xro/Desktop/Xro Agent/controllers/authController.js">
+      <file name="authController.js" path="/home/runner/workspace/controllers/authController.js">
         <metrics statements="71" coveredstatements="0" conditionals="20" coveredconditionals="0" methods="8" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -637,7 +648,7 @@
         <line num="241" count="0" type="stmt"/>
         <line num="243" count="0" type="stmt"/>
       </file>
-      <file name="conversationsController.js" path="/home/xro/Desktop/Xro Agent/controllers/conversationsController.js">
+      <file name="conversationsController.js" path="/home/runner/workspace/controllers/conversationsController.js">
         <metrics statements="81" coveredstatements="0" conditionals="20" coveredconditionals="0" methods="6" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -721,8 +732,8 @@
         <line num="251" count="0" type="stmt"/>
         <line num="259" count="0" type="stmt"/>
       </file>
-      <file name="messagesController.js" path="/home/xro/Desktop/Xro Agent/controllers/messagesController.js">
-        <metrics statements="85" coveredstatements="0" conditionals="39" coveredconditionals="0" methods="5" coveredmethods="0"/>
+      <file name="messagesController.js" path="/home/runner/workspace/controllers/messagesController.js">
+        <metrics statements="86" coveredstatements="0" conditionals="41" coveredconditionals="0" methods="5" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
         <line num="3" count="0" type="stmt"/>
@@ -765,54 +776,55 @@
         <line num="125" count="0" type="stmt"/>
         <line num="126" count="0" type="stmt"/>
         <line num="132" count="0" type="stmt"/>
-        <line num="141" count="0" type="stmt"/>
-        <line num="151" count="0" type="stmt"/>
-        <line num="158" count="0" type="stmt"/>
-        <line num="159" count="0" type="stmt"/>
-        <line num="170" count="0" type="stmt"/>
-        <line num="173" count="0" type="stmt"/>
-        <line num="182" count="0" type="stmt"/>
-        <line num="185" count="0" type="stmt"/>
-        <line num="192" count="0" type="stmt"/>
+        <line num="141" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="142" count="0" type="stmt"/>
+        <line num="157" count="0" type="stmt"/>
+        <line num="164" count="0" type="stmt"/>
+        <line num="165" count="0" type="stmt"/>
+        <line num="181" count="0" type="stmt"/>
+        <line num="184" count="0" type="stmt"/>
         <line num="193" count="0" type="stmt"/>
+        <line num="196" count="0" type="stmt"/>
+        <line num="203" count="0" type="stmt"/>
         <line num="204" count="0" type="stmt"/>
-        <line num="205" count="0" type="stmt"/>
-        <line num="206" count="0" type="stmt"/>
-        <line num="208" count="0" type="stmt"/>
-        <line num="211" count="0" type="stmt"/>
-        <line num="212" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="213" count="0" type="stmt"/>
-        <line num="219" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="220" count="0" type="stmt"/>
-        <line num="226" count="0" type="stmt"/>
-        <line num="228" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="229" count="0" type="stmt"/>
-        <line num="235" count="0" type="stmt"/>
+        <line num="215" count="0" type="stmt"/>
+        <line num="216" count="0" type="stmt"/>
+        <line num="217" count="0" type="stmt"/>
+        <line num="219" count="0" type="stmt"/>
+        <line num="222" count="0" type="stmt"/>
+        <line num="223" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="224" count="0" type="stmt"/>
+        <line num="230" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="231" count="0" type="stmt"/>
+        <line num="237" count="0" type="stmt"/>
+        <line num="239" count="0" type="cond" truecount="0" falsecount="4"/>
         <line num="240" count="0" type="stmt"/>
-        <line num="241" count="0" type="stmt"/>
+        <line num="246" count="0" type="stmt"/>
+        <line num="251" count="0" type="stmt"/>
         <line num="252" count="0" type="stmt"/>
-        <line num="253" count="0" type="stmt"/>
-        <line num="254" count="0" type="stmt"/>
-        <line num="256" count="0" type="stmt"/>
-        <line num="259" count="0" type="stmt"/>
-        <line num="260" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="261" count="0" type="stmt"/>
-        <line num="267" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="268" count="0" type="stmt"/>
-        <line num="274" count="0" type="stmt"/>
-        <line num="276" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="277" count="0" type="stmt"/>
-        <line num="283" count="0" type="stmt"/>
+        <line num="263" count="0" type="stmt"/>
+        <line num="264" count="0" type="stmt"/>
+        <line num="265" count="0" type="stmt"/>
+        <line num="267" count="0" type="stmt"/>
+        <line num="270" count="0" type="stmt"/>
+        <line num="271" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="272" count="0" type="stmt"/>
+        <line num="278" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="279" count="0" type="stmt"/>
         <line num="285" count="0" type="stmt"/>
-        <line num="287" count="0" type="stmt"/>
-        <line num="292" count="0" type="stmt"/>
-        <line num="293" count="0" type="stmt"/>
-        <line num="301" count="0" type="stmt"/>
+        <line num="287" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="288" count="0" type="stmt"/>
+        <line num="294" count="0" type="stmt"/>
+        <line num="296" count="0" type="stmt"/>
+        <line num="298" count="0" type="stmt"/>
+        <line num="303" count="0" type="stmt"/>
+        <line num="304" count="0" type="stmt"/>
+        <line num="312" count="0" type="stmt"/>
       </file>
     </package>
     <package name="models">
       <metrics statements="133" coveredstatements="0" conditionals="50" coveredconditionals="0" methods="33" coveredmethods="0"/>
-      <file name="AgentExecution.js" path="/home/xro/Desktop/Xro Agent/models/AgentExecution.js">
+      <file name="AgentExecution.js" path="/home/runner/workspace/models/AgentExecution.js">
         <metrics statements="43" coveredstatements="0" conditionals="21" coveredconditionals="0" methods="4" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -858,7 +870,7 @@
         <line num="86" count="0" type="stmt"/>
         <line num="95" count="0" type="stmt"/>
       </file>
-      <file name="Conversation.js" path="/home/xro/Desktop/Xro Agent/models/Conversation.js">
+      <file name="Conversation.js" path="/home/runner/workspace/models/Conversation.js">
         <metrics statements="11" coveredstatements="0" conditionals="3" coveredconditionals="0" methods="6" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -872,7 +884,7 @@
         <line num="43" count="0" type="stmt"/>
         <line num="47" count="0" type="stmt"/>
       </file>
-      <file name="Message.js" path="/home/xro/Desktop/Xro Agent/models/Message.js">
+      <file name="Message.js" path="/home/runner/workspace/models/Message.js">
         <metrics statements="10" coveredstatements="0" conditionals="6" coveredconditionals="0" methods="5" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -885,7 +897,7 @@
         <line num="45" count="0" type="stmt"/>
         <line num="49" count="0" type="stmt"/>
       </file>
-      <file name="Session.js" path="/home/xro/Desktop/Xro Agent/models/Session.js">
+      <file name="Session.js" path="/home/runner/workspace/models/Session.js">
         <metrics statements="12" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="7" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -900,7 +912,7 @@
         <line num="50" count="0" type="stmt"/>
         <line num="54" count="0" type="stmt"/>
       </file>
-      <file name="ToolExecution.js" path="/home/xro/Desktop/Xro Agent/models/ToolExecution.js">
+      <file name="ToolExecution.js" path="/home/runner/workspace/models/ToolExecution.js">
         <metrics statements="31" coveredstatements="0" conditionals="14" coveredconditionals="0" methods="4" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -934,7 +946,7 @@
         <line num="60" count="0" type="stmt"/>
         <line num="69" count="0" type="stmt"/>
       </file>
-      <file name="User.js" path="/home/xro/Desktop/Xro Agent/models/User.js">
+      <file name="User.js" path="/home/runner/workspace/models/User.js">
         <metrics statements="26" coveredstatements="0" conditionals="6" coveredconditionals="0" methods="7" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -966,7 +978,7 @@
     </package>
     <package name="queue">
       <metrics statements="108" coveredstatements="0" conditionals="15" coveredconditionals="0" methods="14" coveredmethods="0"/>
-      <file name="JobProcessor.js" path="/home/xro/Desktop/Xro Agent/queue/JobProcessor.js">
+      <file name="JobProcessor.js" path="/home/runner/workspace/queue/JobProcessor.js">
         <metrics statements="49" coveredstatements="0" conditionals="8" coveredconditionals="0" methods="4" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -1018,7 +1030,7 @@
         <line num="199" count="0" type="stmt"/>
         <line num="204" count="0" type="stmt"/>
       </file>
-      <file name="QueueManager.js" path="/home/xro/Desktop/Xro Agent/queue/QueueManager.js">
+      <file name="QueueManager.js" path="/home/runner/workspace/queue/QueueManager.js">
         <metrics statements="59" coveredstatements="0" conditionals="7" coveredconditionals="0" methods="10" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -1082,9 +1094,9 @@
       </file>
     </package>
     <package name="routes">
-      <metrics statements="149" coveredstatements="0" conditionals="10" coveredconditionals="0" methods="10" coveredmethods="0"/>
-      <file name="agents.js" path="/home/xro/Desktop/Xro Agent/routes/agents.js">
-        <metrics statements="27" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="3" coveredmethods="0"/>
+      <metrics statements="162" coveredstatements="0" conditionals="10" coveredconditionals="0" methods="12" coveredmethods="0"/>
+      <file name="agent.js" path="/home/runner/workspace/routes/agent.js">
+        <metrics statements="18" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
         <line num="3" count="0" type="stmt"/>
@@ -1092,7 +1104,8 @@
         <line num="9" count="0" type="stmt"/>
         <line num="10" count="0" type="stmt"/>
         <line num="11" count="0" type="stmt"/>
-        <line num="13" count="0" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="14" count="0" type="stmt"/>
         <line num="19" count="0" type="stmt"/>
         <line num="20" count="0" type="stmt"/>
         <line num="30" count="0" type="stmt"/>
@@ -1101,19 +1114,9 @@
         <line num="34" count="0" type="stmt"/>
         <line num="39" count="0" type="stmt"/>
         <line num="40" count="0" type="stmt"/>
-        <line num="50" count="0" type="stmt"/>
-        <line num="51" count="0" type="stmt"/>
-        <line num="52" count="0" type="stmt"/>
-        <line num="54" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="55" count="0" type="stmt"/>
-        <line num="61" count="0" type="stmt"/>
-        <line num="62" count="0" type="stmt"/>
-        <line num="64" count="0" type="stmt"/>
-        <line num="69" count="0" type="stmt"/>
-        <line num="70" count="0" type="stmt"/>
-        <line num="77" count="0" type="stmt"/>
+        <line num="47" count="0" type="stmt"/>
       </file>
-      <file name="ai.js" path="/home/xro/Desktop/Xro Agent/routes/ai.js">
+      <file name="ai.js" path="/home/runner/workspace/routes/ai.js">
         <metrics statements="8" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -1122,9 +1125,9 @@
         <line num="7" count="0" type="stmt"/>
         <line num="10" count="0" type="stmt"/>
         <line num="13" count="0" type="stmt"/>
-        <line num="15" count="0" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
       </file>
-      <file name="analytics.js" path="/home/xro/Desktop/Xro Agent/routes/analytics.js">
+      <file name="analytics.js" path="/home/runner/workspace/routes/analytics.js">
         <metrics statements="28" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -1155,7 +1158,32 @@
         <line num="72" count="0" type="stmt"/>
         <line num="79" count="0" type="stmt"/>
       </file>
-      <file name="auth.js" path="/home/xro/Desktop/Xro Agent/routes/auth.js">
+      <file name="assistants.js" path="/home/runner/workspace/routes/assistants.js">
+        <metrics statements="22" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="3" coveredmethods="0"/>
+        <line num="1" count="0" type="stmt"/>
+        <line num="2" count="0" type="stmt"/>
+        <line num="3" count="0" type="stmt"/>
+        <line num="4" count="0" type="stmt"/>
+        <line num="9" count="0" type="stmt"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="36" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="43" count="0" type="stmt"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="46" count="0" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="52" count="0" type="stmt"/>
+        <line num="59" count="0" type="stmt"/>
+      </file>
+      <file name="auth.js" path="/home/runner/workspace/routes/auth.js">
         <metrics statements="14" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -1172,7 +1200,7 @@
         <line num="17" count="0" type="stmt"/>
         <line num="19" count="0" type="stmt"/>
       </file>
-      <file name="conversations.js" path="/home/xro/Desktop/Xro Agent/routes/conversations.js">
+      <file name="conversations.js" path="/home/runner/workspace/routes/conversations.js">
         <metrics statements="12" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -1187,7 +1215,7 @@
         <line num="25" count="0" type="stmt"/>
         <line num="27" count="0" type="stmt"/>
       </file>
-      <file name="messages.js" path="/home/xro/Desktop/Xro Agent/routes/messages.js">
+      <file name="messages.js" path="/home/runner/workspace/routes/messages.js">
         <metrics statements="10" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -1200,7 +1228,7 @@
         <line num="19" count="0" type="stmt"/>
         <line num="21" count="0" type="stmt"/>
       </file>
-      <file name="tools.js" path="/home/xro/Desktop/Xro Agent/routes/tools.js">
+      <file name="tools.js" path="/home/runner/workspace/routes/tools.js">
         <metrics statements="50" coveredstatements="0" conditionals="8" coveredconditionals="0" methods="4" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -1255,8 +1283,8 @@
       </file>
     </package>
     <package name="services">
-      <metrics statements="1132" coveredstatements="0" conditionals="773" coveredconditionals="0" methods="193" coveredmethods="0"/>
-      <file name="AgentFactory.js" path="/home/xro/Desktop/Xro Agent/services/AgentFactory.js">
+      <metrics statements="1278" coveredstatements="0" conditionals="834" coveredconditionals="0" methods="232" coveredmethods="0"/>
+      <file name="AgentFactory.js" path="/home/runner/workspace/services/AgentFactory.js">
         <metrics statements="46" coveredstatements="0" conditionals="54" coveredconditionals="0" methods="11" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -1305,7 +1333,7 @@
         <line num="169" count="0" type="stmt"/>
         <line num="173" count="0" type="stmt"/>
       </file>
-      <file name="AgentMessenger.js" path="/home/xro/Desktop/Xro Agent/services/AgentMessenger.js">
+      <file name="AgentMessenger.js" path="/home/runner/workspace/services/AgentMessenger.js">
         <metrics statements="87" coveredstatements="0" conditionals="39" coveredconditionals="0" methods="16" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -1395,7 +1423,7 @@
         <line num="245" count="0" type="stmt"/>
         <line num="249" count="0" type="stmt"/>
       </file>
-      <file name="AuthService.js" path="/home/xro/Desktop/Xro Agent/services/AuthService.js">
+      <file name="AuthService.js" path="/home/runner/workspace/services/AuthService.js">
         <metrics statements="79" coveredstatements="0" conditionals="29" coveredconditionals="0" methods="7" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -1477,7 +1505,7 @@
         <line num="227" count="0" type="stmt"/>
         <line num="232" count="0" type="stmt"/>
       </file>
-      <file name="CollaborationManager.js" path="/home/xro/Desktop/Xro Agent/services/CollaborationManager.js">
+      <file name="CollaborationManager.js" path="/home/runner/workspace/services/CollaborationManager.js">
         <metrics statements="90" coveredstatements="0" conditionals="46" coveredconditionals="0" methods="18" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -1570,7 +1598,7 @@
         <line num="254" count="0" type="stmt"/>
         <line num="258" count="0" type="stmt"/>
       </file>
-      <file name="ConflictResolver.js" path="/home/xro/Desktop/Xro Agent/services/ConflictResolver.js">
+      <file name="ConflictResolver.js" path="/home/runner/workspace/services/ConflictResolver.js">
         <metrics statements="55" coveredstatements="0" conditionals="43" coveredconditionals="0" methods="14" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="9" count="0" type="stmt"/>
@@ -1628,7 +1656,7 @@
         <line num="153" count="0" type="stmt"/>
         <line num="160" count="0" type="stmt"/>
       </file>
-      <file name="CostTracker.js" path="/home/xro/Desktop/Xro Agent/services/CostTracker.js">
+      <file name="CostTracker.js" path="/home/runner/workspace/services/CostTracker.js">
         <metrics statements="59" coveredstatements="0" conditionals="64" coveredconditionals="0" methods="7" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -1690,7 +1718,7 @@
         <line num="186" count="0" type="stmt"/>
         <line num="190" count="0" type="stmt"/>
       </file>
-      <file name="ExecutionManager.js" path="/home/xro/Desktop/Xro Agent/services/ExecutionManager.js">
+      <file name="ExecutionManager.js" path="/home/runner/workspace/services/ExecutionManager.js">
         <metrics statements="130" coveredstatements="0" conditionals="84" coveredconditionals="0" methods="29" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -1823,7 +1851,7 @@
         <line num="377" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="380" count="0" type="stmt"/>
       </file>
-      <file name="IntegrationManager.js" path="/home/xro/Desktop/Xro Agent/services/IntegrationManager.js">
+      <file name="IntegrationManager.js" path="/home/runner/workspace/services/IntegrationManager.js">
         <metrics statements="88" coveredstatements="0" conditionals="42" coveredconditionals="0" methods="18" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -1914,7 +1942,7 @@
         <line num="252" count="0" type="stmt"/>
         <line num="257" count="0" type="stmt"/>
       </file>
-      <file name="MemoryManager.js" path="/home/xro/Desktop/Xro Agent/services/MemoryManager.js">
+      <file name="MemoryManager.js" path="/home/runner/workspace/services/MemoryManager.js">
         <metrics statements="134" coveredstatements="0" conditionals="79" coveredconditionals="0" methods="15" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -2051,7 +2079,7 @@
         <line num="312" count="0" type="stmt"/>
         <line num="318" count="0" type="stmt"/>
       </file>
-      <file name="PromptRegistry.js" path="/home/xro/Desktop/Xro Agent/services/PromptRegistry.js">
+      <file name="PromptRegistry.js" path="/home/runner/workspace/services/PromptRegistry.js">
         <metrics statements="85" coveredstatements="0" conditionals="72" coveredconditionals="0" methods="16" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -2139,7 +2167,7 @@
         <line num="320" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="325" count="0" type="stmt"/>
       </file>
-      <file name="SandboxManager.js" path="/home/xro/Desktop/Xro Agent/services/SandboxManager.js">
+      <file name="SandboxManager.js" path="/home/runner/workspace/services/SandboxManager.js">
         <metrics statements="82" coveredstatements="0" conditionals="46" coveredconditionals="0" methods="15" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="9" count="0" type="stmt"/>
@@ -2224,7 +2252,7 @@
         <line num="240" count="0" type="stmt"/>
         <line num="245" count="0" type="stmt"/>
       </file>
-      <file name="TaskDelegator.js" path="/home/xro/Desktop/Xro Agent/services/TaskDelegator.js">
+      <file name="TaskDelegator.js" path="/home/runner/workspace/services/TaskDelegator.js">
         <metrics statements="70" coveredstatements="0" conditionals="40" coveredconditionals="0" methods="8" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -2297,7 +2325,7 @@
         <line num="199" count="0" type="stmt"/>
         <line num="203" count="0" type="stmt"/>
       </file>
-      <file name="TokenOptimizer.js" path="/home/xro/Desktop/Xro Agent/services/TokenOptimizer.js">
+      <file name="TokenOptimizer.js" path="/home/runner/workspace/services/TokenOptimizer.js">
         <metrics statements="75" coveredstatements="0" conditionals="54" coveredconditionals="0" methods="9" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="9" count="0" type="stmt"/>
@@ -2375,7 +2403,7 @@
         <line num="192" count="0" type="stmt"/>
         <line num="197" count="0" type="stmt"/>
       </file>
-      <file name="VisualizationEngine.js" path="/home/xro/Desktop/Xro Agent/services/VisualizationEngine.js">
+      <file name="VisualizationEngine.js" path="/home/runner/workspace/services/VisualizationEngine.js">
         <metrics statements="52" coveredstatements="0" conditionals="81" coveredconditionals="0" methods="10" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -2430,10 +2458,162 @@
         <line num="176" count="0" type="stmt"/>
         <line num="183" count="0" type="stmt"/>
       </file>
+      <file name="api.js" path="/home/runner/workspace/services/api.js">
+        <metrics statements="51" coveredstatements="0" conditionals="22" coveredconditionals="0" methods="14" coveredmethods="0"/>
+        <line num="3" count="0" type="stmt"/>
+        <line num="5" count="0" type="stmt"/>
+        <line num="6" count="0" type="stmt"/>
+        <line num="7" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="8" count="0" type="stmt"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="16" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="20" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="43" count="0" type="stmt"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="49" count="0" type="stmt"/>
+        <line num="53" count="0" type="stmt"/>
+        <line num="54" count="0" type="stmt"/>
+        <line num="58" count="0" type="stmt"/>
+        <line num="59" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="76" count="0" type="stmt"/>
+        <line num="77" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="81" count="0" type="stmt"/>
+        <line num="86" count="0" type="stmt"/>
+        <line num="87" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="92" count="0" type="stmt"/>
+        <line num="93" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="94" count="0" type="stmt"/>
+        <line num="95" count="0" type="stmt"/>
+        <line num="99" count="0" type="stmt"/>
+        <line num="100" count="0" type="cond" truecount="0" falsecount="2"/>
+      </file>
+      <file name="ws.js" path="/home/runner/workspace/services/ws.js">
+        <metrics statements="95" coveredstatements="0" conditionals="39" coveredconditionals="0" methods="25" coveredmethods="0"/>
+        <line num="4" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="5" count="0" type="stmt"/>
+        <line num="6" count="0" type="stmt"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="23" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="26" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="31" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="32" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="36" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="49" count="0" type="stmt"/>
+        <line num="50" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="54" count="0" type="stmt"/>
+        <line num="55" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="56" count="0" type="cond" truecount="0" falsecount="5"/>
+        <line num="58" count="0" type="stmt"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="65" count="0" type="stmt"/>
+        <line num="66" count="0" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="72" count="0" type="stmt"/>
+        <line num="75" count="0" type="stmt"/>
+        <line num="76" count="0" type="stmt"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="79" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="80" count="0" type="stmt"/>
+        <line num="81" count="0" type="stmt"/>
+        <line num="82" count="0" type="stmt"/>
+        <line num="83" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="84" count="0" type="stmt"/>
+        <line num="87" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="88" count="0" type="stmt"/>
+        <line num="89" count="0" type="stmt"/>
+        <line num="90" count="0" type="stmt"/>
+        <line num="91" count="0" type="stmt"/>
+        <line num="94" count="0" type="stmt"/>
+        <line num="96" count="0" type="stmt"/>
+        <line num="100" count="0" type="stmt"/>
+        <line num="101" count="0" type="stmt"/>
+        <line num="102" count="0" type="stmt"/>
+        <line num="103" count="0" type="stmt"/>
+        <line num="104" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="105" count="0" type="stmt"/>
+        <line num="109" count="0" type="stmt"/>
+        <line num="110" count="0" type="stmt"/>
+        <line num="115" count="0" type="stmt"/>
+        <line num="116" count="0" type="stmt"/>
+        <line num="117" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="118" count="0" type="stmt"/>
+        <line num="121" count="0" type="stmt"/>
+        <line num="126" count="0" type="stmt"/>
+        <line num="127" count="0" type="stmt"/>
+        <line num="131" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="132" count="0" type="stmt"/>
+        <line num="133" count="0" type="stmt"/>
+        <line num="138" count="0" type="stmt"/>
+        <line num="139" count="0" type="stmt"/>
+        <line num="140" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="141" count="0" type="stmt"/>
+        <line num="142" count="0" type="stmt"/>
+        <line num="145" count="0" type="stmt"/>
+        <line num="150" count="0" type="stmt"/>
+        <line num="151" count="0" type="stmt"/>
+        <line num="152" count="0" type="stmt"/>
+        <line num="153" count="0" type="stmt"/>
+        <line num="154" count="0" type="stmt"/>
+        <line num="155" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="160" count="0" type="stmt"/>
+        <line num="161" count="0" type="stmt"/>
+        <line num="162" count="0" type="stmt"/>
+        <line num="163" count="0" type="stmt"/>
+        <line num="164" count="0" type="stmt"/>
+        <line num="165" count="0" type="stmt"/>
+        <line num="166" count="0" type="stmt"/>
+        <line num="170" count="0" type="stmt"/>
+        <line num="172" count="0" type="stmt"/>
+      </file>
     </package>
     <package name="services.integrations">
       <metrics statements="119" coveredstatements="0" conditionals="28" coveredconditionals="0" methods="35" coveredmethods="0"/>
-      <file name="DiscordClient.js" path="/home/xro/Desktop/Xro Agent/services/integrations/DiscordClient.js">
+      <file name="DiscordClient.js" path="/home/runner/workspace/services/integrations/DiscordClient.js">
         <metrics statements="21" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="7" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -2457,7 +2637,7 @@
         <line num="43" count="0" type="stmt"/>
         <line num="47" count="0" type="stmt"/>
       </file>
-      <file name="GitHubClient.js" path="/home/xro/Desktop/Xro Agent/services/integrations/GitHubClient.js">
+      <file name="GitHubClient.js" path="/home/runner/workspace/services/integrations/GitHubClient.js">
         <metrics statements="27" coveredstatements="0" conditionals="5" coveredconditionals="0" methods="10" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -2487,7 +2667,7 @@
         <line num="56" count="0" type="stmt"/>
         <line num="60" count="0" type="stmt"/>
       </file>
-      <file name="JiraClient.js" path="/home/xro/Desktop/Xro Agent/services/integrations/JiraClient.js">
+      <file name="JiraClient.js" path="/home/runner/workspace/services/integrations/JiraClient.js">
         <metrics statements="40" coveredstatements="0" conditionals="20" coveredconditionals="0" methods="10" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -2530,7 +2710,7 @@
         <line num="83" count="0" type="stmt"/>
         <line num="87" count="0" type="stmt"/>
       </file>
-      <file name="SlackClient.js" path="/home/xro/Desktop/Xro Agent/services/integrations/SlackClient.js">
+      <file name="SlackClient.js" path="/home/runner/workspace/services/integrations/SlackClient.js">
         <metrics statements="31" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="8" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -2567,7 +2747,7 @@
     </package>
     <package name="tools">
       <metrics statements="20" coveredstatements="18" conditionals="4" coveredconditionals="3" methods="10" coveredmethods="9"/>
-      <file name="ToolRegistry.js" path="/home/xro/Desktop/Xro Agent/tools/ToolRegistry.js">
+      <file name="ToolRegistry.js" path="/home/runner/workspace/tools/ToolRegistry.js">
         <metrics statements="20" coveredstatements="18" conditionals="4" coveredconditionals="3" methods="10" coveredmethods="9"/>
         <line num="1" count="1" type="stmt"/>
         <line num="9" count="1" type="stmt"/>
@@ -2593,7 +2773,7 @@
     </package>
     <package name="tools.base">
       <metrics statements="18" coveredstatements="8" conditionals="7" coveredconditionals="0" methods="11" coveredmethods="1"/>
-      <file name="Tool.js" path="/home/xro/Desktop/Xro Agent/tools/base/Tool.js">
+      <file name="Tool.js" path="/home/runner/workspace/tools/base/Tool.js">
         <metrics statements="18" coveredstatements="8" conditionals="7" coveredconditionals="0" methods="11" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
@@ -2617,7 +2797,7 @@
     </package>
     <package name="tools.shared">
       <metrics statements="112" coveredstatements="77" conditionals="47" coveredconditionals="26" methods="12" coveredmethods="9"/>
-      <file name="BasicWebSearchTool.js" path="/home/xro/Desktop/Xro Agent/tools/shared/BasicWebSearchTool.js">
+      <file name="BasicWebSearchTool.js" path="/home/runner/workspace/tools/shared/BasicWebSearchTool.js">
         <metrics statements="21" coveredstatements="0" conditionals="7" coveredconditionals="0" methods="3" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -2641,7 +2821,7 @@
         <line num="75" count="0" type="stmt"/>
         <line num="80" count="0" type="stmt"/>
       </file>
-      <file name="CalculatorTool.js" path="/home/xro/Desktop/Xro Agent/tools/shared/CalculatorTool.js">
+      <file name="CalculatorTool.js" path="/home/runner/workspace/tools/shared/CalculatorTool.js">
         <metrics statements="25" coveredstatements="22" conditionals="10" coveredconditionals="7" methods="3" coveredmethods="3"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
@@ -2669,7 +2849,7 @@
         <line num="77" count="2" type="stmt"/>
         <line num="82" count="1" type="stmt"/>
       </file>
-      <file name="JSONParserTool.js" path="/home/xro/Desktop/Xro Agent/tools/shared/JSONParserTool.js">
+      <file name="JSONParserTool.js" path="/home/runner/workspace/tools/shared/JSONParserTool.js">
         <metrics statements="31" coveredstatements="29" conditionals="14" coveredconditionals="11" methods="3" coveredmethods="3"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>
@@ -2703,7 +2883,7 @@
         <line num="93" count="2" type="stmt"/>
         <line num="103" count="1" type="stmt"/>
       </file>
-      <file name="TimerTool.js" path="/home/xro/Desktop/Xro Agent/tools/shared/TimerTool.js">
+      <file name="TimerTool.js" path="/home/runner/workspace/tools/shared/TimerTool.js">
         <metrics statements="35" coveredstatements="26" conditionals="16" coveredconditionals="8" methods="3" coveredmethods="3"/>
         <line num="1" count="1" type="stmt"/>
         <line num="2" count="1" type="stmt"/>

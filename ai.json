@@ -1,0 +1,7 @@
+{
+  "prompt": "Research Bitcoin (BTC) comprehensively: 1) Search for the current BTC price in USD, 2) Retrieve historical price data (all-time high, all-time low, YTD performance), 3) Find expert future price predictions for 2025-2030, 4) Analyze market trends, adoption rate, and regulatory developments affecting BTC price. After gathering all data, compile everything into one structured summary and save it as a file named 'btc_research.json' using the file_save tool with the following JSON format: { \"btc_current_price_usd\": \"...\", \"all_time_high\": \"...\", \"all_time_low\": \"...\", \"ytd_performance\": \"...\", \"future_predictions\": { \"2025\": \"...\", \"2026\": \"...\", \"2027-2030\": \"...\" }, \"market_trends\": \"...\", \"adoption_rate\": \"...\", \"regulatory_developments\": \"...\", \"sources\": [\"...\"] }",
+  "tools": ["web_search", "file_save"],
+  "model": "mistralai/mistral-small-4-119b-2603",
+  "temperature": 0.3,
+  "max_tokens": 4096
+}

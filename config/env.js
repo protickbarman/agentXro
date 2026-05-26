@@ -57,6 +57,8 @@ module.exports = {
     apiKey: get('NIM_API_KEY'),
     baseUrl: get('NIM_BASE_URL'),
     model: get('NIM_MODEL'),
+    reasoningBudget: getInt('NIM_REASONING_BUDGET', 16384),
+    enableThinking: getBool('NIM_ENABLE_THINKING', true),
   },
 
   FALLBACK_LLM: {

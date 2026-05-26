@@ -27,58 +27,75 @@ const aiController = {
 
       logger.debug('AI chat request', { userId, conversationId });
 
-      let conversation;
+      let convId = conversationId;
+      let isNew = false;
 
-      // If conversationId provided, validate ownership
-      if (conversationId) {
-        conversation = await Conversation.findById(conversationId);
-        if (!conversation) {
-          return res.status(404).json({ success: false, error: 'Conversation not found' });
-        }
-        if (conversation.user_id !== userId) {
-          return res.status(403).json({ success: false, error: 'Not authorized' });
-        }
-        if (global.subscribeUserToConversation) {
-          global.subscribeUserToConversation(userId, conversation.id);
-        }
+      // Don't await DB check - validate async in background
+      if (convId) {
+        // Fire-and-forget validation
+        Conversation.findById(convId)
+          .then(conv => {
+            if (!conv) {
+              logger.warn('Conversation not found, using provided ID', { convId });
+            } else if (conv.user_id !== userId) {
+              logger.warn('Unauthorized conversation access attempt', { convId, userId });
+            } else {
+              // Valid conversation - subscribe to WS
+              if (global.subscribeUserToConversation) {
+                global.subscribeUserToConversation(userId, conv.id);
+              }
+            }
+          })
+          .catch(err => {
+            logger.warn('Conversation validation failed', { error: err.message, convId });
+          });
       } else {
-        conversation = await Conversation.create(
+        // Generate new conversation ID
+        const { v4: uuidv4 } = require('uuid');
+        convId = uuidv4();
+        isNew = true;
+
+        // Queue conversation creation - fire and forget
+        const title = message.substring(0, 50) + (message.length > 50 ? '...' : '');
+        queueManager.addJob('saveConversation', {
+          id: convId,
           userId,
-          message.substring(0, 50) + (message.length > 50 ? '...' : ''),
-          null
-        );
-        logger.info('Auto-created conversation', { conversationId: conversation.id, userId });
+          title,
+        }).catch(err => logger.error('Failed to queue conversation creation', { error: err.message }));
+
+        logger.info('Auto-created conversation', { conversationId: convId, userId });
       }
 
       // Auto-subscribe user's WS to this conversation
       if (global.subscribeUserToConversation) {
-        global.subscribeUserToConversation(userId, conversation.id);
+        global.subscribeUserToConversation(userId, convId);
       }
 
-      // Create & save user message
-      const userMessage = await Message.create(conversation.id, 'user', message.trim(), { source: 'ai_ui' });
-
-      try {
-        await queueManager.addJob('saveMessage', {
-          conversationId: conversation.id, userId, role: 'user',
-          content: userMessage.content, metadata: { source: 'ai_ui' },
-        });
-      } catch (e) {
-        logger.warn('Failed to queue message save', { error: e.message });
-      }
+      // Queue user message save - fire and forget
+      queueManager.addJob('saveMessage', {
+        conversationId: convId,
+        userId,
+        role: 'user',
+        content: message.trim(),
+        metadata: { source: 'ai_ui' },
+      }).catch(err => logger.warn('Failed to queue message save', { error: err.message }));
 
       // Return immediately — all further results come via WS
       res.status(202).json({
         success: true,
         data: {
-          conversationId: conversation.id,
+          conversationId: convId,
           status: 'processing',
-          userMessage: { id: userMessage.id, role: userMessage.role, content: userMessage.content, createdAt: userMessage.created_at },
+          userMessage: {
+            role: 'user',
+            content: message.trim(),
+            createdAt: new Date().toISOString(),
+          },
         },
       });
 
       // Process agent in background (fire-and-forget)
-      _processAgentAsync(req, conversation, userId, message);
+      _processAgentAsync(req, { id: convId }, userId, message);
 
     } catch (agentError) {
       logger.error('AI request setup failed', { error: agentError.message });

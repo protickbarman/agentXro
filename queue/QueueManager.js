@@ -1,171 +1,145 @@
-const Queue = require('bull');
 const logger = require('../config/logger');
-const env = require('../config/env');
+const env    = require('../config/env');
 
-/**
- * Queue Manager
- * Manages all Bull job queues for database operations
- */
+/* ─────────────────────────────────────────────────────────
+   Graceful queue wrapper
+   • Tries Bull (Redis-backed) on first add()
+   • If Redis is unavailable it falls back to a direct
+     in-process "queue" that just calls the processor fn
+     immediately (no persistence, no retries, but no crash)
+───────────────────────────────────────────────────────── */
+
+let Bull;
+try { Bull = require('bull'); } catch { Bull = null; }
+
+const QUEUE_NAMES = [
+  'saveConversation', 'saveMessage',
+  'saveToolExecution', 'saveAgentExecution', 'updateSession',
+];
+
 class QueueManager {
   constructor() {
-    this.queues = new Map();
-    this.redisUrl = env.REDIS.url;
-    this.redisConfig = {
-      host: env.REDIS.host,
-      port: env.REDIS.port,
-      password: env.REDIS.password || undefined,
-      maxRetriesPerRequest: null,
-      enableReadyCheck: false,
+    this.queues      = {};   // Bull queues (if Redis available)
+    this.processors  = {};   // registered job-handler fns
+    this.redisOk     = null; // null = untested, true/false after first attempt
+    this.initialized = false;
+  }
+
+  /* ── Wire up a handler fn for a queue name ── */
+  process(queueName, concurrency, handler) {
+    this.processors[queueName] = handler;
+    if (this.queues[queueName]) {
+      this.queues[queueName].process(concurrency, handler);
+    }
+  }
+
+  /* ── Initialize Bull queues (best-effort) ── */
+  initialize() {
+    if (this.initialized) return;
+    this.initialized = true;
+
+    if (!Bull) {
+      logger.warn('Bull not available — using direct (in-process) queue fallback');
+      this.redisOk = false;
+      return;
+    }
+
+    const redisConfig = {
+      host:                 env.REDIS.host     || 'localhost',
+      port:                 env.REDIS.port     || 6379,
+      password:             env.REDIS.password || undefined,
+      maxRetriesPerRequest: 1,       // fail fast — don't spin 20 times
+      enableReadyCheck:     false,
+      connectTimeout:       3000,
+      lazyConnect:          true,
     };
-  }
 
-  /**
-   * Initialize all queues
-   */
-  async initialize() {
-    try {
-      logger.info('Initializing job queues...');
+    for (const name of QUEUE_NAMES) {
+      try {
+        const q = new Bull(name, { redis: redisConfig });
 
-      // Create queues with default options
-      const redisConnection = this.redisUrl || this.redisConfig;
-      this.queues.set('saveMessage', new Queue('saveMessage', redisConnection));
-      this.queues.set('saveToolExecution', new Queue('saveToolExecution', redisConnection));
-      this.queues.set('saveAgentExecution', new Queue('saveAgentExecution', redisConnection));
-      this.queues.set('updateSession', new Queue('updateSession', redisConnection));
-
-      // Set concurrency for all queues (sequential processing: 1 at a time)
-      for (const [name, queue] of this.queues) {
-        queue.process(1, async (job) => {
-          // Handler will be registered by the worker
-          logger.debug(`Processing job: ${name}`);
+        q.on('error', (err) => {
+          if (this.redisOk !== false) {
+            logger.warn(`Bull queue [${name}] error — switching to direct fallback`, { error: err.message });
+            this.redisOk = false;
+          }
         });
 
-        // Listen to queue events
-        queue.on('completed', (job) => {
-          logger.debug(`Job completed: ${name} [${job.id}]`);
+        q.on('ready', () => {
+          if (this.redisOk !== true) {
+            logger.info('Bull / Redis connection established');
+            this.redisOk = true;
+          }
         });
 
-        queue.on('failed', (job, err) => {
-          logger.error(`Job failed: ${name} [${job.id}]`, {
-            error: err.message,
-            attempts: job.attemptsMade,
-            maxAttempts: job.opts.attempts,
-          });
-        });
+        // Re-attach any processor that was registered before initialize()
+        if (this.processors[name]) {
+          const concurrency = env.WORKER?.concurrency || 1;
+          q.process(concurrency, this.processors[name]);
+        }
 
-        logger.info(`Queue initialized: ${name}`);
+        this.queues[name] = q;
+      } catch (err) {
+        logger.warn(`Could not create Bull queue [${name}]`, { error: err.message });
+        this.redisOk = false;
       }
-
-      logger.info('All job queues initialized');
-    } catch (error) {
-      logger.error('Failed to initialize job queues', { error: error.message });
-      throw error;
     }
+
+    logger.info('QueueManager initialized', { queues: QUEUE_NAMES });
   }
 
-  /**
-   * Get a specific queue
-   * @param {string} queueName - Queue name
-   * @returns {Queue} Bull queue instance
-   */
-  getQueue(queueName) {
-    const queue = this.queues.get(queueName);
-    if (!queue) {
-      throw new Error(`Queue '${queueName}' not found`);
-    }
-    return queue;
-  }
+  /* ── Add a job — Bull if Redis OK, otherwise run inline ── */
+  async add(queueName, data, opts = {}) {
+    if (!this.initialized) this.initialize();
 
-  /**
-   * Add a job to a queue
-   * @param {string} queueName - Queue name
-   * @param {object} data - Job data
-   * @param {object} options - Bull queue options
-   */
-  async addJob(queueName, data, options = {}) {
-    try {
-      const queue = this.getQueue(queueName);
+    // If we already know Redis is down, skip Bull entirely
+    const useDirect = this.redisOk === false || !this.queues[queueName];
 
-      // Default options
-      const jobOptions = {
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 2000,
-        },
-        removeOnComplete: true,
-        ...options,
-      };
-
-      const job = await queue.add(data, jobOptions);
-
-      logger.debug(`Job added to queue: ${queueName}`, {
-        jobId: job.id,
-        data: JSON.stringify(data).substring(0, 100),
-      });
-
-      return job;
-    } catch (error) {
-      logger.error(`Failed to add job to queue: ${queueName}`, {
-        error: error.message,
-      });
-      throw error;
-    }
-  }
-
-  /**
-   * Get queue statistics
-   * @returns {object} Queue statistics
-   */
-  async getStats() {
-    try {
-      const stats = {};
-
-      for (const [name, queue] of this.queues) {
-        const counts = await queue.getJobCounts();
-        stats[name] = counts;
+    if (!useDirect) {
+      try {
+        const defaultOpts = {
+          attempts:         env.WORKER?.maxRetries || 3,
+          backoff:          { type: 'exponential', delay: 1000 },
+          removeOnComplete: true,
+          removeOnFail:     false,
+        };
+        return await this.queues[queueName].add(data, { ...defaultOpts, ...opts });
+      } catch (err) {
+        // Redis failed mid-flight — mark down and fall through to direct
+        logger.warn(`Bull add failed for [${queueName}], using direct fallback`, { error: err.message });
+        this.redisOk = false;
       }
-
-      return stats;
-    } catch (error) {
-      logger.error('Failed to get queue stats', { error: error.message });
-      throw error;
     }
+
+    // ── Direct / in-process fallback ──
+    return this._runDirect(queueName, data);
   }
 
-  /**
-   * Clear all queues
-   */
-  async clear() {
+  async _runDirect(queueName, data) {
+    const handler = this.processors[queueName];
+    if (!handler) {
+      logger.debug(`No processor registered for [${queueName}] — job dropped silently`);
+      return null;
+    }
     try {
-      for (const [name, queue] of this.queues) {
-        await queue.clean(0);
-        logger.info(`Queue cleared: ${name}`);
-      }
-    } catch (error) {
-      logger.error('Failed to clear queues', { error: error.message });
-      throw error;
+      const result = await handler({ data });
+      logger.debug(`Direct job [${queueName}] succeeded`);
+      return result;
+    } catch (err) {
+      logger.error(`Direct job [${queueName}] failed`, { error: err.message });
+      return null;   // never throw — caller shouldn't crash over a save failure
     }
   }
 
-  /**
-   * Close all queues
-   */
   async close() {
-    try {
-      for (const [name, queue] of this.queues) {
-        await queue.close();
-        logger.info(`Queue closed: ${name}`);
-      }
-      logger.info('All queues closed');
-    } catch (error) {
-      logger.error('Failed to close queues', { error: error.message });
-      throw error;
+    for (const [name, queue] of Object.entries(this.queues)) {
+      try { await queue.close(); logger.debug(`Queue closed: ${name}`); }
+      catch (err) { logger.warn(`Error closing queue ${name}`, { error: err.message }); }
     }
+    this.queues      = {};
+    this.initialized = false;
+    logger.info('QueueManager closed');
   }
 }
 
-// Create singleton instance
-const queueManager = new QueueManager();
-
-module.exports = queueManager;
+module.exports = new QueueManager();

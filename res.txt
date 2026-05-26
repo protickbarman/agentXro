@@ -1,0 +1,16 @@
+data: {"id":"chatcmpl-95d9109b1d87c7e8","object":"chat.completion.chunk","created":1779646850,"model":"nvidia/nemotron-3-nano-omni-30b-a3b-reasoning","choices":[{"index":0,"delta":{"role":"assistant","content":""},"logprobs":null,"finish_reason":null}],"usage":{"prompt_tokens":22,"total_tokens":22,"completion_tokens":0},"prompt_token_ids":null}
+
+data: {"id":"chatcmpl-95d9109b1d87c7e8","object":"chat.completion.chunk","created":1779646850,"model":"nvidia/nemotron-3-nano-omni-30b-a3b-reasoning","choices":[{"index":0,"delta":{"reasoning":"The","reasoning_content":"The"},"logprobs":null,"finish_reason":null,"token_ids":null}],"usage":{"prompt_tokens":22,"total_tokens":23,"completion_tokens":1}}
+
+data: {"id":"chatcmpl-95d9109b1d87c7e8","object":"chat.completion.chunk","created":1779646850,"model":"nvidia/nemotron-3-nano-omni-30b-a3b-reasoning","choices":[{"index":0,"delta":{"reasoning":" user asks: \"what is the capital of france","reasoning_content":" user asks: \"what is the capital of france"},"logprobs":null,"finish_reason":null,"token_ids":null}],"usage":{"prompt_tokens":22,"total_tokens":33,"completion_tokens":11}}
+
+data: {"id":"chatcmpl-95d9109b1d87c7e8","object":"chat.completion.chunk","created":1779646850,"model":"nvidia/nemotron-3-nano-omni-30b-a3b-reasoning","choices":[{"index":0,"delta":{"reasoning":"\". Straightforward answer: Paris. Provide answer.\n","reasoning_content":"\". Straightforward answer: Paris. Provide answer.\n"},"logprobs":null,"finish_reason":null,"token_ids":null}],"usage":{"prompt_tokens":22,"total_tokens":43,"completion_tokens":21}}
+
+data: {"id":"chatcmpl-95d9109b1d87c7e8","object":"chat.completion.chunk","created":1779646850,"model":"nvidia/nemotron-3-nano-omni-30b-a3b-reasoning","choices":[{"index":0,"delta":{"role":null,"content":"The capital of France is **Paris**.","reasoning":null,"tool_calls":[]},"logprobs":null,"finish_reason":null,"token_ids":null}],"usage":{"prompt_tokens":22,"total_tokens":53,"completion_tokens":31}}
+
+data: {"id":"chatcmpl-95d9109b1d87c7e8","object":"chat.completion.chunk","created":1779646850,"model":"nvidia/nemotron-3-nano-omni-30b-a3b-reasoning","choices":[{"index":0,"delta":{},"logprobs":null,"finish_reason":"stop","stop_reason":null,"token_ids":null}],"usage":{"prompt_tokens":22,"total_tokens":54,"completion_tokens":32}}
+
+data: {"id":"chatcmpl-95d9109b1d87c7e8","object":"chat.completion.chunk","created":1779646850,"model":"nvidia/nemotron-3-nano-omni-30b-a3b-reasoning","choices":[],"usage":{"prompt_tokens":22,"total_tokens":54,"completion_tokens":32}}
+
+data: [DONE]
+

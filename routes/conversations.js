@@ -1,27 +1,33 @@
 const express = require('express');
-const router = express.Router();
-const conversationsController = require('../controllers/conversationsController');
+const logger = require('../config/logger');
 const { authMiddleware } = require('../middleware/auth');
+const Conversation = require('../models/Conversation');
 
-// All conversation routes require authentication
-router.use(authMiddleware);
+const router = express.Router();
 
-// Get all conversations
-router.get('/', conversationsController.getAllConversations);
+router.get('/', authMiddleware, async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 50;
+    const offset = parseInt(req.query.offset) || 0;
+    const conversations = await Conversation.findByUserIdPaginated(req.user.id, limit, offset);
+    res.json({ data: conversations });
+  } catch (err) {
+    logger.error('Error listing conversations', { error: err.message });
+    res.status(500).json({ error: 'Failed to list conversations' });
+  }
+});
 
-// Create new conversation
-router.post('/', conversationsController.createConversation);
-
-// Get specific conversation
-router.get('/:id', conversationsController.getConversation);
-
-// Update conversation
-router.put('/:id', conversationsController.updateConversation);
-
-// Delete conversation
-router.delete('/:id', conversationsController.deleteConversation);
-
-// Clear conversation history
-router.post('/:id/clear', conversationsController.clearConversation);
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    const conv = await Conversation.findById(req.params.id);
+    if (!conv) return res.status(404).json({ error: 'Conversation not found' });
+    if (conv.user_id !== req.user.id) return res.status(403).json({ error: 'Forbidden' });
+    await Conversation.delete(req.params.id);
+    res.json({ data: { deleted: true } });
+  } catch (err) {
+    logger.error('Error deleting conversation', { error: err.message });
+    res.status(500).json({ error: 'Failed to delete conversation' });
+  }
+});
 
 module.exports = router;

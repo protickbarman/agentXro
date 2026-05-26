@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login, register } from '../services/api.js';
 import { useAuthStore } from '../store/authStore.js';
-import { ws } from '../services/ws.js';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -20,7 +19,6 @@ export default function RegisterPage() {
       await register(form.email, form.password, form.username);
       const data = await login(form.email, form.password);
       setAuth(data.user, data.accessToken);
-      ws.connect();
       navigate('/new', { replace: true });
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Registration failed');

@@ -1,17 +1,17 @@
-# Xro Agent Backend
+# Xro Backend
 
-A multi-agent agentic AI backend powered by NVIDIA NIM with hierarchical agents, tools, and real-time WebSocket streaming with non-blocking database operations.
+An agent-based AI backend powered by NVIDIA NIM with a central agent, specialized assistants, tools, and real-time WebSocket streaming with non-blocking database operations.
 
 ## Architecture Overview
 
 ### System Components
 
-1. **Main Agent** - Orchestrates user queries and routes them to specialized sub-agents based on complexity analysis
-2. **Sub-Agents**:
-   - **Web Agent** - Handles web scraping and HTTP requests
-   - **Code Agent** - Processes code execution and debugging
-   - **Database Agent** - Manages database queries
-   - **Search Agent** - Performs advanced searches
+1. **Agent** - Orchestrates user queries and routes them to specialized assistants based on complexity analysis
+2. **Assistants**:
+   - **Web Assistant** - Handles web scraping and HTTP requests
+   - **Code Assistant** - Processes code execution and debugging
+   - **Database Assistant** - Manages database queries
+   - **Search Assistant** - Performs advanced searches
 3. **Shared Tools** - Calculator, Web Search, JSON Parser, Timer
 4. **Bull Queue** - Non-blocking sequential job processing for database operations
 5. **WebSocket Server** - Real-time agent reasoning and metrics streaming
@@ -32,17 +32,18 @@ A multi-agent agentic AI backend powered by NVIDIA NIM with hierarchical agents,
 ```
 ├── agents/
 │   ├── base/
-│   │   └── Agent.js          # Base agent class
-│   ├── main/
-│   │   └── MainAgent.js      # Main orchestrator agent
+│   │   ├── AgentBase.js      # Base agent class
+│   │   └── AgentConfigBase.js
+│   ├── agent/
+│   │   └── Agent.js          # Main orchestrator agent
 │   ├── web/
-│   │   └── WebAgent.js
+│   │   └── WebAssistant.js
 │   ├── code/
-│   │   └── CodeAgent.js
+│   │   └── CodeAssistant.js
 │   ├── database/
-│   │   └── DatabaseAgent.js
+│   │   └── DatabaseAssistant.js
 │   ├── search/
-│   │   └── SearchAgent.js
+│   │   └── SearchAssistant.js
 │   └── AgentRegistry.js      # Agent registry singleton
 ├── tools/
 │   ├── base/
@@ -210,11 +211,15 @@ A multi-agent agentic AI backend powered by NVIDIA NIM with hierarchical agents,
 - `GET /api/messages/:conversationId/messages/:messageId` - Get message
 - `DELETE /api/messages/:conversationId/messages/:messageId` - Delete message
 
-### Agents
+### Agent
 
-- `GET /api/agents` - List all agents
-- `GET /api/agents/stats` - Get agent metrics
-- `GET /api/agents/:agentName` - Get agent info
+- `GET /api/agent` - Get the main agent info
+- `GET /api/agent/stats` - Get agent metrics
+
+### Assistants
+
+- `GET /api/assistants` - List all assistants
+- `GET /api/assistants/:assistantName` - Get assistant info
 
 ### Tools
 
@@ -226,7 +231,7 @@ A multi-agent agentic AI backend powered by NVIDIA NIM with hierarchical agents,
 ### Analytics
 
 - `GET /api/analytics/usage` - Get usage analytics
-- `GET /api/analytics/agents` - Get agent analytics
+- `GET /api/analytics/agent` - Get agent analytics
 - `GET /api/analytics/tools` - Get tool analytics
 
 ## WebSocket Events
@@ -287,13 +292,13 @@ docker run -p 3000:3000 --env-file .env xro-agent
 
 ## Key Features
 
-✅ **Hierarchical Multi-Agent System** - Main agent routes complex queries to specialized sub-agents  
+✅ **Agent + Assistant System** - Agent routes complex queries to specialized assistants  
 ✅ **Tool-Based Architecture** - Extensible tool system with shared and specialized tools  
 ✅ **Non-Blocking Database Operations** - Bull Queue with sequential processing (1 worker at a time)  
 ✅ **Real-Time Streaming** - WebSocket support for agent reasoning and metrics  
 ✅ **LLM Fallback Chain** - NVIDIA NIM primary + fallback LLM with automatic retry  
 ✅ **JWT Authentication** - Secure token-based auth with refresh mechanisms  
-✅ **Query Complexity Analysis** - Heuristic-based routing for optimal sub-agent selection  
+✅ **Query Complexity Analysis** - Heuristic-based routing for optimal assistant selection  
 ✅ **Comprehensive Logging** - Winston logger with multiple transports  
 ✅ **Rate Limiting** - Protection against abuse  
 ✅ **CORS Support** - Configurable cross-origin requests  
@@ -308,7 +313,7 @@ docker run -p 3000:3000 --env-file .env xro-agent
 - ✅ PHASE 6: Main Agent Implementation
 - ✅ PHASE 7: Shared Tools
 - ✅ PHASE 8: Web Agent Implementation
-- ✅ PHASE 9: Other Sub-Agents (Code, Database, Search)
+- ✅ PHASE 9: Other Assistants (Code, Database, Search)
 - ✅ PHASE 10: Bull Queue & Worker Process
 - ✅ PHASE 11: API Routes & WebSocket
 - ⏳ PHASE 12: Testing & Deployment (In Progress)
@@ -321,7 +326,7 @@ docker run -p 3000:3000 --env-file .env xro-agent
 2. Implement `validate()` and `execute()` methods
 3. Register in tool registry during initialization
 
-### Adding a New Sub-Agent
+### Adding a New Assistant
 
 1. Create class extending `Agent` base class
 2. Implement `execute()` method

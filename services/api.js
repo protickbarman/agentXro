@@ -9,6 +9,7 @@ http.interceptors.request.use((cfg) => {
 });
 
 let _isRefreshing = false;
+let _refreshPromise = null;
 
 http.interceptors.response.use(
   (r) => r,
@@ -35,6 +36,41 @@ http.interceptors.response.use(
     return Promise.reject(err);
   }
 );
+
+/* ─── Token helpers ─────────────────────── */
+export function getToken() {
+  return localStorage.getItem('xro_token');
+}
+
+export function getStoredUser() {
+  try { return JSON.parse(localStorage.getItem('xro_user')); } catch { return null; }
+}
+
+async function ensureFreshToken() {
+  const token = getToken();
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const expiresIn = payload.exp * 1000 - Date.now();
+    if (expiresIn > 30000) return token;
+  } catch {}
+  if (_refreshPromise) return _refreshPromise;
+  _refreshPromise = fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' })
+    .then(r => r.ok ? r.json() : Promise.reject(new Error('Refresh failed')))
+    .then(data => {
+      const t = data.data.accessToken;
+      localStorage.setItem('xro_token', t);
+      return t;
+    })
+    .catch(() => {
+      localStorage.removeItem('xro_token');
+      localStorage.removeItem('xro_user');
+      window.location.reload();
+      return null;
+    })
+    .finally(() => { _refreshPromise = null; });
+  return _refreshPromise;
+}
 
 /* ─── Auth ──────────────────────────────── */
 export async function login(email, password) {
@@ -63,14 +99,6 @@ export async function refreshToken() {
   return token;
 }
 
-export function getStoredUser() {
-  try { return JSON.parse(localStorage.getItem('xro_user')); } catch { return null; }
-}
-
-export function getToken() {
-  return localStorage.getItem('xro_token');
-}
-
 /* ─── Conversations ─────────────────────── */
 export async function getConversations(limit = 50) {
   const { data } = await http.get(`/api/conversations?limit=${limit}`);
@@ -87,15 +115,105 @@ export async function getMessages(convId, limit = 100) {
   return data.data || [];
 }
 
-/* ─── AI Send ───────────────────────────── */
-export async function sendMessage(message, conversationId = null) {
-  const body = { message };
-  if (conversationId) body.conversationId = conversationId;
-  const { data } = await http.post('/api/chat', body);
-  return data.data;
+/* ─── AI Send (SSE via /xro/v1) ──────────── */
+async function _doSSE(token, message, convId, callbacks) {
+  const res = await fetch('/xro/v1', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      messages: [{ role: 'user', content: message }],
+      conversationId: convId,
+      tools: true,
+      stream: true,
+    }),
+  });
+
+  if (res.status === 401) return 'UNAUTHORIZED';
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = '';
+  let convIdReceived = false;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+
+    const parts = buf.split('\n');
+    buf = parts.pop() ?? '';
+
+    for (const raw of parts) {
+      const line = raw.trimEnd();
+
+      if (line === '') continue;
+
+      if (!line.startsWith('data: ')) continue;
+
+      const data = line.slice(6);
+
+      if (data === '[DONE]') {
+        callbacks.onDone?.();
+        return 'OK';
+      }
+
+      let parsed;
+      try {
+        parsed = JSON.parse(data);
+      } catch {
+        continue;
+      }
+
+      if (parsed._type === 'tool_step') {
+        callbacks.onToolStep?.(parsed);
+        continue;
+      }
+
+      if (parsed._type === 'file_created') {
+        callbacks.onFileCreated?.(parsed);
+        continue;
+      }
+
+      if (!convIdReceived && parsed.conversationId) {
+        convIdReceived = true;
+        callbacks.onConversationCreated?.(parsed.conversationId, parsed.isNew);
+        continue;
+      }
+
+      const content = parsed.choices?.[0]?.delta?.content;
+      if (content != null) callbacks.onContent?.(content);
+    }
+  }
+  return 'OK';
+}
+
+export async function sendMessage(message, convId = null, callbacks = {}) {
+  let token = await ensureFreshToken();
+  if (!token) throw new Error('Not authenticated');
+
+  let result = await _doSSE(token, message, convId, callbacks);
+
+  if (result === 'UNAUTHORIZED') {
+    token = await ensureFreshToken();
+    if (!token) throw new Error('Session expired — please log in again');
+    result = await _doSSE(token, message, convId, callbacks);
+    if (result === 'UNAUTHORIZED') {
+      window.location.reload();
+      throw new Error('Session expired');
+    }
+  }
 }
 
 export async function getRecentConversations(limit = 20) {
-  const { data } = await http.get(`/api/chat?limit=${limit}`);
-  return data.data || [];
+  const token = getToken();
+  const res = await fetch(`/api/chat?limit=${limit}`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (!res.ok) return [];
+  const json = await res.json();
+  return json.data || [];
 }

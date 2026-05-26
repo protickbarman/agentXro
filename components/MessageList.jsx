@@ -1,27 +1,28 @@
 import React, { useRef, useEffect } from 'react';
 import { useChatStore } from '../store/chatStore.js';
 import MessageBubble from './MessageBubble.jsx';
-import StepBar from './StepBar.jsx';
 
 const SUGGESTIONS = [
-  { icon: '🧠', text: 'Explain neural networks in simple terms', prompt: 'Explain how neural networks work in simple terms' },
-  { icon: '💻', text: 'Write a Python function', prompt: 'Write a Python function to sort a list of dictionaries by a specific key' },
-  { icon: '🔍', text: 'Search latest AI news', prompt: 'Search for the latest news about artificial intelligence in 2026' },
-  { icon: '📊', text: 'Calculate compound interest', prompt: 'Calculate compound interest: $10,000 at 8% annual rate for 10 years' },
+  { icon: '🧠', text: 'Explain how neural networks work', prompt: 'Explain how neural networks work in simple terms' },
+  { icon: '💻', text: 'Write a Python web scraper', prompt: 'Write a Python function to scrape headlines from a news website' },
+  { icon: '🔍', text: 'Search latest AI breakthroughs', prompt: 'Search for the latest AI research breakthroughs in 2025' },
+  { icon: '📊', text: 'Calculate compound interest', prompt: 'Calculate compound interest: $10,000 at 7% annual for 15 years' },
+  { icon: '🌐', text: 'Translate to multiple languages', prompt: 'Translate "Hello, how are you?" into Spanish, French, Japanese and Arabic' },
+  { icon: '🔐', text: 'Generate a secure password', prompt: 'Generate a cryptographically secure password and explain how it was made' },
 ];
 
 function WelcomeScreen({ onPrompt }) {
   return (
-    <div className="chat-messages-scroll" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="welcome-screen">
-        <div className="welcome-icon">X</div>
+    <div className="welcome-wrap">
+      <div className="welcome-body">
+        <div className="welcome-logo">X</div>
         <h1 className="welcome-title">What can I help with?</h1>
-        <p className="welcome-sub">Ask anything — I'll route your question to the best AI agent automatically.</p>
-        <div className="welcome-suggestions">
+        <p className="welcome-sub">Ask anything — I'll pick the best tool automatically.</p>
+        <div className="welcome-grid">
           {SUGGESTIONS.map((s, i) => (
-            <button key={i} className="suggestion-btn" onClick={() => onPrompt(s.prompt)}>
-              <span className="suggestion-icon">{s.icon}</span>
-              <span className="suggestion-text">{s.text}</span>
+            <button key={i} className="welcome-card" onClick={() => onPrompt(s.prompt)}>
+              <span className="welcome-card-icon">{s.icon}</span>
+              <span className="welcome-card-text">{s.text}</span>
             </button>
           ))}
         </div>
@@ -31,40 +32,57 @@ function WelcomeScreen({ onPrompt }) {
 }
 
 export default function MessageList({ onPrompt }) {
-  const { activeConvId, messages, streamingContent, steps } = useChatStore();
+  const { activeConvId, messages, streamingContent, isTyping } = useChatStore();
   const bottomRef = useRef(null);
-  const msgs = activeConvId ? (messages[activeConvId] || []) : [];
 
+  const convKey = activeConvId || 'temp';
+  const msgs = messages[convKey] || [];
+
+  /* Index of the last user message — StepBar rendered right after it */
+  const lastUserIdx = (() => {
+    for (let i = msgs.length - 1; i >= 0; i--) {
+      if (msgs[i].role === 'user') return i;
+    }
+    return -1;
+  })();
+
+  /* Index of the currently streaming agent message */
+  const streamingMsgIdx = (() => {
+    for (let i = msgs.length - 1; i >= 0; i--) {
+      if (msgs[i].role !== 'user' && msgs[i].streaming === true) return i;
+    }
+    return -1;
+  })();
+
+  /* Auto-scroll to bottom on new content */
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [msgs.length, streamingContent.length, steps.length]);
+  }, [msgs.length, streamingContent]);
 
-  if (!activeConvId || msgs.length === 0) {
+  if (msgs.length === 0) {
     return (
-      <div className="chat-messages-wrap">
+      <div className="messages-wrap">
         <WelcomeScreen onPrompt={onPrompt} />
       </div>
     );
   }
 
-  const lastMsg = msgs[msgs.length - 1];
-  const isLastAgent = lastMsg && lastMsg.role !== 'user';
-  const lastUserIndex = [...msgs].reverse().findIndex(m => m.role === 'user');
-  const absoluteLastUserIndex = lastUserIndex >= 0 ? msgs.length - 1 - lastUserIndex : -1;
-
   return (
-    <div className="chat-messages-wrap">
-      <div className="chat-messages-scroll">
-        <div className="chat-messages-inner">
-          {msgs.map((msg, i) => (
-            <React.Fragment key={msg.id || i}>
-              <MessageBubble
-                msg={msg}
-                streamingContent={i === msgs.length - 1 && isLastAgent ? streamingContent : ''}
-              />
-              {i === absoluteLastUserIndex && steps.length > 0 && <StepBar />}
-            </React.Fragment>
-          ))}
+    <div className="messages-wrap">
+      <div className="messages-scroll">
+        <div className="messages-inner">
+          {msgs.map((msg, i) => {
+            const isMsgStreaming = i === streamingMsgIdx;
+            return (
+              <React.Fragment key={msg.id || i}>
+                <MessageBubble
+                  msg={msg}
+                  isStreaming={isMsgStreaming}
+                  liveContent={isMsgStreaming ? streamingContent : ''}
+                />
+              </React.Fragment>
+            );
+          })}
           <div ref={bottomRef} />
         </div>
       </div>

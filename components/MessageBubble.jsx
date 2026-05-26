@@ -2,82 +2,147 @@ import React, { useEffect, useRef } from 'react';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github-dark.css';
+import { useChatStore } from '../store/chatStore.js';
+import FileCard from './FileCard.jsx';
+import StepCard from './StepCard.jsx';
 
+/* ── Marked setup ────────────────────────── */
 marked.setOptions({ breaks: true, gfm: true });
-
 const renderer = new marked.Renderer();
 renderer.code = ({ text: code, lang }) => {
   const language = lang && hljs.getLanguage(lang) ? lang : 'plaintext';
   let highlighted = '';
   try { highlighted = hljs.highlight(code, { language }).value; }
   catch { highlighted = hljs.highlightAuto(code).value; }
-  return `<pre><code class="hljs language-${language}">${highlighted}</code></pre>`;
+  const id = `cb-${Math.random().toString(36).slice(2, 8)}`;
+  return `<div class="code-block">
+<div class="code-header">
+  <span class="code-lang">${language}</span>
+  <button class="copy-btn" data-id="${id}">Copy</button>
+</div>
+<pre id="${id}"><code class="hljs language-${language}">${highlighted}</code></pre>
+</div>`;
 };
 marked.use({ renderer });
 
+/* ── Time helper ─────────────────────────── */
 function timeStr(iso) {
   if (!iso) return '';
   try { return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
   catch { return ''; }
 }
 
-const AGENT_LABELS = {
-  main: 'Main Agent', web: 'Web Agent', code: 'Code Agent',
-  database: 'Database Agent', search: 'Search Agent',
-  direct_tools: 'Direct LLM', fallback: 'Fallback LLM',
-};
+/* ── Typing dots ─────────────────────────── */
+function TypingDots() {
+  return (
+    <div className="typing-dots">
+      <span className="typing-dot" /><span className="typing-dot" /><span className="typing-dot" />
+    </div>
+  );
+}
 
-export default function MessageBubble({ msg, streamingContent }) {
-  const isUser = msg.role === 'agent' ? false : msg.role === 'user';
+/* ── Main bubble ─────────────────────────── */
+export default function MessageBubble({ msg, isStreaming, liveContent }) {
+  const isUser = msg.role === 'user';
   const contentRef = useRef(null);
-  const agentType = msg.metadata?.agentType || msg.agentType || '';
-  const tokens = msg.metadata?.tokensUsed || msg.tokensUsed || 0;
 
+  /* Re-highlight when content changes */
   useEffect(() => {
     if (!isUser && contentRef.current) {
       contentRef.current.querySelectorAll('pre code:not(.hljs)').forEach(el => {
-        hljs.highlightElement(el);
+        try { hljs.highlightElement(el); } catch {}
       });
     }
-  }, [msg.content]);
+  }, [msg.content, isUser]);
 
-  if (msg.role === 'user') {
+  /* Delegate copy button clicks (avoid inline onclick — CSP-safe) */
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el || isUser) return;
+    const handler = (e) => {
+      const btn = e.target.closest('.copy-btn');
+      if (!btn) return;
+      const id = btn.getAttribute('data-id');
+      const pre = document.getElementById(id);
+      if (!pre) return;
+      navigator.clipboard.writeText(pre.innerText).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
+      }).catch(() => {});
+    };
+    el.addEventListener('click', handler);
+    return () => el.removeEventListener('click', handler);
+  }, [msg.content, isUser]);
+
+  /* ── User bubble ── */
+  if (isUser) {
+    const username = useChatStore.getState()?.user?.username || 'U';
     return (
-      <div className="message-row user">
-        <div className="msg-bubble-wrap">
-          <div className="msg-bubble user-bubble">{msg.content}</div>
+      <div className="msg-row msg-row--user">
+        <div className="msg-col">
+          <div className="msg-bubble msg-bubble--user">{msg.content}</div>
           <span className="msg-meta">{timeStr(msg.created_at)}</span>
         </div>
-        <div className="msg-avatar user-avatar">U</div>
+        <div className="msg-avatar msg-avatar--user">
+          {username[0].toUpperCase()}
+        </div>
       </div>
     );
   }
 
-  const html = marked.parse(msg.content || '');
-  const streamingHtml = streamingContent ? marked.parse(streamingContent) : '';
+  /* ── Agent bubble ── */
+  const displayContent = isStreaming ? liveContent : (msg.content || '');
+  const isEmpty = !displayContent;
+  const showDots = isStreaming && isEmpty;
+  const html = displayContent ? marked.parse(displayContent) : '';
+
+  const allFileCards = useChatStore(s => s.fileCards);
+  const cards = allFileCards[msg.id] || [];
+  const toolStepIds = useChatStore(s => s.toolStepIds);
+  const toolSteps = useChatStore(s => s.toolSteps);
 
   return (
-    <div className="message-row agent">
-      <div className="msg-avatar agent-avatar">X</div>
-      <div className="msg-bubble-wrap" style={{ maxWidth: '100%', flex: 1 }}>
-        <div className="msg-bubble agent-bubble">
-          <div
-            className="md-content"
-            ref={contentRef}
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
-          {streamingContent && (
-            <div className="md-content streaming-content">
-              <span dangerouslySetInnerHTML={{ __html: streamingHtml }} />
-              <span className="streaming-cursor" />
+    <div className="msg-row msg-row--agent">
+      <div className="msg-avatar msg-avatar--agent">X</div>
+      <div className="msg-col" style={{ flex: 1, minWidth: 0 }}>
+
+        <div className={`msg-bubble msg-bubble--agent${isStreaming ? ' msg-bubble--streaming' : ''}`}>
+          {/* Step cards always render immediately, regardless of content */}
+          {toolStepIds.length > 0 && (
+            <div className="step-card-list">
+              {toolStepIds.map(id => {
+                const st = toolSteps[id];
+                if (!st) return null;
+                return <StepCard key={id} step={st} />;
+              })}
             </div>
           )}
+          {showDots ? (
+            <TypingDots />
+          ) : (
+            <>
+              <div
+                className="md-body"
+                ref={contentRef}
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
+              {cards.length > 0 && (
+                <div className="file-card-list">
+                  {cards.map((f, i) => <FileCard key={i} file={f} />)}
+                </div>
+              )}
+              {isStreaming && <span className="stream-cursor" />}
+            </>
+          )}
         </div>
-        <span className="msg-meta">
-          {timeStr(msg.created_at)}
-          {agentType && ` · ${AGENT_LABELS[agentType] || agentType}`}
-          {tokens > 0 && ` · ${tokens.toLocaleString()} tokens`}
-        </span>
+
+        <div className="msg-footer">
+          <span className="msg-meta">
+            {timeStr(msg.created_at)}
+            {msg.agentType && msg.agentType !== 'error' && ` · ${msg.agentType}`}
+          </span>
+
+        </div>
       </div>
     </div>
   );

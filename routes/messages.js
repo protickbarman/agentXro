@@ -1,21 +1,21 @@
 const express = require('express');
-const router = express.Router();
-const messagesController = require('../controllers/messagesController');
+const logger = require('../config/logger');
 const { authMiddleware } = require('../middleware/auth');
+const Message = require('../models/Message');
 
-// All message routes require authentication
-router.use(authMiddleware);
+const router = express.Router();
 
-// Get messages in a conversation
-router.get('/:conversationId/messages', messagesController.getMessages);
-
-// Create new message (user query)
-router.post('/:conversationId/messages', messagesController.createMessage);
-
-// Get specific message
-router.get('/:conversationId/messages/:messageId', messagesController.getMessage);
-
-// Delete message
-router.delete('/:conversationId/messages/:messageId', messagesController.deleteMessage);
+router.get('/:convId/messages', authMiddleware, async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const offset = parseInt(req.query.offset) || 0;
+    const messages = await Message.findByConversationIdPaginated(req.params.convId, limit, offset);
+    messages.reverse();
+    res.json({ data: messages });
+  } catch (err) {
+    logger.error('Error getting messages', { error: err.message });
+    res.status(500).json({ error: 'Failed to get messages' });
+  }
+});
 
 module.exports = router;

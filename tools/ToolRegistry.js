@@ -62,28 +62,37 @@ class ToolRegistry {
   }
 
   /**
-   * Get all tools schemas
-   * @returns {array} Array of tool schemas
+   * Get all tools schemas in OpenAI format
+   * @returns {array} Array of tool schemas [{type:'function', function:{name, description, parameters}}]
    */
   getSchemas() {
-    return Array.from(this.tools.values()).map(tool => ({
-      name: tool.name,
-      description: tool.description,
-      parameters: tool.parameters,
-    }));
+    return Array.from(this.tools.values()).map(tool => {
+      const s = tool.getSchema();
+      return {
+        type: 'function',
+        function: {
+          name: s.name,
+          description: s.description,
+          parameters: s.parameters,
+        },
+      };
+    });
   }
 
   /**
-   * Get tool schema
+   * Get tool schema in OpenAI format
    * @param {string} name - Tool name
    * @returns {object} Tool schema
    */
   getSchema(name) {
-    const tool = this.get(name);
+    const s = this.get(name).getSchema();
     return {
-      name: tool.name,
-      description: tool.description,
-      parameters: tool.parameters,
+      type: 'function',
+      function: {
+        name: s.name,
+        description: s.description,
+        parameters: s.parameters,
+      },
     };
   }
 

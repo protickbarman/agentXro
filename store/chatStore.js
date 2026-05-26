@@ -1,14 +1,48 @@
 import { create } from 'zustand';
 
 export const useChatStore = create((set, get) => ({
+  /* ── Conversations ── */
   conversations: [],
   activeConvId: null,
+
+  /* ── Messages keyed by convId (or 'temp') ── */
   messages: {},
+
+  /* ── Streaming state ── */
   streamingContent: '',
-  steps: [],
-  stepsExpanded: false,
   isTyping: false,
-  wsStatus: 'disconnected',
+
+  /* ── File cards keyed by message id ── */
+  fileCards: {},
+
+  addFileCard: (msgId, card) => set((s) => ({
+    fileCards: { ...s.fileCards, [msgId]: [...(s.fileCards[msgId] || []), card] },
+  })),
+
+  clearFileCards: (msgId) => set((s) => {
+    const next = { ...s.fileCards };
+    delete next[msgId];
+    return { fileCards: next };
+  }),
+
+  /* ── Tool steps (transient — shown during streaming) ── */
+  toolStepIds: [],
+  toolSteps: {},
+
+  addToolStep: (step) => set((s) => ({
+    toolStepIds: [...s.toolStepIds, step.id],
+    toolSteps: { ...s.toolSteps, [step.id]: step },
+  })),
+
+  updateToolStep: (id, updates) => set((s) => {
+    const existing = s.toolSteps[id];
+    if (!existing) return {};
+    return { toolSteps: { ...s.toolSteps, [id]: { ...existing, ...updates } } };
+  }),
+
+  clearToolSteps: () => set({ toolStepIds: [], toolSteps: {} }),
+
+  /* ─────────────── Actions ─────────────── */
 
   setConversations: (conversations) => set({ conversations }),
 
@@ -21,43 +55,43 @@ export const useChatStore = create((set, get) => ({
     activeConvId: s.activeConvId === id ? null : s.activeConvId,
   })),
 
-  setActiveConv: (id) => set({ activeConvId: id, streamingContent: '', steps: [], stepsExpanded: false }),
+  /* Full switch — resets all ephemeral state */
+  setActiveConv: (id) => set({
+    activeConvId: id,
+    streamingContent: '',
+    isTyping: false,
+  }),
 
-  setMessages: (convId, messages) => set((s) => ({
-    messages: { ...s.messages, [convId]: messages },
+  /* Migrate temp messages to real convId WITHOUT touching streaming buffers */
+  migrateConv: (fromKey, toId) => set((s) => {
+    const fromMsgs = s.messages[fromKey] || [];
+    const next = { ...s.messages };
+    if (fromMsgs.length > 0) next[toId] = fromMsgs;
+    return { activeConvId: toId, messages: next };
+  }),
+
+  /* Messages */
+  setMessages: (convId, msgs) => set((s) => ({
+    messages: { ...s.messages, [convId]: msgs },
   })),
 
   addMessage: (convId, msg) => set((s) => ({
-    messages: {
-      ...s.messages,
-      [convId]: [...(s.messages[convId] || []), msg],
-    },
+    messages: { ...s.messages, [convId]: [...(s.messages[convId] || []), msg] },
   })),
 
-  updateMessage: (convId, msgId, updates) => set((s) => ({
-    messages: {
-      ...s.messages,
-      [convId]: (s.messages[convId] || []).map(m =>
-        m.id === msgId ? { ...m, ...updates } : m
-      ),
-    },
-  })),
-
-  appendStreaming: (chunk) => set((s) => ({
-    streamingContent: s.streamingContent + chunk,
-  })),
-
-  clearStreaming: () => set({ streamingContent: '' }),
-
-  addStep: (step) => set((s) => {
-    const prev = s.steps.map(st => ({ ...st, completed: true }));
-    return { steps: [...prev, { ...step, completed: false, timestamp: Date.now() }] };
+  updateMessage: (convId, msgId, updates) => set((s) => {
+    const arr = s.messages[convId];
+    if (!arr) return {};
+    return {
+      messages: {
+        ...s.messages,
+        [convId]: arr.map(m => m.id === msgId ? { ...m, ...updates } : m),
+      },
+    };
   }),
 
-  clearSteps: () => set({ steps: [], stepsExpanded: false }),
-
-  toggleSteps: () => set((s) => ({ stepsExpanded: !s.stepsExpanded })),
+  appendStreaming: (chunk) => set((s) => ({ streamingContent: s.streamingContent + chunk })),
+  clearStreaming:  () => set({ streamingContent: '' }),
 
   setTyping: (v) => set({ isTyping: v }),
-  setWsStatus: (wsStatus) => set({ wsStatus }),
 }));

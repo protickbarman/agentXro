@@ -36,9 +36,9 @@ async function main() {
           delegating: '🔄',
           llm_call: '🧠',
           llm_response: '✅',
-          sub_agent_start: '🚀',
-          sub_agent_complete: '🎯',
-          sub_agent_error: '❌',
+          assistant_start: '🚀',
+          assistant_complete: '🎯',
+          assistant_error: '❌',
           response_ready: '✨',
           error: '💥',
         };

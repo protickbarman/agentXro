@@ -1,133 +1,86 @@
-const Bull = require('bull');
-
-const env = require('./config/env');
-const logger = require('./config/logger');
-const { pool } = require('./config/database');
+const env          = require('./config/env');
+const logger       = require('./config/logger');
+const { pool }     = require('./config/database');
 const JobProcessor = require('./queue/JobProcessor');
+const queueManager = require('./queue/QueueManager');
 
-let queues = {};
+const QUEUE_NAMES = [
+  'saveConversation', 'saveMessage',
+  'saveToolExecution', 'saveAgentExecution', 'updateSession',
+];
 
-// Start worker
+const HANDLERS = {
+  saveConversation:   (job) => JobProcessor.processSaveConversation(job),
+  saveMessage:        (job) => JobProcessor.processSaveMessage(job),
+  saveToolExecution:  (job) => JobProcessor.processSaveToolExecution(job),
+  saveAgentExecution: (job) => JobProcessor.processSaveAgentExecution(job),
+  updateSession:      (job) => JobProcessor.processUpdateSession(job),
+};
+
 async function startWorker() {
-  logger.info('Starting Bull Queue worker process');
+  logger.info('Starting queue worker');
 
-  // Test database connection (non-fatal if unavailable)
+  /* ── DB check (non-fatal) ── */
   let dbAvailable = false;
   try {
     await pool.query('SELECT NOW()');
     logger.info('Database connection verified');
     dbAvailable = true;
-  } catch (error) {
-    logger.warn('Database unavailable — running without DB persistence', { error: error.message });
+  } catch (err) {
+    logger.warn('Database unavailable — running without DB persistence', { error: err.message });
   }
 
   if (!dbAvailable) {
-    logger.info('No database — worker will skip DB-dependent queue processing');
+    logger.info('No database — worker idle (jobs will be dropped silently)');
     return;
   }
 
-  // Create queue instances
-  const queueNames = ['saveMessage', 'saveToolExecution', 'saveAgentExecution', 'updateSession'];
-  const redisConfig = {
-    host: env.REDIS.host,
-    port: env.REDIS.port,
-    password: env.REDIS.password || undefined,
-    maxRetriesPerRequest: null,
-    enableReadyCheck: false,
-  };
+  /* ── Register processors with QueueManager ── */
+  queueManager.initialize();
 
-  for (const queueName of queueNames) {
-    queues[queueName] = new Bull(queueName, redisConfig);
+  const concurrency = env.WORKER?.concurrency || 1;
 
-    // Set up processor with concurrency = 1 for sequential processing
-    queues[queueName].process(1, async (job) => {
-      const startTime = Date.now();
+  for (const name of QUEUE_NAMES) {
+    const handler = HANDLERS[name];
+    if (!handler) continue;
+
+    /* Wrap handler so it logs and never throws (prevents Bull retry storms) */
+    const safeHandler = async (job) => {
+      const t0 = Date.now();
       try {
-        logger.info('Processing job', {
-          jobId: job.id,
-          queue: queueName,
-          attempt: job.attemptsMade,
-        });
-
-        let result;
-
-        // Route job to appropriate processor
-        switch (queueName) {
-          case 'saveMessage':
-            result = await JobProcessor.processSaveMessage(job);
-            break;
-          case 'saveToolExecution':
-            result = await JobProcessor.processSaveToolExecution(job);
-            break;
-          case 'saveAgentExecution':
-            result = await JobProcessor.processSaveAgentExecution(job);
-            break;
-          case 'updateSession':
-            result = await JobProcessor.processUpdateSession(job);
-            break;
-          default:
-            throw new Error(`Unknown queue: ${queueName}`);
-        }
-
-        const duration = Date.now() - startTime;
-        logger.info('Job completed successfully', {
-          jobId: job.id,
-          queue: queueName,
-          duration,
-        });
-
-        return { success: true, ...result, duration };
-      } catch (error) {
-        const duration = Date.now() - startTime;
-        logger.error('Job processing failed', {
-          jobId: job.id,
-          queue: queueName,
-          attempt: job.attemptsMade,
-          error: error.message,
-          duration,
-        });
-
-        // Bull will automatically retry based on job options
-        throw error;
+        const result = await handler(job);
+        logger.debug(`Job done [${name}] ${Date.now() - t0}ms`);
+        return result;
+      } catch (err) {
+        logger.error(`Job failed [${name}]`, { error: err.message, jobId: job?.id });
+        throw err;   // re-throw so Bull records the failure (it will NOT retry — attempts=1 below)
       }
-    });
+    };
 
-    // Event listeners for this queue
-    queues[queueName].on('completed', (job) => {
-      logger.debug(`Job completed: ${queueName} [${job.id}]`);
-    });
-
-    queues[queueName].on('failed', (job, err) => {
-      logger.error(`Job failed: ${queueName} [${job.id}]`, {
-        error: err.message,
-        attempts: job.attemptsMade,
-      });
-    });
-
-    logger.info(`Queue processor registered: ${queueName}`);
+    queueManager.process(name, concurrency, safeHandler);
+    logger.info(`Processor registered: ${name}`);
   }
 
-  logger.info('Bull Queue worker started and listening for jobs');
-  logger.info('Worker configuration: concurrency=1 (sequential), auto-retry with exponential backoff');
+  logger.info('Worker ready');
 }
 
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-  logger.info('SIGTERM received in worker, shutting down gracefully');
+/* ── Graceful shutdown ── */
+async function shutdown(signal) {
+  logger.info(`${signal} received — shutting down worker`);
   try {
-    for (const queueName of Object.keys(queues)) {
-      await queues[queueName].close();
-    }
+    await queueManager.close();
     await pool.end();
-    logger.info('Worker shut down successfully');
+    logger.info('Worker shut down cleanly');
     process.exit(0);
-  } catch (error) {
-    logger.error('Error during shutdown', { error: error.message });
+  } catch (err) {
+    logger.error('Error during worker shutdown', { error: err.message });
     process.exit(1);
   }
-});
+}
 
-// Start worker
-startWorker().catch((error) => {
-  logger.warn('Worker started in degraded mode (some features unavailable)', { error: error.message });
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT',  () => shutdown('SIGINT'));
+
+startWorker().catch((err) => {
+  logger.warn('Worker started in degraded mode', { error: err.message });
 });
