@@ -7,6 +7,8 @@ const toolRegistry = require('../tools/ToolRegistry');
 const ToolOrchestrator = require('../services/ToolOrchestrator');
 const Conversation = require('../models/Conversation');
 const QueueManager = require('../queue/QueueManager');
+const AccountManager = require('../llm/providers/AccountManager');
+const CloudflareProvider = require('../llm/providers/CloudflareProvider');
 
 const router = express.Router();
 
@@ -41,15 +43,24 @@ function startSSE(res) {
 function sseWrite(res, data) {
   if (!res.writableEnded) {
     res.write(data);
-    // Force immediate flush so each SSE chunk reaches the client without buffering.
-    // res.flush() is added by the `compression` middleware when present; fall back
-    // to the raw socket so plain Express also flushes per-chunk.
     if (typeof res.flush === 'function') {
       res.flush();
     } else if (res.socket && !res.socket.destroyed) {
       res.socket.setNoDelay(true);
     }
   }
+}
+
+function createProvider() {
+  if (env.CLOUDFLARE.accounts && env.CLOUDFLARE.accounts.length > 0) {
+    const am = new AccountManager(env.CLOUDFLARE.accounts);
+    return new CloudflareProvider({
+      accountManager: am,
+      defaultModel: env.CLOUDFLARE.defaultModel,
+      fallbackModel: env.CLOUDFLARE.fallbackModel,
+    });
+  }
+  return null;
 }
 
 router.post('/v1', authMiddleware, async (req, res) => {
@@ -101,6 +112,8 @@ router.post('/v1', authMiddleware, async (req, res) => {
 
   const useTools = payload.tools === true || payload.tools === 'true' || Array.isArray(payload.tools);
   let fullContent = '';
+  const collectedFiles = [];
+  let collectedReasoning = '';
 
   // Build NIM payload - ensure tools is always a list or omitted
   const nimPayload = {
@@ -117,11 +130,13 @@ router.post('/v1', authMiddleware, async (req, res) => {
   }
 
   if (useTools && toolRegistry.getNames().length > 0) {
+    const cfProvider = createProvider();
     const orchestrator = new ToolOrchestrator({
       toolRegistry,
       apiKey: env.NIM.apiKey,
       baseUrl: env.NIM.baseUrl,
-      model: env.NIM.model,
+      model: cfProvider ? env.CLOUDFLARE.defaultModel : env.NIM.model,
+      provider: cfProvider,
       userContext: { userId: req.user.id, conversationId: convId },
     });
 
@@ -139,6 +154,7 @@ router.post('/v1', authMiddleware, async (req, res) => {
           } catch {}
         },
         onReasoning: (chunk) => {
+          collectedReasoning += chunk;
           sseWrite(res, `event: thinking\ndata: ${JSON.stringify({ type: 'reasoning', chunk, received_at: Date.now() })}\n\n`);
         },
         onThinking: (msg) => {
@@ -151,6 +167,7 @@ router.post('/v1', authMiddleware, async (req, res) => {
           sseWrite(res, `data: ${JSON.stringify({ _type: 'tool_step', stepType: 'end', tool, id, status, summary, received_at: Date.now() })}\n\n`);
         },
         onFileCreated: (fileData) => {
+          collectedFiles.push({ ...fileData });
           sseWrite(res, `data: ${JSON.stringify({ _type: 'file_created', ...fileData, received_at: Date.now() })}\n\n`);
         },
         onDone: async () => {
@@ -160,6 +177,7 @@ router.post('/v1', authMiddleware, async (req, res) => {
             conversationId: convId,
             role: 'agent',
             content: fullContent || '',
+            metadata: { files: collectedFiles, reasoning: collectedReasoning },
           }).catch(() => {});
         },
         onError: (err) => {
@@ -174,36 +192,56 @@ router.post('/v1', authMiddleware, async (req, res) => {
       if (!res.writableEnded) res.end();
     }
   } else {
-    const baseUrl = (env.NIM.baseUrl || 'https://integrate.api.nvidia.com/v1').replace(/\/+$/, '');
-    const nimUrl = new URL(baseUrl + '/chat/completions');
+    const cfProvider = createProvider();
+    let fetchUrl, fetchHeaders;
+
+    if (cfProvider) {
+      const account = cfProvider.accountManager.getNextAccount();
+      if (!account) {
+        sseWrite(res, `data: {"error":"No healthy Cloudflare accounts available"}\n\n`);
+        if (!res.writableEnded) res.end();
+        return;
+      }
+      const baseUrl = `https://api.cloudflare.com/client/v4/accounts/${account.accountId}/ai/v1`;
+      fetchUrl = new URL(baseUrl + '/chat/completions');
+      fetchHeaders = {
+        'Authorization': `Bearer ${account.apiToken}`,
+        'Content-Type': 'application/json',
+        'Accept': 'text/event-stream',
+      };
+      nimPayload.model = account.model || env.CLOUDFLARE.defaultModel;
+      cfProvider.accountManager.markHealthy(account);
+    } else {
+      const baseUrl = (env.NIM.baseUrl || 'https://integrate.api.nvidia.com/v1').replace(/\/+$/, '');
+      fetchUrl = new URL(baseUrl + '/chat/completions');
+      fetchHeaders = {
+        'Authorization': `Bearer ${env.NIM.apiKey}`,
+        'Content-Type': 'application/json',
+        'Accept': 'text/event-stream',
+      };
+    }
+
     const body = JSON.stringify(nimPayload);
 
-    logger.info('Simple proxying to NIM', { host: nimUrl.host, path: nimUrl.pathname });
+    logger.info('Proxying to LLM', { host: fetchUrl.host, path: fetchUrl.pathname });
 
     try {
-      const nimRes = await fetch(nimUrl, {
+      const llmRes = await fetch(fetchUrl, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${env.NIM.apiKey}`,
-          'Content-Type': 'application/json',
-          'Accept': 'text/event-stream',
-        },
+        headers: fetchHeaders,
         body,
       });
 
-      if (!nimRes.ok) {
+      if (!llmRes.ok) {
         let errorDetail = '';
-        try {
-          const errorBody = await nimRes.text();
-          errorDetail = errorBody;
-        } catch {}
-        logger.error('NIM API error', { status: nimRes.status, error: errorDetail });
-        sseWrite(res, `data: {"error":"NIM upstream error: ${nimRes.status}","details":${JSON.stringify(errorDetail)}}\n\n`);
+        try { errorDetail = await llmRes.text(); } catch {}
+        logger.error('LLM API error', { status: llmRes.status, error: errorDetail });
+        sseWrite(res, `data: {"error":"LLM upstream error: ${llmRes.status}","details":${JSON.stringify(errorDetail)}}\n\n`);
         if (!res.writableEnded) res.end();
         return;
       }
 
-      const reader = nimRes.body.getReader();
+      const reader = llmRes.body.getReader();
       const decoder = new TextDecoder();
       let remainder = '';
 
@@ -230,14 +268,12 @@ router.post('/v1', authMiddleware, async (req, res) => {
                 try {
                   const parsed = JSON.parse(trimmed.slice(6));
                   const delta = parsed.choices?.[0]?.delta || {};
-                  // Reasoning token → emit as thinking event immediately
                   if (delta.reasoning_content) {
                     sseWrite(res, `event: thinking\ndata: ${JSON.stringify({ type: 'reasoning', chunk: delta.reasoning_content, received_at: Date.now() })}\n\n`);
-                    continue;   // don't also forward the raw line (client would double-count)
+                    continue;
                   }
                   if (delta.content) fullContent += delta.content;
                 } catch {}
-                // Forward each content line immediately — \n\n is required by SSE spec
                 sseWrite(res, injectReceivedAt(trimmed) + '\n\n');
               }
             }
@@ -281,7 +317,7 @@ router.post('/v1', authMiddleware, async (req, res) => {
       });
 
     } catch (err) {
-      logger.error('Simple proxy error', { error: err.message });
+      logger.error('LLM proxy error', { error: err.message });
       sseWrite(res, `data: {"error":${JSON.stringify(err.message)}}\n\n`);
       if (!res.writableEnded) res.end();
     }
@@ -329,17 +365,21 @@ router.post('/chat', authMiddleware, async (req, res) => {
   sseWrite(res, `data: ${JSON.stringify({ conversationId: convId })}\n\n`);
 
   let fullContent = '';
+  const collectedFiles = [];
+  let collectedReasoning = '';
   const msgPayload = {
     messages: [{ role: 'user', content: message }],
     tools: true,
     stream: true,
   };
 
+  const cfProvider = createProvider();
   const orchestrator = new ToolOrchestrator({
     toolRegistry,
     apiKey: env.NIM.apiKey,
     baseUrl: env.NIM.baseUrl,
-    model: env.NIM.model,
+    model: cfProvider ? env.CLOUDFLARE.defaultModel : env.NIM.model,
+    provider: cfProvider,
     userContext: { userId: req.user.id, conversationId: convId },
   });
 
@@ -357,6 +397,7 @@ router.post('/chat', authMiddleware, async (req, res) => {
         } catch {}
       },
       onReasoning: (chunk) => {
+        collectedReasoning += chunk;
         sseWrite(res, `event: thinking\ndata: ${JSON.stringify({ type: 'reasoning', chunk, received_at: Date.now() })}\n\n`);
       },
       onThinking: (msg) => {
@@ -369,6 +410,7 @@ router.post('/chat', authMiddleware, async (req, res) => {
         sseWrite(res, `data: ${JSON.stringify({ _type: 'tool_step', stepType: 'end', tool, id, status, summary, received_at: Date.now() })}\n\n`);
       },
       onFileCreated: (fileData) => {
+        collectedFiles.push({ ...fileData });
         sseWrite(res, `data: ${JSON.stringify({ _type: 'file_created', ...fileData, received_at: Date.now() })}\n\n`);
       },
       onDone: async () => {
@@ -378,6 +420,7 @@ router.post('/chat', authMiddleware, async (req, res) => {
           conversationId: convId,
           role: 'agent',
           content: fullContent || '',
+          metadata: { files: collectedFiles, reasoning: collectedReasoning },
         }).catch(() => {});
       },
       onError: (err) => {

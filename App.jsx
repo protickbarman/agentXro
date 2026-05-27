@@ -49,7 +49,7 @@ function ChatApp() {
     appendStreaming, clearStreaming,
     setTyping,
     addFileCard,
-    clearToolSteps, addToolStep, updateToolStep,
+    appendReasoning, clearReasoning,
   } = useChatStore();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -59,6 +59,16 @@ function ChatApp() {
     getConversations().then(setConversations).catch(() => {});
   }, []);
 
+  /* ── Helper: populate fileCards from message metadata ── */
+  const populateFilesFromMessages = useCallback((msgs) => {
+    msgs.forEach(msg => {
+      const files = msg.metadata?.files;
+      if (files && files.length > 0) {
+        files.forEach(f => useChatStore.getState().addFileCard(msg.id, f));
+      }
+    });
+  }, []);
+
   /* ── Sync URL → store (deep-link / back-forward nav) ── */
   useEffect(() => {
     if (isNew || !paramConvId) return;
@@ -66,7 +76,10 @@ function ChatApp() {
     if (store.activeConvId !== paramConvId) setActiveConv(paramConvId);
     if (!(store.messages[paramConvId]?.length > 0)) {
       getMessages(paramConvId)
-        .then(msgs => setMessages(paramConvId, msgs))
+        .then(msgs => {
+          setMessages(paramConvId, msgs);
+          populateFilesFromMessages(msgs);
+        })
         .catch(() => {});
     }
   }, [paramConvId, isNew]);
@@ -77,7 +90,10 @@ function ChatApp() {
     navigate(`/xro/${conv.id}`);
     const store = useChatStore.getState();
     if (!(store.messages[conv.id]?.length > 0)) {
-      getMessages(conv.id).then(msgs => setMessages(conv.id, msgs)).catch(() => {});
+      getMessages(conv.id).then(msgs => {
+        setMessages(conv.id, msgs);
+        populateFilesFromMessages(msgs);
+      }).catch(() => {});
     }
   }, []);
 
@@ -98,11 +114,12 @@ function ChatApp() {
     if (!text.trim()) return;
 
     const initialKey = useChatStore.getState().activeConvId || 'temp';
+    const streamMsgId = `ai-${Date.now()}`;
 
     /* Reset UI state */
     setTyping(true);
     clearStreaming();
-    clearToolSteps();
+    clearReasoning();
 
     /* Optimistically add user + placeholder AI messages */
     const userMsg = {
@@ -111,7 +128,6 @@ function ChatApp() {
       content: text,
       created_at: new Date().toISOString(),
     };
-    const streamMsgId = `ai-${Date.now()}`;
     const streamMsg = {
       id: streamMsgId,
       role: 'agent',
@@ -137,6 +153,7 @@ function ChatApp() {
 
       setTyping(false);
       clearStreaming();
+      clearReasoning();
     };
 
     const failStream = (errMsg) => {
@@ -158,19 +175,40 @@ function ChatApp() {
           appendStreaming(chunk);
         },
 
+        onReasoning: (chunk) => {
+          appendReasoning(chunk);
+        },
+
         onToolStep: (stepData) => {
+          const store = useChatStore.getState();
+          /* flush reasoning buffer on first non-reasoning event */
+          if (store.reasoningBuffer) {
+            const r = store.reasoningBuffer;
+            clearReasoning();
+            appendStreaming(`<details class="ts ts-reasoning" open><summary>🧠 Reasoning</summary>${r}</details>`);
+          }
           if (stepData.stepType === 'start') {
-            addToolStep({
-              id: stepData.id,
-              tool: stepData.tool,
-              status: 'running',
-              message: stepData.message,
-            });
-          } else if (stepData.stepType === 'end') {
-            updateToolStep(stepData.id, {
-              status: stepData.status,
-              summary: stepData.summary,
-            });
+            appendStreaming(
+              `<details class="ts ts--run" data-tool-id="${stepData.id}">` +
+              `<summary>🔧 ${stepData.tool}: ${stepData.message || ''}</summary></details>`
+            );
+          } else {
+            /* swap running step → done step with status text */
+            const s = useChatStore.getState();
+            const marker = `data-tool-id="${stepData.id}"`;
+            const idx = s.streamingContent.indexOf(marker);
+            if (idx === -1) return;
+            const openStart = s.streamingContent.lastIndexOf('<details ', idx);
+            const closeEnd = s.streamingContent.indexOf('</details>', idx);
+            if (openStart === -1 || closeEnd === -1) return;
+            const before = s.streamingContent.slice(0, openStart);
+            const inner = s.streamingContent.slice(openStart, closeEnd + 10);
+            const after = s.streamingContent.slice(closeEnd + 10);
+            const updated = inner
+              .replace('ts--run', 'ts--done')
+              .replace('<details ', '<details open ')
+              .replace('</details>', `<p>${stepData.summary || stepData.status || 'Done'}</p></details>`);
+            useChatStore.setState({ streamingContent: before + updated + after });
           }
         },
 

@@ -3,36 +3,37 @@ const logger = require('../config/logger');
 const FILE_TOOLS = new Set(['file_save', 'file_read_content', 'file_list', 'file_delete']);
 
 class ToolOrchestrator {
-  constructor({ toolRegistry, apiKey, baseUrl, model, maxIterations = 10, userContext }) {
-    this.toolRegistry   = toolRegistry;
-    this.apiKey         = apiKey;
-    this.baseUrl        = baseUrl;
-    this.model          = model;
-    this.maxIterations  = maxIterations;
-    this.userContext    = userContext || {};
+  constructor({ toolRegistry, apiKey, baseUrl, model, provider, maxIterations = 10, userContext }) {
+    this.toolRegistry    = toolRegistry;
+    this.apiKey          = apiKey;
+    this.baseUrl         = baseUrl;
+    this.model           = model;
+    this.provider        = provider || null;
+    this.maxIterations   = maxIterations;
+    this.userContext     = userContext || {};
   }
 
   async run(messages, payload, callbacks) {
     const { onThinking, onReasoning, onDone, onError, onSSE, onFileCreated, onToolStart, onToolEnd } = callbacks;
-    const toolSchemas    = this.toolRegistry.getSchemas();
+    const toolSchemas     = this.toolRegistry.getSchemas();
     const currentMessages = [...messages];
     let iteration = 0;
 
     while (iteration < this.maxIterations) {
       iteration++;
 
-      const nimPayload = {
-        model:        payload.model || this.model,
-        messages:     currentMessages,
-        tools:        toolSchemas,
-        tool_choice:  'auto',
-        temperature:  payload.temperature  ?? 0.9,
-        top_p:        payload.top_p        ?? 0.95,
-        max_tokens:   payload.max_tokens   ?? 4096,
-        stream:       true,
+      const llmPayload = {
+        model:       payload.model || this.model,
+        messages:    currentMessages,
+        tools:       toolSchemas,
+        tool_choice: 'auto',
+        temperature: payload.temperature  ?? 0.9,
+        top_p:       payload.top_p        ?? 0.95,
+        max_tokens:  payload.max_tokens   ?? 4096,
+        stream:      true,
       };
 
-      const { toolCalls, finishReason } = await this._callNIM(nimPayload, {
+      const { toolCalls, finishReason } = await this._callChat(llmPayload, {
         onReasoning: (chunk) => { if (onReasoning) onReasoning(chunk); },
         onSSE:       (line)  => { if (onSSE)       onSSE(line); },
       });
@@ -59,10 +60,10 @@ class ToolOrchestrator {
           let args = {};
           try { args = JSON.parse(tc.function.arguments); } catch { args = {}; }
 
-          if (onThinking) onThinking(`⚙️ Running tool: ${name}…`);
+          if (onThinking) onThinking(`\u2699\uFE0F Running tool: ${name}\u2026`);
 
           const stepId = `step_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
-          if (onToolStart) onToolStart(name, stepId, `Running ${name}…`);
+          if (onToolStart) onToolStart(name, stepId, `Running ${name}\u2026`);
 
           if (this.toolRegistry.has(name)) {
             const tool = this.toolRegistry.get(name);
@@ -95,9 +96,77 @@ class ToolOrchestrator {
     if (onDone) onDone();
   }
 
-  async _callNIM(payload, callbacks = {}) {
+  async _callChat(payload, callbacks = {}) {
+    if (this.provider) {
+      return await this._callWithProvider(payload, callbacks);
+    }
+    return await this._callDirect(payload, callbacks);
+  }
+
+  async _callWithProvider(payload, callbacks = {}) {
     const { onReasoning, onSSE } = callbacks;
-    const baseUrl = this.baseUrl.replace(/\/+$/, '');
+    const provider = this.provider;
+
+    let account = null;
+    let baseUrl, apiKey, model;
+
+    if (provider.name === 'cloudflare' && provider.accountManager) {
+      account = provider.accountManager.getNextAccount();
+      if (!account) throw new Error('No healthy Cloudflare accounts available');
+      baseUrl = `https://api.cloudflare.com/client/v4/accounts/${account.accountId}/ai/v1`;
+      apiKey = account.apiToken;
+      model = account.model || payload.model;
+    } else {
+      baseUrl = (this.baseUrl || 'https://integrate.api.nvidia.com/v1').replace(/\/+$/, '');
+      apiKey = this.apiKey;
+      model = payload.model;
+    }
+
+    const url = new URL(baseUrl + '/chat/completions');
+    const body = JSON.stringify({ ...payload, model });
+
+    let res;
+    try {
+      res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type':  'application/json',
+          'Accept':        'text/event-stream',
+        },
+        body,
+      });
+    } catch (err) {
+      if (account && provider.accountManager) provider.accountManager.markFailed(account);
+      throw err;
+    }
+
+    if (res.status === 429 || res.status === 403) {
+      if (account && provider.accountManager) {
+        provider.accountManager.markFailed(account);
+        logger.warn(`Provider account rate limited, retrying next account`);
+        return await this._callWithProvider(payload, callbacks);
+      }
+      const errBody = await res.text();
+      throw new Error(`Provider error ${res.status}: ${errBody}`);
+    }
+
+    if (!res.ok) {
+      if (account && provider.accountManager) provider.accountManager.markFailed(account);
+      const errBody = await res.text();
+      throw new Error(`Provider error ${res.status}: ${errBody}`);
+    }
+
+    if (account && provider.accountManager) {
+      provider.accountManager.markHealthy(account);
+    }
+
+    return await this._readSSE(res, { onReasoning, onSSE });
+  }
+
+  async _callDirect(payload, callbacks = {}) {
+    const { onReasoning, onSSE } = callbacks;
+    const baseUrl = (this.baseUrl || 'https://integrate.api.nvidia.com/v1').replace(/\/+$/, '');
     const url     = new URL(baseUrl + '/chat/completions');
     const body    = JSON.stringify(payload);
 
@@ -117,34 +186,30 @@ class ToolOrchestrator {
       throw new Error(`NIM error ${res.status}: ${errBody}`);
     }
 
+    return await this._readSSE(res, { onReasoning, onSSE });
+  }
+
+  async _readSSE(res, callbacks = {}) {
+    const { onReasoning, onSSE } = callbacks;
     const reader  = res.body.getReader();
     const decoder = new TextDecoder();
 
-    let remainder  = '';   // incomplete line carried across reads
+    let remainder  = '';
     let toolCalls  = [];
     let finishReason = 'stop';
 
-    // Process each network chunk as it arrives — no holding back
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
-      // Append new bytes to any leftover from the previous read
       const text = remainder + decoder.decode(value, { stream: true });
-
-      // Find the last newline so we only process complete lines
       const lastNL = text.lastIndexOf('\n');
       if (lastNL === -1) {
-        // Haven't seen a newline yet — keep buffering
         remainder = text;
         continue;
       }
-
-      // Everything up to and including the last newline is complete
       const complete = text.slice(0, lastNL + 1);
       remainder      = text.slice(lastNL + 1);
-
-      // Split into individual lines and process each one immediately
       const lines = complete.split('\n');
 
       for (const rawLine of lines) {
@@ -163,19 +228,15 @@ class ToolOrchestrator {
 
         const delta = choice.delta || {};
 
-        // ── Reasoning / thinking tokens ──────────────────
         const reasoningChunk = delta.reasoning_content || delta.reasoning;
         if (reasoningChunk && reasoningChunk.length > 0 && onReasoning) {
           onReasoning(reasoningChunk);
         }
 
-        // ── Regular content — emit SSE line immediately ──
-        // Only forward lines that have actual content or are finish signals
         if (!delta.tool_calls && onSSE) {
-          onSSE(line);          // ← emit right away, don't buffer
+          onSSE(line);
         }
 
-        // ── Tool call deltas ─────────────────────────────
         if (delta.tool_calls) {
           for (const tc of delta.tool_calls) {
             const existing = toolCalls.find(t => t.index === tc.index);
@@ -202,7 +263,6 @@ class ToolOrchestrator {
       }
     }
 
-    // Handle any leftover bytes after the stream closes
     if (remainder.trim()) {
       const line = remainder.trim();
       if (line.startsWith('data: ') && line !== 'data: [DONE]') {

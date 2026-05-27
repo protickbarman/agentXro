@@ -61,6 +61,23 @@ module.exports = {
     enableThinking: getBool('NIM_ENABLE_THINKING', true),
   },
 
+  CLOUDFLARE: {
+    accounts: (() => {
+      const raw = get('CLOUDFLARE_ACCOUNTS');
+      if (raw) {
+        try {
+          const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      }
+      return [];
+    })(),
+    defaultModel: get('CLOUDFLARE_DEFAULT_MODEL', '@cf/zai-org/glm-4.7-flash'),
+    fallbackModel: get('CLOUDFLARE_FALLBACK_MODEL', '@cf/meta/llama-3.3-70b-instruct-fp8-fast'),
+  },
+
   FALLBACK_LLM: {
     provider: get('FALLBACK_LLM_PROVIDER'),
     apiKey: get('FALLBACK_LLM_KEY'),

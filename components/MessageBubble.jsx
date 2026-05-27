@@ -4,7 +4,6 @@ import hljs from 'highlight.js';
 import 'highlight.js/styles/github-dark.css';
 import { useChatStore } from '../store/chatStore.js';
 import FileCard from './FileCard.jsx';
-import StepCard from './StepCard.jsx';
 
 /* ── Marked setup ────────────────────────── */
 marked.setOptions({ breaks: true, gfm: true });
@@ -98,8 +97,15 @@ export default function MessageBubble({ msg, isStreaming, liveContent }) {
 
   const allFileCards = useChatStore(s => s.fileCards);
   const cards = allFileCards[msg.id] || [];
-  const toolStepIds = useChatStore(s => s.toolStepIds);
-  const toolSteps = useChatStore(s => s.toolSteps);
+  const metaFiles = msg.metadata?.files || [];
+  const allFiles = [...metaFiles, ...cards].filter(
+    (f, i, arr) => arr.findIndex(x => (x.id || x.filename) === (f.id || f.filename)) === i
+  );
+
+  const reasoningBuffer = useChatStore(s => s.reasoningBuffer);
+  const liveReasoning = isStreaming ? reasoningBuffer : '';
+  const savedReasoning = msg.metadata?.reasoning || '';
+  const reasoningText = liveReasoning || savedReasoning;
 
   return (
     <div className="msg-row msg-row--agent">
@@ -107,28 +113,24 @@ export default function MessageBubble({ msg, isStreaming, liveContent }) {
       <div className="msg-col" style={{ flex: 1, minWidth: 0 }}>
 
         <div className={`msg-bubble msg-bubble--agent${isStreaming ? ' msg-bubble--streaming' : ''}`}>
-          {/* Step cards always render immediately, regardless of content */}
-          {toolStepIds.length > 0 && (
-            <div className="step-card-list">
-              {toolStepIds.map(id => {
-                const st = toolSteps[id];
-                if (!st) return null;
-                return <StepCard key={id} step={st} />;
-              })}
-            </div>
-          )}
-          {showDots ? (
+          {showDots && !reasoningText ? (
             <TypingDots />
           ) : (
             <>
+              {reasoningText && (
+                <details className="ts ts-reasoning" open>
+                  <summary>Thinking...</summary>
+                  <div className="ts-body">{reasoningText}</div>
+                </details>
+              )}
               <div
                 className="md-body"
                 ref={contentRef}
                 dangerouslySetInnerHTML={{ __html: html }}
               />
-              {cards.length > 0 && (
+              {allFiles.length > 0 && (
                 <div className="file-card-list">
-                  {cards.map((f, i) => <FileCard key={i} file={f} />)}
+                  {allFiles.map((f, i) => <FileCard key={f.id || f.filename || i} file={f} />)}
                 </div>
               )}
               {isStreaming && <span className="stream-cursor" />}

@@ -167,7 +167,6 @@ const CompareTool = require("../tools/utility/CompareTool.js");
 const CounterTool = require("../tools/utility/CounterTool.js");
 const DebounceTool = require("../tools/utility/DebounceTool.js");
 const DeepCloneTool = require("../tools/utility/DeepCloneTool.js");
-const EchoTool = require("../tools/utility/EchoTool.js");
 const IdGeneratorTool = require("../tools/utility/IdGeneratorTool.js");
 const JsonSchemaTool = require("../tools/utility/JsonSchemaTool.js");
 const MorseCodeTool = require("../tools/utility/MorseCodeTool.js");
@@ -366,7 +365,6 @@ async function initializeTools() {
     toolRegistry.register("counter", new CounterTool());
     toolRegistry.register("debounce", new DebounceTool());
     toolRegistry.register("deep_clone", new DeepCloneTool());
-    toolRegistry.register("echo", new EchoTool());
     toolRegistry.register("id_generator", new IdGeneratorTool());
     toolRegistry.register("json_schema", new JsonSchemaTool());
     toolRegistry.register("morse_code", new MorseCodeTool());

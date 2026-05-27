@@ -1,6 +1,8 @@
 const logger = require('../../config/logger');
 const env = require('../../config/env');
 const NIMProvider = require('./NIMProvider');
+const CloudflareProvider = require('./CloudflareProvider');
+const AccountManager = require('./AccountManager');
 const FallbackProvider = require('./FallbackProvider');
 
 /**
@@ -13,6 +15,86 @@ class LLMManager {
     this.primaryProvider = null;
     this.fallbackProviders = [];
     this.totalTokensUsed = 0;
+    this.accountManager = null;
+  }
+
+  /**
+   * Initialize LLM manager
+   * @returns {Promise}
+   */
+  async initialize() {
+    logger.info('Initializing LLM Manager');
+
+    // Try Cloudflare first (primary) if accounts configured
+    if (env.CLOUDFLARE.accounts && env.CLOUDFLARE.accounts.length > 0) {
+      try {
+        this.accountManager = new AccountManager(env.CLOUDFLARE.accounts);
+        const cfProvider = new CloudflareProvider({
+          accountManager: this.accountManager,
+          defaultModel: env.CLOUDFLARE.defaultModel,
+          fallbackModel: env.CLOUDFLARE.fallbackModel,
+        });
+        await cfProvider.initialize();
+        this.providers.set('cloudflare', cfProvider);
+        this.primaryProvider = cfProvider;
+        logger.info('Cloudflare provider initialized as primary', {
+          accounts: env.CLOUDFLARE.accounts.length,
+        });
+      } catch (error) {
+        logger.warn('Failed to initialize Cloudflare provider', { error: error.message });
+      }
+    }
+
+    // If no Cloudflare primary, try NVIDIA NIM
+    if (!this.primaryProvider) {
+      try {
+        const nimProvider = new NIMProvider({
+          apiKey: env.NIM.apiKey,
+          baseUrl: env.NIM.baseUrl,
+          model: env.NIM.model,
+        });
+        await nimProvider.initialize();
+        this.providers.set('nim', nimProvider);
+        this.primaryProvider = nimProvider;
+        logger.info('NVIDIA NIM provider initialized as primary');
+      } catch (error) {
+        logger.warn('Failed to initialize NVIDIA NIM provider', { error: error.message });
+      }
+    } else {
+      // Cloudflare is primary, add NIM as fallback
+      try {
+        const nimProvider = new NIMProvider({
+          apiKey: env.NIM.apiKey,
+          baseUrl: env.NIM.baseUrl,
+          model: env.NIM.model,
+        });
+        await nimProvider.initialize();
+        this.providers.set('nim', nimProvider);
+        this.fallbackProviders.push(nimProvider);
+        logger.info('NVIDIA NIM provider initialized as fallback');
+      } catch (error) {
+        logger.warn('Failed to initialize NVIDIA NIM fallback', { error: error.message });
+      }
+    }
+
+    try {
+      // Initialize Fallback LLM
+      const fallbackProvider = new FallbackProvider({
+        provider: env.FALLBACK_LLM.provider,
+        apiKey: env.FALLBACK_LLM.key,
+        model: env.FALLBACK_LLM.model,
+      });
+      await fallbackProvider.initialize();
+      this.providers.set('fallback', fallbackProvider);
+      this.fallbackProviders.push(fallbackProvider);
+      logger.info('Fallback LLM provider initialized');
+    } catch (error) {
+      logger.warn('Failed to initialize fallback LLM provider', { error: error.message });
+    }
+
+    if (!this.primaryProvider && this.fallbackProviders.length === 0) {
+      throw new Error('No LLM providers available');
+    }
   }
 
   /**
@@ -125,11 +207,50 @@ class LLMManager {
   }
 
   /**
-   * Create a NIM provider with a specific model
+   * Hot-reload Cloudflare accounts
+   * @param {Array} accounts - Array of { accountId, apiToken, model }
+   */
+  setCloudflareAccounts(accounts) {
+    this.accountManager = new AccountManager(accounts);
+
+    const cfProvider = this.providers.get('cloudflare');
+    if (cfProvider) {
+      cfProvider.accountManager = this.accountManager;
+      logger.info('Cloudflare accounts hot-reloaded', { count: accounts.length });
+    } else {
+      const CloudflareProvider = require('./CloudflareProvider');
+      const newProvider = new CloudflareProvider({
+        accountManager: this.accountManager,
+        defaultModel: env.CLOUDFLARE.defaultModel,
+        fallbackModel: env.CLOUDFLARE.fallbackModel,
+      });
+      newProvider.initialize().catch(() => {});
+      this.providers.set('cloudflare', newProvider);
+      this.primaryProvider = newProvider;
+      logger.info('Cloudflare provider added with accounts', { count: accounts.length });
+    }
+  }
+
+  /**
+   * Create a provider with a specific model
    * @param {string} model - Model ID
-   * @returns {NIMProvider} Provider instance
+   * @param {object} extra - Additional options
+   * @returns {BaseProvider} Provider instance
    */
   createProvider(model, extra = {}) {
+    if (extra.provider === 'cloudflare') {
+      const CloudflareProvider = require('./CloudflareProvider');
+      const AccountManager = require('./AccountManager');
+      const am = new AccountManager(extra.accounts || env.CLOUDFLARE.accounts || []);
+      return new CloudflareProvider({
+        accountManager: am,
+        defaultModel: model,
+        fallbackModel: extra.fallbackModel || env.CLOUDFLARE.fallbackModel,
+        timeout: extra.timeout || 120000,
+        maxRetries: extra.maxRetries ?? 2,
+        ...extra,
+      });
+    }
     const NIMProvider = require('./NIMProvider');
     return new NIMProvider({
       apiKey: env.NIM.apiKey,
@@ -190,12 +311,14 @@ class LLMManager {
    * @returns {object} Manager statistics
    */
   getStats() {
+    const cfStatus = this.accountManager ? this.accountManager.getStatus() : null;
     return {
       totalTokensUsed: this.totalTokensUsed,
       providersCount: this.providers.size,
       primaryProvider: this.primaryProvider?.name || null,
       fallbackProviders: this.fallbackProviders.map(p => p.name),
       providers: this.getProvidersInfo(),
+      cloudflareAccounts: cfStatus,
     };
   }
 

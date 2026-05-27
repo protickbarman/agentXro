@@ -75,6 +75,7 @@ const MESSAGE_ROLES = {
 // LLM providers
 const LLM_PROVIDERS = {
   NIM: 'nim',
+  CLOUDFLARE: 'cloudflare',
   FALLBACK: 'fallback',
 };
 

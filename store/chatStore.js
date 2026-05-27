@@ -11,6 +11,7 @@ export const useChatStore = create((set, get) => ({
   /* ── Streaming state ── */
   streamingContent: '',
   isTyping: false,
+  reasoningBuffer: '',
 
   /* ── File cards keyed by message id ── */
   fileCards: {},
@@ -25,22 +26,9 @@ export const useChatStore = create((set, get) => ({
     return { fileCards: next };
   }),
 
-  /* ── Tool steps (transient — shown during streaming) ── */
-  toolStepIds: [],
-  toolSteps: {},
-
-  addToolStep: (step) => set((s) => ({
-    toolStepIds: [...s.toolStepIds, step.id],
-    toolSteps: { ...s.toolSteps, [step.id]: step },
-  })),
-
-  updateToolStep: (id, updates) => set((s) => {
-    const existing = s.toolSteps[id];
-    if (!existing) return {};
-    return { toolSteps: { ...s.toolSteps, [id]: { ...existing, ...updates } } };
-  }),
-
-  clearToolSteps: () => set({ toolStepIds: [], toolSteps: {} }),
+  /* ── Reasoning buffer for live streaming ── */
+  appendReasoning: (chunk) => set((s) => ({ reasoningBuffer: s.reasoningBuffer + chunk })),
+  clearReasoning:   () => set({ reasoningBuffer: '' }),
 
   /* ─────────────── Actions ─────────────── */
 
@@ -60,6 +48,7 @@ export const useChatStore = create((set, get) => ({
     activeConvId: id,
     streamingContent: '',
     isTyping: false,
+    reasoningBuffer: '',
   }),
 
   /* Migrate temp messages to real convId WITHOUT touching streaming buffers */

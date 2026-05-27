@@ -36,6 +36,25 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+app.get('/api/providers/status', async (req, res) => {
+  try {
+    const llmManager = require('./llm/providers/LLMManager');
+    const stats = llmManager.getStats();
+    res.json({
+      success: true,
+      data: {
+        primary: stats.primaryProvider,
+        fallbacks: stats.fallbackProviders,
+        cloudflare: stats.cloudflareAccounts,
+        providers: stats.providers,
+        totalTokensUsed: stats.totalTokensUsed,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.use('/xro', require('./routes/xro'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/conversations', require('./routes/conversations'));

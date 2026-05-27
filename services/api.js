@@ -115,6 +115,17 @@ export async function getMessages(convId, limit = 100) {
   return data.data || [];
 }
 
+/* Yield to React so it can repaint between SSE events */
+function yieldToReact() {
+  return new Promise(resolve => {
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => setTimeout(resolve, 0));
+    } else {
+      setTimeout(resolve, 0);
+    }
+  });
+}
+
 /* ─── AI Send (SSE via /xro/v1) ──────────── */
 async function _doSSE(token, message, convId, callbacks) {
   const res = await fetch('/xro/v1', {
@@ -138,6 +149,7 @@ async function _doSSE(token, message, convId, callbacks) {
   const decoder = new TextDecoder();
   let buf = '';
   let convIdReceived = false;
+  let prevWasEvent = false;
 
   while (true) {
     const { done, value } = await reader.read();
@@ -150,15 +162,39 @@ async function _doSSE(token, message, convId, callbacks) {
     for (const raw of parts) {
       const line = raw.trimEnd();
 
-      if (line === '') continue;
+      if (line === '') {
+        prevWasEvent = false;
+        continue;
+      }
 
-      if (!line.startsWith('data: ')) continue;
+      if (line.startsWith('event: ')) {
+        prevWasEvent = line.includes('thinking');
+        continue;
+      }
+
+      if (!line.startsWith('data: ')) {
+        prevWasEvent = false;
+        continue;
+      }
 
       const data = line.slice(6);
 
       if (data === '[DONE]') {
         callbacks.onDone?.();
         return 'OK';
+      }
+
+      /* Reasoning event (after event: thinking) */
+      if (prevWasEvent) {
+        prevWasEvent = false;
+        try {
+          const r = JSON.parse(data);
+          if (r.type === 'reasoning' && typeof r.chunk === 'string') {
+            callbacks.onReasoning?.(r.chunk);
+            await yieldToReact();
+            continue;
+          }
+        } catch {}
       }
 
       let parsed;
@@ -170,6 +206,7 @@ async function _doSSE(token, message, convId, callbacks) {
 
       if (parsed._type === 'tool_step') {
         callbacks.onToolStep?.(parsed);
+        await yieldToReact();
         continue;
       }
 
@@ -185,7 +222,10 @@ async function _doSSE(token, message, convId, callbacks) {
       }
 
       const content = parsed.choices?.[0]?.delta?.content;
-      if (content != null) callbacks.onContent?.(content);
+      if (content != null) {
+        callbacks.onContent?.(content);
+        await yieldToReact();
+      }
     }
   }
   return 'OK';

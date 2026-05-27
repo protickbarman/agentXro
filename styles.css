@@ -843,123 +843,53 @@ input, textarea { outline: none; font: inherit; color: inherit; }
   color: var(--accent);
 }
 
-/* ══════════════════════════════════════════════════════════
-   STEP CARDS (Claude-style collapsible tool execution)
-══════════════════════════════════════════════════════════ */
-.step-card-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 10px;
-}
-
-.step-card {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  background: var(--surface);
-  transition: border-color var(--transition);
-}
-
-.step-card--running {
-  border-color: var(--accent);
-  border-left: 3px solid var(--accent);
-}
-
-.step-card--success {
-  border-color: var(--border2);
-  border-left: 3px solid #4ade80;
-}
-
-.step-card--failed {
-  border-color: var(--red);
-  border-left: 3px solid var(--red);
-}
-
-.step-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+/* ── Collapsible tool steps & reasoning (.ts = "think step") ── */
+.ts {
+  display: block;
   width: 100%;
-  padding: 8px 12px;
-  background: transparent;
-  border: none;
-  color: var(--text);
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.step-header:hover {
-  background: var(--surface2);
-}
-
-.step-header-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.step-chevron {
-  font-size: 10px;
-  color: var(--text3);
-  transition: transform .2s ease;
-  flex-shrink: 0;
-}
-
-.step-chevron--open {
-  transform: rotate(90deg);
-}
-
-.step-spinner {
-  width: 14px;
-  height: 14px;
-  border: 2px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: step-spin .7s linear infinite;
-  flex-shrink: 0;
-}
-
-.step-icon {
-  font-size: 12px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.step-icon--success { color: #4ade80; }
-.step-icon--failed  { color: var(--red); }
-
-.step-tool-badge {
-  font-weight: 600;
-  color: var(--accent);
-  font-size: 12px;
-}
-
-.step-status-text {
-  color: var(--text3);
-  font-size: 12px;
-}
-
-.step-body {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height .3s ease;
-}
-
-.step-body--open {
-  max-height: 300px;
-}
-
-.step-body-inner {
-  padding: 0 12px 10px;
-  font-size: 13px;
-  color: var(--text2);
+  margin: 2px 0;
+  font-size: inherit;
   line-height: 1.5;
 }
-
-.step-message,
-.step-summary {
-  margin: 0;
+.ts summary {
+  cursor: pointer;
+  user-select: none;
+  font-family: inherit;
+  font-size: inherit;
+  display: inline;
+  color: inherit;
+}
+.ts summary::marker {
+  color: var(--text-muted, #999);
+}
+.ts--run summary {
+  background: linear-gradient(90deg, var(--text2) 0%, var(--accent) 40%, var(--accent) 60%, var(--text2) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ts-shimmer 1.8s ease-in-out infinite;
+}
+@keyframes ts-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.ts-reasoning summary {
+  color: var(--text-muted, #888);
+}
+.ts-reasoning .ts-body {
+  color: var(--text-muted, #777);
+  font-style: italic;
+}
+.ts--done summary {
+  font-weight: 500;
+}
+.ts--done .ts-body {
+  user-select: auto;
+  font-style: normal;
+}
+.ts--fail summary {
+  color: var(--error, #e74c3c);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1000,9 +930,7 @@ input, textarea { outline: none; font: inherit; color: inherit; }
   to { transform: rotate(360deg); }
 }
 
-@keyframes step-spin {
-  to { transform: rotate(360deg); }
-}
+
 
 /* ══════════════════════════════════════════════════════════
    RESPONSIVE — Mobile
