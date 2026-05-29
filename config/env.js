@@ -127,6 +127,10 @@ module.exports = {
     maxFiles: getInt('LOG_MAX_FILES', 14),
   },
 
+  MONGO: {
+    uri: get('MONGODB_URI', ''),
+  },
+
   FEATURES: {
     debugEndpoints: getBool('ENABLE_DEBUG_ENDPOINTS', false),
   },

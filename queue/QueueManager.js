@@ -2,11 +2,10 @@ const logger = require('../config/logger');
 const env    = require('../config/env');
 
 /* ─────────────────────────────────────────────────────────
-   Graceful queue wrapper
-   • Tries Bull (Redis-backed) on first add()
-   • If Redis is unavailable it falls back to a direct
-     in-process "queue" that just calls the processor fn
-     immediately (no persistence, no retries, but no crash)
+   In-process queue wrapper
+   • Executes jobs directly via registered processors
+   • Bull/Redis queue is NOT used by the server process
+   • Worker process (if running) handles its own Redis jobs
 ───────────────────────────────────────────────────────── */
 
 let Bull;
@@ -88,30 +87,9 @@ class QueueManager {
     logger.info('QueueManager initialized', { queues: QUEUE_NAMES });
   }
 
-  /* ── Add a job — Bull if Redis OK, otherwise run inline ── */
+  /* ── Add a job — direct in-process execution ── */
   async add(queueName, data, opts = {}) {
     if (!this.initialized) this.initialize();
-
-    // If we already know Redis is down, skip Bull entirely
-    const useDirect = this.redisOk === false || !this.queues[queueName];
-
-    if (!useDirect) {
-      try {
-        const defaultOpts = {
-          attempts:         env.WORKER?.maxRetries || 3,
-          backoff:          { type: 'exponential', delay: 1000 },
-          removeOnComplete: true,
-          removeOnFail:     false,
-        };
-        return await this.queues[queueName].add(data, { ...defaultOpts, ...opts });
-      } catch (err) {
-        // Redis failed mid-flight — mark down and fall through to direct
-        logger.warn(`Bull add failed for [${queueName}], using direct fallback`, { error: err.message });
-        this.redisOk = false;
-      }
-    }
-
-    // ── Direct / in-process fallback ──
     return this._runDirect(queueName, data);
   }
 

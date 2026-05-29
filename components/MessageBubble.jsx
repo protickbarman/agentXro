@@ -1,11 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github-dark.css';
 import { useChatStore } from '../store/chatStore.js';
-import FileCard from './FileCard.jsx';
+import { useAuthStore } from '../store/authStore.js';
 
-/* ── Marked setup ────────────────────────── */
 marked.setOptions({ breaks: true, gfm: true });
 const renderer = new marked.Renderer();
 renderer.code = ({ text: code, lang }) => {
@@ -24,14 +23,12 @@ renderer.code = ({ text: code, lang }) => {
 };
 marked.use({ renderer });
 
-/* ── Time helper ─────────────────────────── */
 function timeStr(iso) {
   if (!iso) return '';
   try { return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
   catch { return ''; }
 }
 
-/* ── Typing dots ─────────────────────────── */
 function TypingDots() {
   return (
     <div className="typing-dots">
@@ -40,21 +37,59 @@ function TypingDots() {
   );
 }
 
-/* ── Main bubble ─────────────────────────── */
-export default function MessageBubble({ msg, isStreaming, liveContent }) {
+function MarkdownBlock({ content, contentRef }) {
+  const html = useMemo(() => (content ? marked.parse(content) : ''), [content]);
+  return (
+    <div
+      className="md-body"
+      ref={contentRef}
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
+}
+
+function AccordionItem({ label, children, content, defaultOpen }) {
+  const [open, setOpen] = useState(defaultOpen || false);
+  return (
+    <div className="seg-reasoning">
+      <div className="seg-hd" onClick={() => setOpen(!open)}>
+        <span className="seg-lbl">{label}</span>
+        <span className="seg-chev">{open ? '▼' : '>'}</span>
+      </div>
+      {open && (
+        <pre className="seg-pre">{content}</pre>
+      )}
+    </div>
+  );
+}
+
+function toolArgsPreview(args) {
+  if (!args) return '';
+  try {
+    const parsed = typeof args === 'string' ? JSON.parse(args) : args;
+    const q = parsed.query || parsed.url || parsed.message || '';
+    if (q && typeof q === 'string') return ` "${q.slice(0, 60)}${q.length > 60 ? '...' : ''}"`;
+  } catch {}
+  return '';
+}
+
+export default function MessageBubble({ msg, isStreaming }) {
   const isUser = msg.role === 'user';
   const contentRef = useRef(null);
+  const streamSegments = useChatStore(s => s.streamSegments);
+  const username = useAuthStore(s => s.user?.username || 'U');
 
-  /* Re-highlight when content changes */
+  const isSegmentStreaming = isStreaming && streamSegments.length > 0;
+  const showTyping = isStreaming && streamSegments.length === 0;
+
   useEffect(() => {
     if (!isUser && contentRef.current) {
       contentRef.current.querySelectorAll('pre code:not(.hljs)').forEach(el => {
         try { hljs.highlightElement(el); } catch {}
       });
     }
-  }, [msg.content, isUser]);
+  }, [streamSegments, msg.content, isUser]);
 
-  /* Delegate copy button clicks (avoid inline onclick — CSP-safe) */
   useEffect(() => {
     const el = contentRef.current;
     if (!el || isUser) return;
@@ -71,11 +106,9 @@ export default function MessageBubble({ msg, isStreaming, liveContent }) {
     };
     el.addEventListener('click', handler);
     return () => el.removeEventListener('click', handler);
-  }, [msg.content, isUser]);
+  }, [streamSegments, msg.content, isUser]);
 
-  /* ── User bubble ── */
   if (isUser) {
-    const username = useChatStore.getState()?.user?.username || 'U';
     return (
       <div className="msg-row msg-row--user">
         <div className="msg-col">
@@ -89,52 +122,34 @@ export default function MessageBubble({ msg, isStreaming, liveContent }) {
     );
   }
 
-  /* ── Agent bubble ── */
-  const displayContent = isStreaming ? liveContent : (msg.content || '');
-  const isEmpty = !displayContent;
-  const showDots = isStreaming && isEmpty;
-  const html = displayContent ? marked.parse(displayContent) : '';
-
-  const allFileCards = useChatStore(s => s.fileCards);
-  const cards = allFileCards[msg.id] || [];
-  const metaFiles = msg.metadata?.files || [];
-  const allFiles = [...metaFiles, ...cards].filter(
-    (f, i, arr) => arr.findIndex(x => (x.id || x.filename) === (f.id || f.filename)) === i
-  );
-
-  const reasoningBuffer = useChatStore(s => s.reasoningBuffer);
-  const liveReasoning = isStreaming ? reasoningBuffer : '';
-  const savedReasoning = msg.metadata?.reasoning || '';
-  const reasoningText = liveReasoning || savedReasoning;
-
   return (
     <div className="msg-row msg-row--agent">
       <div className="msg-avatar msg-avatar--agent">X</div>
       <div className="msg-col" style={{ flex: 1, minWidth: 0 }}>
-
         <div className={`msg-bubble msg-bubble--agent${isStreaming ? ' msg-bubble--streaming' : ''}`}>
-          {showDots && !reasoningText ? (
+          {showTyping ? (
             <TypingDots />
+          ) : isSegmentStreaming || (!isStreaming && streamSegments.length > 0) ? (
+            <div className="seg-list">
+              {streamSegments.map((seg) => {
+                if (seg.type === 'reasoning') {
+                  return (
+                    <AccordionItem key={seg.id} label="Thinking..." content={seg.content} defaultOpen />
+                  );
+                }
+                if (seg.type === 'tool_call') {
+                  return (
+                    <div key={seg.id} className="seg-tool">{seg.name}{toolArgsPreview(seg.arguments)}</div>
+                  );
+                }
+                if (seg.type === 'content') {
+                  return <MarkdownBlock key={seg.id} content={seg.content} contentRef={contentRef} />;
+                }
+                return null;
+              })}
+            </div>
           ) : (
-            <>
-              {reasoningText && (
-                <details className="ts ts-reasoning" open>
-                  <summary>Thinking...</summary>
-                  <div className="ts-body">{reasoningText}</div>
-                </details>
-              )}
-              <div
-                className="md-body"
-                ref={contentRef}
-                dangerouslySetInnerHTML={{ __html: html }}
-              />
-              {allFiles.length > 0 && (
-                <div className="file-card-list">
-                  {allFiles.map((f, i) => <FileCard key={f.id || f.filename || i} file={f} />)}
-                </div>
-              )}
-              {isStreaming && <span className="stream-cursor" />}
-            </>
+            <MarkdownBlock content={msg.content || ''} contentRef={contentRef} />
           )}
         </div>
 
@@ -143,7 +158,6 @@ export default function MessageBubble({ msg, isStreaming, liveContent }) {
             {timeStr(msg.created_at)}
             {msg.agentType && msg.agentType !== 'error' && ` · ${msg.agentType}`}
           </span>
-
         </div>
       </div>
     </div>

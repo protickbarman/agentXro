@@ -46,7 +46,7 @@ export function getStoredUser() {
   try { return JSON.parse(localStorage.getItem('xro_user')); } catch { return null; }
 }
 
-async function ensureFreshToken() {
+export async function ensureFreshToken() {
   const token = getToken();
   if (!token) return null;
   try {
@@ -115,19 +115,24 @@ export async function getMessages(convId, limit = 100) {
   return data.data || [];
 }
 
-/* Yield to React so it can repaint between SSE events */
-function yieldToReact() {
+/* ─── Yield to browser (macrotask via MessageChannel) ─ */
+let _yieldPort1 = null;
+let _yieldPort2 = null;
+function yieldControl() {
+  if (!_yieldPort1) {
+    const ch = new MessageChannel();
+    _yieldPort1 = ch.port1;
+    _yieldPort2 = ch.port2;
+    _yieldPort1.start();
+  }
   return new Promise(resolve => {
-    if (typeof requestAnimationFrame === 'function') {
-      requestAnimationFrame(() => setTimeout(resolve, 0));
-    } else {
-      setTimeout(resolve, 0);
-    }
-  });
+    _yieldPort1.onmessage = () => { resolve(); };
+    _yieldPort2.postMessage(null);
+  }).then(() => { _yieldPort1.onmessage = null; });
 }
 
 /* ─── AI Send (SSE via /xro/v1) ──────────── */
-async function _doSSE(token, message, convId, callbacks) {
+async function _doSSE(token, message, convId, callbacks, extraBody = {}) {
   const res = await fetch('/xro/v1', {
     method: 'POST',
     headers: {
@@ -139,6 +144,7 @@ async function _doSSE(token, message, convId, callbacks) {
       conversationId: convId,
       tools: true,
       stream: true,
+      ...extraBody,
     }),
   });
 
@@ -149,7 +155,6 @@ async function _doSSE(token, message, convId, callbacks) {
   const decoder = new TextDecoder();
   let buf = '';
   let convIdReceived = false;
-  let prevWasEvent = false;
 
   while (true) {
     const { done, value } = await reader.read();
@@ -161,40 +166,13 @@ async function _doSSE(token, message, convId, callbacks) {
 
     for (const raw of parts) {
       const line = raw.trimEnd();
-
-      if (line === '') {
-        prevWasEvent = false;
-        continue;
-      }
-
-      if (line.startsWith('event: ')) {
-        prevWasEvent = line.includes('thinking');
-        continue;
-      }
-
-      if (!line.startsWith('data: ')) {
-        prevWasEvent = false;
-        continue;
-      }
+      if (!line || !line.startsWith('data: ')) continue;
 
       const data = line.slice(6);
 
       if (data === '[DONE]') {
         callbacks.onDone?.();
         return 'OK';
-      }
-
-      /* Reasoning event (after event: thinking) */
-      if (prevWasEvent) {
-        prevWasEvent = false;
-        try {
-          const r = JSON.parse(data);
-          if (r.type === 'reasoning' && typeof r.chunk === 'string') {
-            callbacks.onReasoning?.(r.chunk);
-            await yieldToReact();
-            continue;
-          }
-        } catch {}
       }
 
       let parsed;
@@ -204,43 +182,59 @@ async function _doSSE(token, message, convId, callbacks) {
         continue;
       }
 
-      if (parsed._type === 'tool_step') {
-        callbacks.onToolStep?.(parsed);
-        await yieldToReact();
-        continue;
-      }
-
-      if (parsed._type === 'file_created') {
-        callbacks.onFileCreated?.(parsed);
-        continue;
-      }
-
       if (!convIdReceived && parsed.conversationId) {
         convIdReceived = true;
         callbacks.onConversationCreated?.(parsed.conversationId, parsed.isNew);
+        await yieldControl();
         continue;
       }
 
-      const content = parsed.choices?.[0]?.delta?.content;
-      if (content != null) {
-        callbacks.onContent?.(content);
-        await yieldToReact();
+      const choice = parsed.choices?.[0];
+      if (!choice) continue;
+      const delta = choice.delta || {};
+
+      let didWork = false;
+
+      if (delta.reasoning) {
+        callbacks.onReasoning?.(delta.reasoning);
+        didWork = true;
+      }
+
+      if (delta.tool_calls) {
+        for (const tc of delta.tool_calls) {
+          if (tc.function?.name) {
+            callbacks.onToolCall?.({
+              name: tc.function.name,
+              arguments: tc.function.arguments,
+            });
+          }
+        }
+        didWork = true;
+      }
+
+      if (delta.content != null) {
+        callbacks.onContent?.(delta.content);
+        didWork = true;
+      }
+
+      if (didWork) {
+        await yieldControl();
       }
     }
   }
   return 'OK';
 }
 
-export async function sendMessage(message, convId = null, callbacks = {}) {
+export async function sendMessage(message, convId = null, callbacks = {}, extraBody = {}) {
   let token = await ensureFreshToken();
   if (!token) throw new Error('Not authenticated');
 
-  let result = await _doSSE(token, message, convId, callbacks);
+  let result = await _doSSE(token, message, convId, callbacks, extraBody);
 
   if (result === 'UNAUTHORIZED') {
     token = await ensureFreshToken();
     if (!token) throw new Error('Session expired — please log in again');
-    result = await _doSSE(token, message, convId, callbacks);
+    result = await _doSSE(token, message, convId, callbacks, extraBody);
     if (result === 'UNAUTHORIZED') {
       window.location.reload();
       throw new Error('Session expired');

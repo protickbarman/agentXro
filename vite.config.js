@@ -27,6 +27,7 @@ export default defineConfig({
             headers['x-accel-buffering'] = 'no';
 
             res.writeHead(proxyRes.statusCode || 200, headers);
+            if (res.socket) res.socket.setNoDelay(true);
 
             // Pipe each chunk immediately without any buffering
             proxyRes.on('data', (chunk) => {

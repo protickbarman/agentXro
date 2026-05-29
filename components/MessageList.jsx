@@ -32,19 +32,11 @@ function WelcomeScreen({ onPrompt }) {
 }
 
 export default function MessageList({ onPrompt }) {
-  const { activeConvId, messages, streamingContent, isTyping } = useChatStore();
+  const { activeConvId, messages, streamSegments, isTyping } = useChatStore();
   const bottomRef = useRef(null);
 
   const convKey = activeConvId || 'temp';
   const msgs = messages[convKey] || [];
-
-  /* Index of the last user message — StepBar rendered right after it */
-  const lastUserIdx = (() => {
-    for (let i = msgs.length - 1; i >= 0; i--) {
-      if (msgs[i].role === 'user') return i;
-    }
-    return -1;
-  })();
 
   /* Index of the currently streaming agent message */
   const streamingMsgIdx = (() => {
@@ -57,7 +49,7 @@ export default function MessageList({ onPrompt }) {
   /* Auto-scroll to bottom on new content */
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [msgs.length, streamingContent]);
+  }, [msgs.length, streamSegments.length]);
 
   if (msgs.length === 0) {
     return (
@@ -78,7 +70,6 @@ export default function MessageList({ onPrompt }) {
                 <MessageBubble
                   msg={msg}
                   isStreaming={isMsgStreaming}
-                  liveContent={isMsgStreaming ? streamingContent : ''}
                 />
               </React.Fragment>
             );

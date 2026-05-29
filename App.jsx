@@ -7,6 +7,7 @@ import { useAuthStore } from './store/authStore.js';
 import { useChatStore } from './store/chatStore.js';
 import {
   sendMessage, getConversations, deleteConversation, getMessages,
+  ensureFreshToken,
 } from './services/api.js';
 import LoginPage    from './components/LoginPage.jsx';
 import RegisterPage from './components/RegisterPage.jsx';
@@ -46,62 +47,50 @@ function ChatApp() {
     activeConvId, setActiveConv, migrateConv,
     setMessages, addMessage, updateMessage,
     setConversations, addConversation,
-    appendStreaming, clearStreaming,
+    appendToSegment, addSegment, clearStream,
     setTyping,
-    addFileCard,
-    appendReasoning, clearReasoning,
+    clearMessages,
   } = useChatStore();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  /* ── Load conversation list on mount ── */
+  useEffect(() => {
+    ensureFreshToken().catch(() => {});
+    const id = setInterval(() => ensureFreshToken().catch(() => {}), 8 * 60 * 1000);
+    return () => clearInterval(id);
+  }, []);
+
   useEffect(() => {
     getConversations().then(setConversations).catch(() => {});
   }, []);
 
-  /* ── Helper: populate fileCards from message metadata ── */
-  const populateFilesFromMessages = useCallback((msgs) => {
-    msgs.forEach(msg => {
-      const files = msg.metadata?.files;
-      if (files && files.length > 0) {
-        files.forEach(f => useChatStore.getState().addFileCard(msg.id, f));
-      }
-    });
-  }, []);
-
-  /* ── Sync URL → store (deep-link / back-forward nav) ── */
   useEffect(() => {
-    if (isNew || !paramConvId) return;
+    if (isNew) {
+      clearMessages('temp');
+      setActiveConv(null);
+      return;
+    }
+    if (!paramConvId) return;
     const store = useChatStore.getState();
     if (store.activeConvId !== paramConvId) setActiveConv(paramConvId);
     if (!(store.messages[paramConvId]?.length > 0)) {
       getMessages(paramConvId)
-        .then(msgs => {
-          setMessages(paramConvId, msgs);
-          populateFilesFromMessages(msgs);
-        })
+        .then(msgs => setMessages(paramConvId, msgs))
         .catch(() => {});
     }
   }, [paramConvId, isNew]);
 
   const handleSelectConv = useCallback((conv) => {
-    setActiveConv(conv.id);
+    clearStream();
     setSidebarOpen(false);
     navigate(`/xro/${conv.id}`);
-    const store = useChatStore.getState();
-    if (!(store.messages[conv.id]?.length > 0)) {
-      getMessages(conv.id).then(msgs => {
-        setMessages(conv.id, msgs);
-        populateFilesFromMessages(msgs);
-      }).catch(() => {});
-    }
   }, []);
 
   const handleNewChat = useCallback(() => {
-    setActiveConv(null);
+    clearMessages('temp');
     setSidebarOpen(false);
     navigate('/new');
-  }, []);
+  }, [clearMessages]);
 
   const handleDeleteConv = useCallback(async (id) => {
     await deleteConversation(id).catch(() => {});
@@ -109,19 +98,15 @@ function ChatApp() {
     if (useChatStore.getState().activeConvId === id) navigate('/new');
   }, []);
 
-  /* ── Send message — full streaming lifecycle ── */
   const handleSend = useCallback(async (text) => {
     if (!text.trim()) return;
 
-    const initialKey = useChatStore.getState().activeConvId || 'temp';
+    const initialKey = activeConvId || 'temp';
     const streamMsgId = `ai-${Date.now()}`;
 
-    /* Reset UI state */
     setTyping(true);
-    clearStreaming();
-    clearReasoning();
+    clearStream();
 
-    /* Optimistically add user + placeholder AI messages */
     const userMsg = {
       id: `user-${Date.now()}`,
       role: 'user',
@@ -139,12 +124,13 @@ function ChatApp() {
     addMessage(initialKey, userMsg);
     addMessage(initialKey, streamMsg);
 
-    /* ── Commit the final message when stream is done ── */
     const finishStream = () => {
-      const store = useChatStore.getState();
-      const key   = store.activeConvId || initialKey;
-
-      const finalContent = store.streamingContent || '';
+      const store  = useChatStore.getState();
+      const key    = store.activeConvId || initialKey;
+      const finalContent = (store.streamSegments || [])
+        .filter(s => s.type === 'content')
+        .map(s => s.content)
+        .join('');
 
       updateMessage(key, streamMsgId, {
         content:   finalContent,
@@ -152,8 +138,6 @@ function ChatApp() {
       });
 
       setTyping(false);
-      clearStreaming();
-      clearReasoning();
     };
 
     const failStream = (errMsg) => {
@@ -165,51 +149,21 @@ function ChatApp() {
         agentType: 'error',
       });
       setTyping(false);
-      clearStreaming();
     };
 
     try {
       await sendMessage(text, activeConvId, {
 
         onContent: (chunk) => {
-          appendStreaming(chunk);
+          appendToSegment('content', chunk);
+        },
+
+        onToolCall: (tc) => {
+          addSegment('tool_call', { name: tc.name, arguments: tc.arguments });
         },
 
         onReasoning: (chunk) => {
-          appendReasoning(chunk);
-        },
-
-        onToolStep: (stepData) => {
-          const store = useChatStore.getState();
-          /* flush reasoning buffer on first non-reasoning event */
-          if (store.reasoningBuffer) {
-            const r = store.reasoningBuffer;
-            clearReasoning();
-            appendStreaming(`<details class="ts ts-reasoning" open><summary>🧠 Reasoning</summary>${r}</details>`);
-          }
-          if (stepData.stepType === 'start') {
-            appendStreaming(
-              `<details class="ts ts--run" data-tool-id="${stepData.id}">` +
-              `<summary>🔧 ${stepData.tool}: ${stepData.message || ''}</summary></details>`
-            );
-          } else {
-            /* swap running step → done step with status text */
-            const s = useChatStore.getState();
-            const marker = `data-tool-id="${stepData.id}"`;
-            const idx = s.streamingContent.indexOf(marker);
-            if (idx === -1) return;
-            const openStart = s.streamingContent.lastIndexOf('<details ', idx);
-            const closeEnd = s.streamingContent.indexOf('</details>', idx);
-            if (openStart === -1 || closeEnd === -1) return;
-            const before = s.streamingContent.slice(0, openStart);
-            const inner = s.streamingContent.slice(openStart, closeEnd + 10);
-            const after = s.streamingContent.slice(closeEnd + 10);
-            const updated = inner
-              .replace('ts--run', 'ts--done')
-              .replace('<details ', '<details open ')
-              .replace('</details>', `<p>${stepData.summary || stepData.status || 'Done'}</p></details>`);
-            useChatStore.setState({ streamingContent: before + updated + after });
-          }
+          appendToSegment('reasoning', chunk);
         },
 
         onConversationCreated: (newConvId, isNewConv) => {
@@ -222,14 +176,6 @@ function ChatApp() {
               created_at: new Date().toISOString(),
             });
           }
-        },
-
-        onFileCreated: (fileData) => {
-          const store = useChatStore.getState();
-          const key   = store.activeConvId || initialKey;
-          const msgs  = store.messages[key] || [];
-          const lastAi = [...msgs].reverse().find(m => m.role === 'agent' && m.streaming);
-          if (lastAi) addFileCard(lastAi.id, fileData);
         },
 
         onDone: finishStream,

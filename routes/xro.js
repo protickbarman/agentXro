@@ -36,6 +36,7 @@ function startSSE(res) {
   if (res.socket) {
     res.socket.setNoDelay(true);
     res.socket.setTimeout(0);
+    if (res.socket.uncork) res.socket.uncork();
   }
   res.flushHeaders();
 }
@@ -46,7 +47,7 @@ function sseWrite(res, data) {
     if (typeof res.flush === 'function') {
       res.flush();
     } else if (res.socket && !res.socket.destroyed) {
-      res.socket.setNoDelay(true);
+      if (res.socket.uncork) res.socket.uncork();
     }
   }
 }
@@ -71,10 +72,13 @@ router.post('/v1', authMiddleware, async (req, res) => {
   }
 
   let convId = payload.conversationId;
-  let isNew = false;
+  let isNew = payload.isNew === true;
 
   // Don't await DB check - validate async in background, use UUID directly
-  if (convId) {
+  if (!convId) {
+    convId = uuidv4();
+    isNew = true;
+  } else if (!isNew) {
     // Fire-and-forget validation - if invalid, queue will handle gracefully
     Conversation.findById(convId)
       .then(conv => {
@@ -85,26 +89,12 @@ router.post('/v1', authMiddleware, async (req, res) => {
       .catch(() => {
         logger.warn('Conversation validation failed, using as-is', { convId });
       });
-  } else {
-    convId = uuidv4();
-    isNew = true;
   }
 
   const title = payload.messages[0]?.content?.substring(0, 50) || 'New Chat';
 
-  if (isNew) {
-    QueueManager.add('saveConversation', {
-      id: convId,
-      userId: req.user.id,
-      title,
-    }).catch((err) => logger.error('Queue saveConversation failed', { error: err.message }));
-  }
-
-  QueueManager.add('saveMessage', {
-    conversationId: convId,
-    role: 'user',
-    content: payload.messages[0]?.content || '',
-  }).catch((err) => logger.error('Queue saveMessage (user) failed', { error: err.message }));
+  /* ── All DB writes deferred to after full response (see onDone) ── */
+  const userContent = payload.messages[0]?.content || '';
 
   startSSE(res);
 
@@ -112,8 +102,6 @@ router.post('/v1', authMiddleware, async (req, res) => {
 
   const useTools = payload.tools === true || payload.tools === 'true' || Array.isArray(payload.tools);
   let fullContent = '';
-  const collectedFiles = [];
-  let collectedReasoning = '';
 
   // Build NIM payload - ensure tools is always a list or omitted
   const nimPayload = {
@@ -153,31 +141,22 @@ router.post('/v1', authMiddleware, async (req, res) => {
             }
           } catch {}
         },
-        onReasoning: (chunk) => {
-          collectedReasoning += chunk;
-          sseWrite(res, `event: thinking\ndata: ${JSON.stringify({ type: 'reasoning', chunk, received_at: Date.now() })}\n\n`);
-        },
-        onThinking: (msg) => {
-          sseWrite(res, `event: thinking\ndata: ${JSON.stringify({ type: 'step', message: msg, received_at: Date.now() })}\n\n`);
-        },
-        onToolStart: (tool, id, message) => {
-          sseWrite(res, `data: ${JSON.stringify({ _type: 'tool_step', stepType: 'start', tool, id, message, received_at: Date.now() })}\n\n`);
-        },
-        onToolEnd: (tool, id, status, summary) => {
-          sseWrite(res, `data: ${JSON.stringify({ _type: 'tool_step', stepType: 'end', tool, id, status, summary, received_at: Date.now() })}\n\n`);
-        },
-        onFileCreated: (fileData) => {
-          collectedFiles.push({ ...fileData });
-          sseWrite(res, `data: ${JSON.stringify({ _type: 'file_created', ...fileData, received_at: Date.now() })}\n\n`);
-        },
         onDone: async () => {
           sseWrite(res, 'data: [DONE]\n\n');
           if (!res.writableEnded) res.end();
+          /* Save everything in background after full response */
+          if (isNew) {
+            QueueManager.add('saveConversation', {
+              id: convId, userId: req.user.id, title,
+            }).catch(() => {});
+          }
+          QueueManager.add('saveMessage', {
+            conversationId: convId, role: 'user', content: userContent,
+          }).catch(() => {});
           QueueManager.add('saveMessage', {
             conversationId: convId,
             role: 'agent',
             content: fullContent || '',
-            metadata: { files: collectedFiles, reasoning: collectedReasoning },
           }).catch(() => {});
         },
         onError: (err) => {
@@ -268,10 +247,6 @@ router.post('/v1', authMiddleware, async (req, res) => {
                 try {
                   const parsed = JSON.parse(trimmed.slice(6));
                   const delta = parsed.choices?.[0]?.delta || {};
-                  if (delta.reasoning_content) {
-                    sseWrite(res, `event: thinking\ndata: ${JSON.stringify({ type: 'reasoning', chunk: delta.reasoning_content, received_at: Date.now() })}\n\n`);
-                    continue;
-                  }
                   if (delta.content) fullContent += delta.content;
                 } catch {}
                 sseWrite(res, injectReceivedAt(trimmed) + '\n\n');
@@ -285,23 +260,24 @@ router.post('/v1', authMiddleware, async (req, res) => {
               try {
                 const parsed = JSON.parse(trimmed.slice(6));
                 const delta = parsed.choices?.[0]?.delta || {};
-                if (delta.reasoning_content) {
-                  sseWrite(res, `event: thinking\ndata: ${JSON.stringify({ type: 'reasoning', chunk: delta.reasoning_content, received_at: Date.now() })}\n\n`);
-                } else {
-                  if (delta.content) fullContent += delta.content;
-                  sseWrite(res, injectReceivedAt(trimmed) + '\n\n');
-                }
-              } catch {
-                sseWrite(res, injectReceivedAt(trimmed) + '\n\n');
-              }
+                if (delta.content) fullContent += delta.content;
+              } catch {}
+              sseWrite(res, injectReceivedAt(trimmed) + '\n\n');
             }
           }
           sseWrite(res, 'data: [DONE]\n\n');
           if (!res.writableEnded) res.end();
+          /* Save everything in background after full response */
+          if (isNew) {
+            QueueManager.add('saveConversation', {
+              id: convId, userId: req.user.id, title,
+            }).catch(() => {});
+          }
           QueueManager.add('saveMessage', {
-            conversationId: convId,
-            role: 'agent',
-            content: fullContent || '',
+            conversationId: convId, role: 'user', content: userContent,
+          }).catch(() => {});
+          QueueManager.add('saveMessage', {
+            conversationId: convId, role: 'agent', content: fullContent || '',
           }).catch(() => {});
         } catch (err) {
           logger.error('Stream pump error', { error: err.message });
@@ -365,8 +341,6 @@ router.post('/chat', authMiddleware, async (req, res) => {
   sseWrite(res, `data: ${JSON.stringify({ conversationId: convId })}\n\n`);
 
   let fullContent = '';
-  const collectedFiles = [];
-  let collectedReasoning = '';
   const msgPayload = {
     messages: [{ role: 'user', content: message }],
     tools: true,
@@ -396,23 +370,6 @@ router.post('/chat', authMiddleware, async (req, res) => {
           }
         } catch {}
       },
-      onReasoning: (chunk) => {
-        collectedReasoning += chunk;
-        sseWrite(res, `event: thinking\ndata: ${JSON.stringify({ type: 'reasoning', chunk, received_at: Date.now() })}\n\n`);
-      },
-      onThinking: (msg) => {
-        sseWrite(res, `event: thinking\ndata: ${JSON.stringify({ type: 'step', message: msg, received_at: Date.now() })}\n\n`);
-      },
-      onToolStart: (tool, id, message) => {
-        sseWrite(res, `data: ${JSON.stringify({ _type: 'tool_step', stepType: 'start', tool, id, message, received_at: Date.now() })}\n\n`);
-      },
-      onToolEnd: (tool, id, status, summary) => {
-        sseWrite(res, `data: ${JSON.stringify({ _type: 'tool_step', stepType: 'end', tool, id, status, summary, received_at: Date.now() })}\n\n`);
-      },
-      onFileCreated: (fileData) => {
-        collectedFiles.push({ ...fileData });
-        sseWrite(res, `data: ${JSON.stringify({ _type: 'file_created', ...fileData, received_at: Date.now() })}\n\n`);
-      },
       onDone: async () => {
         sseWrite(res, 'data: [DONE]\n\n');
         if (!res.writableEnded) res.end();
@@ -420,7 +377,6 @@ router.post('/chat', authMiddleware, async (req, res) => {
           conversationId: convId,
           role: 'agent',
           content: fullContent || '',
-          metadata: { files: collectedFiles, reasoning: collectedReasoning },
         }).catch(() => {});
       },
       onError: (err) => {

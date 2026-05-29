@@ -1,38 +1,14 @@
 import { create } from 'zustand';
 
-export const useChatStore = create((set, get) => ({
-  /* ── Conversations ── */
+export const useChatStore = create((set) => ({
   conversations: [],
   activeConvId: null,
-
-  /* ── Messages keyed by convId (or 'temp') ── */
   messages: {},
-
-  /* ── Streaming state ── */
-  streamingContent: '',
+  streamSegments: [],
+  nextSegId: 0,
   isTyping: false,
-  reasoningBuffer: '',
 
-  /* ── File cards keyed by message id ── */
-  fileCards: {},
-
-  addFileCard: (msgId, card) => set((s) => ({
-    fileCards: { ...s.fileCards, [msgId]: [...(s.fileCards[msgId] || []), card] },
-  })),
-
-  clearFileCards: (msgId) => set((s) => {
-    const next = { ...s.fileCards };
-    delete next[msgId];
-    return { fileCards: next };
-  }),
-
-  /* ── Reasoning buffer for live streaming ── */
-  appendReasoning: (chunk) => set((s) => ({ reasoningBuffer: s.reasoningBuffer + chunk })),
-  clearReasoning:   () => set({ reasoningBuffer: '' }),
-
-  /* ─────────────── Actions ─────────────── */
-
-  setConversations: (conversations) => set({ conversations }),
+  setConversations: (v) => set({ conversations: v }),
 
   addConversation: (conv) => set((s) => ({
     conversations: [conv, ...s.conversations.filter(c => c.id !== conv.id)],
@@ -43,15 +19,11 @@ export const useChatStore = create((set, get) => ({
     activeConvId: s.activeConvId === id ? null : s.activeConvId,
   })),
 
-  /* Full switch — resets all ephemeral state */
   setActiveConv: (id) => set({
     activeConvId: id,
-    streamingContent: '',
     isTyping: false,
-    reasoningBuffer: '',
   }),
 
-  /* Migrate temp messages to real convId WITHOUT touching streaming buffers */
   migrateConv: (fromKey, toId) => set((s) => {
     const fromMsgs = s.messages[fromKey] || [];
     const next = { ...s.messages };
@@ -59,10 +31,15 @@ export const useChatStore = create((set, get) => ({
     return { activeConvId: toId, messages: next };
   }),
 
-  /* Messages */
   setMessages: (convId, msgs) => set((s) => ({
     messages: { ...s.messages, [convId]: msgs },
   })),
+
+  clearMessages: (convId) => set((s) => {
+    const next = { ...s.messages };
+    delete next[convId];
+    return { messages: next };
+  }),
 
   addMessage: (convId, msg) => set((s) => ({
     messages: { ...s.messages, [convId]: [...(s.messages[convId] || []), msg] },
@@ -79,8 +56,26 @@ export const useChatStore = create((set, get) => ({
     };
   }),
 
-  appendStreaming: (chunk) => set((s) => ({ streamingContent: s.streamingContent + chunk })),
-  clearStreaming:  () => set({ streamingContent: '' }),
-
   setTyping: (v) => set({ isTyping: v }),
+
+  appendToSegment: (type, chunk) => set((s) => {
+    const segs = [...s.streamSegments];
+    const last = segs[segs.length - 1];
+    if (last && last.type === type && typeof last.content === 'string') {
+      segs[segs.length - 1] = { ...last, content: last.content + chunk };
+    } else {
+      segs.push({ id: s.nextSegId, type, content: chunk });
+    }
+    return {
+      streamSegments: segs,
+      nextSegId: last && last.type === type && typeof last.content === 'string' ? s.nextSegId : s.nextSegId + 1,
+    };
+  }),
+
+  addSegment: (type, data) => set((s) => ({
+    streamSegments: [...s.streamSegments, { id: s.nextSegId, type, ...data }],
+    nextSegId: s.nextSegId + 1,
+  })),
+
+  clearStream: () => set({ streamSegments: [], nextSegId: 0 }),
 }));

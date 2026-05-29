@@ -27,25 +27,26 @@ class ListDirTool extends Tool {
   async execute(p) {
     try {
       this.validate(p);
-      const entries = await this._list(path.resolve(p.path), p.recursive, p.pattern);
-      return this.formatResult({ path: path.resolve(p.path), entries, total: entries.length });
+      const resolvedPath = path.resolve(p.path);
+      const entries = await this._list(resolvedPath, p.recursive, p.pattern, resolvedPath);
+      return this.formatResult({ path: resolvedPath, entries, total: entries.length });
     } catch (e) {
       logger.error(`ListDirTool failed: ${e.message}`);
       return this.formatError(e);
     }
   }
 
-  async _list(dir, recursive, pattern) {
+  async _list(dir, recursive, pattern, baseDir) {
     const results = [];
     const items = await fs.readdir(dir, { withFileTypes: true });
     for (const item of items.sort((a, b) => a.name.localeCompare(b.name))) {
       const fullPath = path.join(dir, item.name);
-      const relPath = path.relative(path.resolve(p.path), fullPath);
-      if (pattern && !item.name.includes(pattern.replace('*', ''))) continue;
+      const relPath = path.relative(baseDir, fullPath);
+      if (pattern && !relPath.includes(pattern.replace('*', ''))) continue;
       if (item.isDirectory()) {
         results.push({ name: item.name, path: fullPath, type: 'directory' });
         if (recursive) {
-          const sub = await this._list(fullPath, recursive, pattern);
+          const sub = await this._list(fullPath, recursive, pattern, baseDir);
           results.push(...sub);
         }
       } else {

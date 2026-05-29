@@ -14,7 +14,7 @@ class ToolOrchestrator {
   }
 
   async run(messages, payload, callbacks) {
-    const { onThinking, onReasoning, onDone, onError, onSSE, onFileCreated, onToolStart, onToolEnd } = callbacks;
+    const { onSSE, onDone, onError } = callbacks;
     const toolSchemas     = this.toolRegistry.getSchemas();
     const currentMessages = [...messages];
     let iteration = 0;
@@ -34,8 +34,7 @@ class ToolOrchestrator {
       };
 
       const { toolCalls, finishReason } = await this._callChat(llmPayload, {
-        onReasoning: (chunk) => { if (onReasoning) onReasoning(chunk); },
-        onSSE:       (line)  => { if (onSSE)       onSSE(line); },
+        onSSE: (line) => { if (onSSE) onSSE(line); },
       });
 
       if (finishReason === 'stop' || finishReason === 'length') {
@@ -60,11 +59,6 @@ class ToolOrchestrator {
           let args = {};
           try { args = JSON.parse(tc.function.arguments); } catch { args = {}; }
 
-          if (onThinking) onThinking(`\u2699\uFE0F Running tool: ${name}\u2026`);
-
-          const stepId = `step_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
-          if (onToolStart) onToolStart(name, stepId, `Running ${name}\u2026`);
-
           if (this.toolRegistry.has(name)) {
             const tool = this.toolRegistry.get(name);
             if (FILE_TOOLS.has(name)) {
@@ -72,13 +66,8 @@ class ToolOrchestrator {
             }
             try {
               const result = await tool.executeWithTimeout(args);
-              if (name === 'file_save' && result.success && result.data && onFileCreated) {
-                onFileCreated(result.data);
-              }
-              if (onToolEnd) onToolEnd(name, stepId, 'success', `${name} completed`);
               currentMessages.push({ role: 'tool', tool_call_id: tc.id, content: JSON.stringify(result) });
             } catch (err) {
-              if (onToolEnd) onToolEnd(name, stepId, 'failed', err.message);
               currentMessages.push({ role: 'tool', tool_call_id: tc.id, content: JSON.stringify({ error: err.message }) });
             }
           } else {
@@ -92,7 +81,6 @@ class ToolOrchestrator {
       return;
     }
 
-    if (onThinking) onThinking('Max iterations reached.');
     if (onDone) onDone();
   }
 
@@ -104,7 +92,7 @@ class ToolOrchestrator {
   }
 
   async _callWithProvider(payload, callbacks = {}) {
-    const { onReasoning, onSSE } = callbacks;
+    const { onSSE } = callbacks;
     const provider = this.provider;
 
     let account = null;
@@ -161,11 +149,11 @@ class ToolOrchestrator {
       provider.accountManager.markHealthy(account);
     }
 
-    return await this._readSSE(res, { onReasoning, onSSE });
+    return await this._readSSE(res, { onSSE });
   }
 
   async _callDirect(payload, callbacks = {}) {
-    const { onReasoning, onSSE } = callbacks;
+    const { onSSE } = callbacks;
     const baseUrl = (this.baseUrl || 'https://integrate.api.nvidia.com/v1').replace(/\/+$/, '');
     const url     = new URL(baseUrl + '/chat/completions');
     const body    = JSON.stringify(payload);
@@ -186,11 +174,11 @@ class ToolOrchestrator {
       throw new Error(`NIM error ${res.status}: ${errBody}`);
     }
 
-    return await this._readSSE(res, { onReasoning, onSSE });
+    return await this._readSSE(res, { onSSE });
   }
 
   async _readSSE(res, callbacks = {}) {
-    const { onReasoning, onSSE } = callbacks;
+    const { onSSE } = callbacks;
     const reader  = res.body.getReader();
     const decoder = new TextDecoder();
 
@@ -228,12 +216,7 @@ class ToolOrchestrator {
 
         const delta = choice.delta || {};
 
-        const reasoningChunk = delta.reasoning_content || delta.reasoning;
-        if (reasoningChunk && reasoningChunk.length > 0 && onReasoning) {
-          onReasoning(reasoningChunk);
-        }
-
-        if (!delta.tool_calls && onSSE) {
+        if (onSSE) {
           onSSE(line);
         }
 
@@ -271,9 +254,7 @@ class ToolOrchestrator {
           const choice = parsed.choices?.[0];
           if (choice) {
             const delta = choice.delta || {};
-            const reasoningChunk = delta.reasoning_content || delta.reasoning;
-            if (reasoningChunk && onReasoning) onReasoning(reasoningChunk);
-            if (!delta.tool_calls && onSSE) onSSE(line);
+            if (onSSE) onSSE(line);
             if (choice.finish_reason) finishReason = choice.finish_reason;
           }
         } catch { /* ignore */ }

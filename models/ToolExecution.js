@@ -1,68 +1,67 @@
-const { query, getOne, getMany } = require('../config/database');
+const { mongoose } = require('../config/mongodb');
 const { v4: uuidv4 } = require('uuid');
+
+const schema = new mongoose.Schema({
+  _id:              { type: String, default: uuidv4 },
+  message_id:       { type: String, index: true },
+  conversation_id:  { type: String, index: true },
+  tool_name:        { type: String, required: true },
+  tool_type:        { type: String, default: null },
+  input:            { type: mongoose.Schema.Types.Mixed, default: {} },
+  output:           { type: mongoose.Schema.Types.Mixed, default: null },
+  status:           { type: String, default: 'pending' },
+  error_message:    { type: String, default: null },
+  retry_count:      { type: Number, default: 0 },
+  execution_time_ms:{ type: Number, default: 0 },
+  duration_ms:      { type: Number, default: 0 },
+  created_at:       { type: Date, default: Date.now },
+  completed_at:     { type: Date, default: null },
+}, { _id: false, versionKey: false });
+
+const Model = mongoose.models.ToolExecution
+  || mongoose.model('ToolExecution', schema, 'tool_executions');
+
+function row(doc) {
+  if (!doc) return null;
+  const o = doc.toObject ? doc.toObject() : { ...doc };
+  o.id = o._id;
+  return o;
+}
 
 class ToolExecution {
   static async create(messageId, toolName, input, status = 'pending', toolType = null) {
     const id = uuidv4();
-    const result = await query(
-      `INSERT INTO tool_executions (id, message_id, tool_name, tool_type, input, status, retry_count, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6, 0, NOW())
-       RETURNING id, tool_name, status, created_at`,
-      [id, messageId, toolName, toolType, JSON.stringify(input), status]
-    );
-    return result.rows[0];
+    const doc = await Model.create({
+      _id: id, message_id: messageId, tool_name: toolName,
+      tool_type: toolType, input: input || {},
+      status, retry_count: 0, created_at: new Date(),
+    });
+    return row(doc);
   }
 
   static async update(id, { output, status, executionTime, errorMessage, retryCount }) {
-    const updates = [];
-    const params = [];
-    let paramNum = 1;
-
-    if (output !== undefined) {
-      updates.push(`output = $${paramNum++}`);
-      params.push(JSON.stringify(output));
-    }
-    if (status !== undefined) {
-      updates.push(`status = $${paramNum++}`);
-      params.push(status);
-    }
-    if (executionTime !== undefined) {
-      updates.push(`execution_time_ms = $${paramNum++}`);
-      params.push(executionTime);
-    }
-    if (errorMessage !== undefined) {
-      updates.push(`error_message = $${paramNum++}`);
-      params.push(errorMessage);
-    }
-    if (retryCount !== undefined) {
-      updates.push(`retry_count = $${paramNum++}`);
-      params.push(retryCount);
-    }
-
-    if (updates.length > 0) {
-      updates.push(`completed_at = NOW()`);
-      params.push(id);
-
-      const updateQuery = `UPDATE tool_executions SET ${updates.join(', ')} WHERE id = $${paramNum} RETURNING *`;
-      return await query(updateQuery, params);
-    }
+    const upd = { completed_at: new Date() };
+    if (output !== undefined)        upd.output = output;
+    if (status !== undefined)        upd.status = status;
+    if (executionTime !== undefined) upd.execution_time_ms = executionTime;
+    if (errorMessage !== undefined)  upd.error_message = errorMessage;
+    if (retryCount !== undefined)    upd.retry_count = retryCount;
+    const doc = await Model.findByIdAndUpdate(id, upd, { new: true });
+    return row(doc);
   }
 
   static async findById(id) {
-    return getOne(
-      `SELECT id, message_id, tool_name, tool_type, input, output, status, error_message, retry_count, execution_time_ms, created_at, completed_at
-       FROM tool_executions WHERE id = $1`,
-      [id]
-    );
+    const doc = await Model.findById(id).lean();
+    if (!doc) return null;
+    return { ...doc, id: doc._id };
   }
 
   static async findByMessageId(messageId) {
-    return getMany(
-      `SELECT id, tool_name, tool_type, input, output, status, error_message, execution_time_ms, created_at
-       FROM tool_executions WHERE message_id = $1
-       ORDER BY created_at DESC`,
-      [messageId]
-    );
+    const docs = await Model
+      .find({ message_id: messageId })
+      .sort({ created_at: -1 })
+      .lean();
+    return docs.map(d => ({ ...d, id: d._id }));
   }
 }
 

@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser');
 
 const logger = require('./config/logger');
 const env = require('./config/env');
+const { connectMongo } = require('./config/mongodb');
 const { initializeTools } = require('./config/toolInit');
 const QueueManager = require('./queue/QueueManager');
 const JobProcessor = require('./queue/JobProcessor');
@@ -93,6 +94,13 @@ app.use((err, req, res, next) => {
 const PORT = env.PORT || 3000;
 
 async function start() {
+  /* Connect to MongoDB (chat data) */
+  try {
+    await connectMongo();
+  } catch (err) {
+    logger.warn('MongoDB connection failed — chat persistence unavailable', { error: err.message });
+  }
+
   try {
     await initializeTools();
   } catch (err) {

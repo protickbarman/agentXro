@@ -1,66 +1,73 @@
 const { v4: uuidv4 } = require('uuid');
 const { pool } = require('../config/database');
 const logger = require('../config/logger');
+const Conversation = require('../models/Conversation');
+const Message = require('../models/Message');
 
 class JobProcessor {
+  /* ── Conversations → MongoDB (uses the ID the route already sent to the client) ── */
   static async processSaveConversation(job) {
     const { id, userId, title, description } = job.data;
-    await pool.query(
-      `INSERT INTO conversations (id, user_id, title, description, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, NOW(), NOW())`,
-      [id, userId, title, description || null]
-    );
-    logger.info('Conversation saved via queue', { conversationId: id });
+    await Conversation.create(userId, title, description, id);
+    logger.info('Conversation saved via queue (MongoDB)', { conversationId: id });
     return { conversationId: id };
   }
 
+  /* ── Messages → MongoDB ── */
   static async processSaveMessage(job) {
     const { conversationId, role, content, metadata, reasoningSteps, toolCalls } = job.data;
-    const id = uuidv4();
-    const query = `INSERT INTO messages (id, conversation_id, role, content, metadata, reasoning_steps, tool_calls, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())`;
-    const params = [id, conversationId, role, content || '',
-      JSON.stringify(metadata || {}), JSON.stringify(reasoningSteps || []), JSON.stringify(toolCalls || [])];
-
-    const MAX_RETRIES = 5;
-    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-      try {
-        await pool.query(query, params);
-        break;
-      } catch (err) {
-        if (err.code === '23503' && attempt < MAX_RETRIES) {
-          await new Promise(r => setTimeout(r, 200 * Math.pow(2, attempt)));
-        } else {
-          throw err;
-        }
-      }
-    }
-    logger.info('Message saved via queue', { conversationId, role, messageId: id });
-    return { messageId: id, conversationId, role };
+    const msg = await Message.create(
+      conversationId, role, content || '',
+      metadata || {}, reasoningSteps || [], toolCalls || []
+    );
+    logger.info('Message saved via queue (MongoDB)', { conversationId, role, messageId: msg.id });
+    return { messageId: msg.id, conversationId, role };
   }
 
+  /* ── Tool executions → MongoDB ── */
   static async processSaveToolExecution(job) {
     const { conversationId, toolName, input, output, duration, status } = job.data;
     const id = uuidv4();
-    await pool.query(
-      `INSERT INTO tool_executions (id, conversation_id, tool_name, input, output, duration_ms, status, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
-      [id, conversationId, toolName, JSON.stringify(input), JSON.stringify(output), duration || 0, status || 'completed']
-    );
+    try {
+      const { mongoose } = require('../config/mongodb');
+      const ToolExecModel = mongoose.models.ToolExecution;
+      if (ToolExecModel) {
+        await ToolExecModel.create({
+          _id: id, conversation_id: conversationId,
+          tool_name: toolName, input: input || {}, output: output || null,
+          duration_ms: duration || 0, status: status || 'completed',
+          created_at: new Date(), completed_at: new Date(),
+        });
+      }
+    } catch (err) {
+      logger.warn('Tool execution save failed', { error: err.message });
+    }
     return { executionId: id };
   }
 
+  /* ── Agent executions → MongoDB ── */
   static async processSaveAgentExecution(job) {
     const { conversationId, agentName, input, output, duration, status, parentExecutionId } = job.data;
     const id = uuidv4();
-    await pool.query(
-      `INSERT INTO agent_executions (id, conversation_id, agent_name, input, output, duration_ms, status, parent_execution_id, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())`,
-      [id, conversationId, agentName, JSON.stringify(input), JSON.stringify(output), duration || 0, status || 'completed', parentExecutionId || null]
-    );
+    try {
+      const { mongoose } = require('../config/mongodb');
+      const AgentExecModel = mongoose.models.AgentExecution;
+      if (AgentExecModel) {
+        await AgentExecModel.create({
+          _id: id, conversation_id: conversationId,
+          agent_name: agentName, input: input || {}, output: output || null,
+          duration_ms: duration || 0, status: status || 'completed',
+          parent_execution_id: parentExecutionId || null,
+          created_at: new Date(), completed_at: new Date(),
+        });
+      }
+    } catch (err) {
+      logger.warn('Agent execution save failed', { error: err.message });
+    }
     return { executionId: id };
   }
 
+  /* ── Sessions → PostgreSQL (auth stays in PG) ── */
   static async processUpdateSession(job) {
     const { sessionId, data } = job.data;
     await pool.query(

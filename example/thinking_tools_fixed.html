@@ -1,0 +1,412 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Inter', sans-serif; background: transparent; }
+
+  .wrap {
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 580px;
+  }
+
+  .user-row { display: flex; justify-content: flex-end; margin-bottom: 0.4rem; }
+  .user-bubble {
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 16px 16px 4px 16px;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--color-text-primary);
+    max-width: 80%;
+    line-height: 1.5;
+  }
+
+  .inline-text {
+    font-size: 14px;
+    color: var(--color-text-primary);
+    line-height: 1.75;
+    padding: 0 2px;
+    display: none;
+  }
+
+  /* ── block ── */
+  .block {
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .block-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    cursor: pointer;
+    user-select: none;
+    background: var(--color-background-secondary);
+    transition: background 0.15s;
+  }
+  .block-header:hover { background: var(--color-background-tertiary); }
+
+  .block-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    flex: 1;
+  }
+  .block-label.active { color: var(--color-text-primary); }
+
+  .block-meta { font-size: 11px; color: var(--color-text-tertiary); font-variant-numeric: tabular-nums; }
+
+  .chevron {
+    font-size: 11px;
+    color: var(--color-text-tertiary);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .chevron.open { transform: rotate(180deg); }
+
+  .block-bar { height: 1.5px; background: var(--color-border-tertiary); overflow: hidden; display: none; }
+  .block-bar.on { display: block; }
+  .block-bar-fill { height: 100%; width: 0%; background: var(--color-text-tertiary); transition: width 0.4s; position: relative; }
+  .block-bar-fill.anim::after {
+    content: '';
+    position: absolute; right: 0; top: 0; width: 80px; height: 100%;
+    background: linear-gradient(90deg, transparent, var(--color-text-secondary), transparent);
+    animation: sw 1.2s ease-in-out infinite;
+  }
+  @keyframes sw { 0%,100%{opacity:0.15} 50%{opacity:0.65} }
+
+  /* body — height auto, no fixed max-height */
+  .block-body {
+    display: none;
+    background: var(--color-background-primary);
+    border-top: 0.5px solid var(--color-border-tertiary);
+  }
+  .block-body.open { display: block; }
+
+  .block-body-inner {
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+
+  /* ── sub-blocks inside tool body ── */
+  .sub-list {
+    padding: 6px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .sub-block {
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .sub-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    user-select: none;
+    background: var(--color-background-secondary);
+    transition: background 0.15s;
+  }
+  .sub-header:hover { background: var(--color-background-tertiary); }
+
+  .sub-label { font-size: 11.5px; font-weight: 500; color: var(--color-text-secondary); flex: 1; }
+  .sub-label.active { color: var(--color-text-primary); }
+  .sub-meta { font-size: 11px; color: var(--color-text-tertiary); }
+  .sub-chevron { font-size: 10px; color: var(--color-text-tertiary); transition: transform 0.2s; }
+  .sub-chevron.open { transform: rotate(180deg); }
+
+  .sub-bar { height: 1.5px; background: var(--color-border-tertiary); overflow: hidden; display: none; }
+  .sub-bar.on { display: block; }
+  .sub-bar-fill { height: 100%; width: 0%; background: var(--color-text-tertiary); transition: width 0.4s; position: relative; }
+  .sub-bar-fill.anim::after {
+    content: '';
+    position: absolute; right: 0; top: 0; width: 60px; height: 100%;
+    background: linear-gradient(90deg, transparent, var(--color-text-secondary), transparent);
+    animation: sw 1.2s ease-in-out infinite;
+  }
+
+  /* sub body — also display:none toggle, no max-height */
+  .sub-body {
+    display: none;
+    background: var(--color-background-primary);
+    border-top: 0.5px solid var(--color-border-tertiary);
+  }
+  .sub-body.open { display: block; }
+  .sub-body-inner {
+    padding: 6px 10px;
+    font-size: 11.5px;
+    color: var(--color-text-tertiary);
+    line-height: 1.65;
+    font-family: var(--font-mono);
+  }
+
+  /* cursor */
+  .cursor {
+    display: inline-block;
+    width: 1.5px; height: 12px;
+    background: var(--color-text-secondary);
+    vertical-align: text-bottom;
+    margin-left: 1px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  .controls {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    padding-top: 0.75rem;
+    border-top: 0.5px solid var(--color-border-tertiary);
+    margin-top: 0.25rem;
+  }
+</style>
+
+<div class="wrap">
+  <h2 class="sr-only">Thinking and tool call indicator</h2>
+
+  <div class="user-row">
+    <div class="user-bubble">আজকের ঢাকার আবহাওয়া কেমন এবং মুক্তিযুদ্ধ সম্পর্কে সংক্ষেপে বলো</div>
+  </div>
+
+  <!-- thinking -->
+  <div class="block" id="thinkBlock">
+    <div class="block-header" onclick="toggleBlock('think')">
+      <span class="block-label active" id="thinkLabel">Thinking</span>
+      <span class="block-meta" id="thinkTimer">0.0s</span>
+      <i class="ti ti-chevron-down chevron" id="thinkChevron" aria-hidden="true"></i>
+    </div>
+    <div class="block-bar on" id="thinkBar"><div class="block-bar-fill anim" id="thinkBarFill"></div></div>
+    <div class="block-body" id="thinkBody">
+      <div class="block-body-inner"><span id="thinkText"></span><span class="cursor" id="thinkCur"></span></div>
+    </div>
+  </div>
+
+  <!-- mid text -->
+  <div class="inline-text" id="midText"></div>
+
+  <!-- tool calls -->
+  <div class="block" id="toolBlock" style="display:none">
+    <div class="block-header" onclick="toggleBlock('tool')">
+      <span class="block-label active" id="toolLabel">Tool calls</span>
+      <span class="block-meta" id="toolMeta">0 / 2</span>
+      <i class="ti ti-chevron-down chevron" id="toolChevron" aria-hidden="true"></i>
+    </div>
+    <div class="block-bar" id="toolBar"><div class="block-bar-fill anim" id="toolBarFill"></div></div>
+    <div class="block-body" id="toolBody">
+      <div class="sub-list">
+
+        <div class="sub-block">
+          <div class="sub-header" onclick="toggleSub(0)">
+            <span class="sub-label active" id="sl0">web_search</span>
+            <span class="sub-meta" id="sm0">running</span>
+            <i class="ti ti-chevron-down sub-chevron" id="sc0" aria-hidden="true"></i>
+          </div>
+          <div class="sub-bar on" id="sb0"><div class="sub-bar-fill anim" id="sbf0"></div></div>
+          <div class="sub-body" id="sbody0">
+            <div class="sub-body-inner">"Dhaka weather today"</div>
+          </div>
+        </div>
+
+        <div class="sub-block">
+          <div class="sub-header" onclick="toggleSub(1)">
+            <span class="sub-label" id="sl1">web_search</span>
+            <span class="sub-meta" id="sm1">pending</span>
+            <i class="ti ti-chevron-down sub-chevron" id="sc1" aria-hidden="true"></i>
+          </div>
+          <div class="sub-bar" id="sb1"><div class="sub-bar-fill anim" id="sbf1"></div></div>
+          <div class="sub-body" id="sbody1">
+            <div class="sub-body-inner">"Bangladesh liberation war 1971 summary"</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- response -->
+  <div class="inline-text" id="asstText"></div>
+
+  <div class="controls">
+    <button onclick="resetDemo()">Reset</button>
+    <button onclick="skip()">Skip to response</button>
+  </div>
+</div>
+
+<script>
+const thoughts = [
+  "User wants Dhaka weather and Bangladesh Liberation War history.",
+  "I need two web_search calls — one for weather, one for history.",
+  "Will compose combined answer after results return.",
+];
+const midWords = "আমি এখন দুটো search করছি — একটা আজকের আবহাওয়ার জন্য, আরেকটা মুক্তিযুদ্ধের তথ্যের জন্য।";
+const response = "আজ ঢাকায় আংশিক মেঘলা আকাশ, তাপমাত্রা প্রায় ৩২°C। বৃষ্টির সম্ভাবনা ৪০%।\n\nবাংলাদেশের মুক্তিযুদ্ধ শুরু হয় ১৯৭১ সালের ২৫ মার্চ। ১৯৭০ সালের নির্বাচনে আওয়ামী লীগ সংখ্যাগরিষ্ঠতা পেলেও পাকিস্তান ক্ষমতা হস্তান্তর না করায় সশস্ত্র যুদ্ধ শুরু হয়। মুক্তিবাহিনী ও ভারতীয় সেনাবাহিনীর যৌথ অভিযানে ১৬ ডিসেম্বর পাকিস্তান আত্মসমর্পণ করে।";
+
+let elapsed = 0, tIdx = 0, cIdx = 0, timerRef = null, charRef = null;
+let bOpen = { think: false, tool: false };
+let sOpen = [false, false];
+
+function toggleBlock(id) {
+  bOpen[id] = !bOpen[id];
+  document.getElementById(id + 'Body').classList.toggle('open', bOpen[id]);
+  document.getElementById(id + 'Chevron').classList.toggle('open', bOpen[id]);
+}
+function toggleSub(i) {
+  sOpen[i] = !sOpen[i];
+  document.getElementById('sbody' + i).classList.toggle('open', sOpen[i]);
+  document.getElementById('sc' + i).classList.toggle('open', sOpen[i]);
+}
+
+function startThinking() {
+  elapsed = 0; tIdx = 0; cIdx = 0;
+  document.getElementById('thinkText').textContent = '';
+  document.getElementById('thinkCur').style.display = 'inline-block';
+  document.getElementById('thinkLabel').textContent = 'Thinking';
+  document.getElementById('thinkLabel').className = 'block-label active';
+  document.getElementById('thinkBarFill').style.width = '0%';
+  document.getElementById('thinkBarFill').className = 'block-bar-fill anim';
+  document.getElementById('thinkBar').className = 'block-bar on';
+  document.getElementById('toolBlock').style.display = 'none';
+  document.getElementById('midText').style.display = 'none';
+  document.getElementById('midText').textContent = '';
+  document.getElementById('asstText').style.display = 'none';
+  document.getElementById('asstText').textContent = '';
+  bOpen.think = false; bOpen.tool = false; sOpen = [false, false];
+  document.getElementById('thinkBody').classList.remove('open');
+  document.getElementById('thinkChevron').classList.remove('open');
+  document.getElementById('toolBody').classList.remove('open');
+  document.getElementById('toolChevron').classList.remove('open');
+
+  timerRef = setInterval(() => {
+    elapsed = parseFloat((elapsed + 0.1).toFixed(1));
+    document.getElementById('thinkTimer').textContent = elapsed + 's';
+    document.getElementById('thinkBarFill').style.width = Math.min((elapsed / (thoughts.length * 0.85)) * 85, 85) + '%';
+  }, 100);
+  typeNext();
+}
+
+function typeNext() {
+  if (tIdx >= thoughts.length) { finishThinking(); return; }
+  const line = (tIdx > 0 ? '\n' : '') + thoughts[tIdx];
+  cIdx = 0;
+  charRef = setInterval(() => {
+    if (cIdx < line.length) document.getElementById('thinkText').textContent += line[cIdx++];
+    else { clearInterval(charRef); tIdx++; setTimeout(typeNext, 100); }
+  }, 22);
+}
+
+function finishThinking() {
+  clearInterval(timerRef);
+  const t = elapsed.toFixed(1) + 's';
+  document.getElementById('thinkBarFill').style.width = '100%';
+  document.getElementById('thinkBarFill').className = 'block-bar-fill';
+  setTimeout(() => {
+    document.getElementById('thinkCur').style.display = 'none';
+    document.getElementById('thinkLabel').textContent = 'Thought for ' + t;
+    document.getElementById('thinkLabel').className = 'block-label';
+    document.getElementById('thinkBar').className = 'block-bar';
+    setTimeout(showMidText, 300);
+  }, 200);
+}
+
+function showMidText() {
+  const el = document.getElementById('midText');
+  el.style.display = 'block'; el.textContent = '';
+  const words = midWords.split(' '); let i = 0;
+  const ref = setInterval(() => {
+    if (i < words.length) el.textContent += (i > 0 ? ' ' : '') + words[i++];
+    else { clearInterval(ref); setTimeout(startTools, 400); }
+  }, 55);
+}
+
+function startTools() {
+  document.getElementById('toolBlock').style.display = 'block';
+  document.getElementById('toolBar').className = 'block-bar on';
+  document.getElementById('toolBarFill').style.width = '0%';
+  document.getElementById('toolBarFill').className = 'block-bar-fill anim';
+  document.getElementById('toolMeta').textContent = '0 / 2';
+  document.getElementById('toolLabel').className = 'block-label active';
+  document.getElementById('sl0').className = 'sub-label active';
+  document.getElementById('sm0').textContent = 'running';
+  document.getElementById('sb0').className = 'sub-bar on';
+  document.getElementById('sbf0').style.width = '0%';
+  document.getElementById('sbf0').className = 'sub-bar-fill anim';
+  document.getElementById('sl1').className = 'sub-label';
+  document.getElementById('sm1').textContent = 'pending';
+  document.getElementById('sb1').className = 'sub-bar';
+
+  setTimeout(() => {
+    document.getElementById('sbf0').style.width = '100%';
+    document.getElementById('sbf0').className = 'sub-bar-fill';
+    document.getElementById('sb0').className = 'sub-bar';
+    document.getElementById('sm0').textContent = 'done';
+    document.getElementById('sl0').className = 'sub-label';
+    document.getElementById('toolMeta').textContent = '1 / 2';
+    document.getElementById('toolBarFill').style.width = '50%';
+    document.getElementById('sl1').className = 'sub-label active';
+    document.getElementById('sm1').textContent = 'running';
+    document.getElementById('sb1').className = 'sub-bar on';
+    document.getElementById('sbf1').style.width = '0%';
+    document.getElementById('sbf1').className = 'sub-bar-fill anim';
+  }, 1300);
+
+  setTimeout(() => {
+    document.getElementById('sbf1').style.width = '100%';
+    document.getElementById('sbf1').className = 'sub-bar-fill';
+    document.getElementById('sb1').className = 'sub-bar';
+    document.getElementById('sm1').textContent = 'done';
+    document.getElementById('sl1').className = 'sub-label';
+    document.getElementById('toolMeta').textContent = '2 / 2';
+    document.getElementById('toolBarFill').style.width = '100%';
+    document.getElementById('toolBarFill').className = 'block-bar-fill';
+    document.getElementById('toolBar').className = 'block-bar';
+    document.getElementById('toolLabel').className = 'block-label';
+    setTimeout(startResponse, 400);
+  }, 2800);
+}
+
+function startResponse() {
+  const el = document.getElementById('asstText');
+  el.style.display = 'block'; el.textContent = '';
+  const words = response.split(' '); let i = 0;
+  const ref = setInterval(() => {
+    if (i < words.length) el.textContent += (i > 0 ? ' ' : '') + words[i++];
+    else clearInterval(ref);
+  }, 55);
+}
+
+function resetDemo() { clearInterval(timerRef); clearInterval(charRef); startThinking(); }
+
+function skip() {
+  clearInterval(timerRef); clearInterval(charRef);
+  document.getElementById('thinkText').textContent = thoughts.join('\n');
+  document.getElementById('thinkCur').style.display = 'none';
+  document.getElementById('thinkLabel').textContent = 'Thought for 1.8s';
+  document.getElementById('thinkLabel').className = 'block-label';
+  document.getElementById('thinkTimer').textContent = '1.8s';
+  document.getElementById('thinkBar').className = 'block-bar';
+  document.getElementById('midText').style.display = 'block';
+  document.getElementById('midText').textContent = midWords;
+  document.getElementById('toolBlock').style.display = 'block';
+  ['0','1'].forEach(i => {
+    document.getElementById('sl'+i).className = 'sub-label';
+    document.getElementById('sm'+i).textContent = 'done';
+    document.getElementById('sb'+i).className = 'sub-bar';
+  });
+  document.getElementById('toolMeta').textContent = '2 / 2';
+  document.getElementById('toolLabel').className = 'block-label';
+  document.getElementById('toolBar').className = 'block-bar';
+  setTimeout(startResponse, 200);
+}
+
+startThinking();
+</script>
