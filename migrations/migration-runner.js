@@ -1,53 +1,30 @@
-const fs = require('fs');
-const path = require('path');
-const { pool } = require('../config/database');
+const { mongoose } = require('../config/mongodb');
 const logger = require('../config/logger');
 
 async function runMigrations() {
-  logger.info('Starting database migrations');
+  logger.info('Starting MongoDB indexes setup');
 
   try {
-    // Get all migration files
-    const migrationsDir = __dirname;
-    const files = fs.readdirSync(migrationsDir)
-      .filter(f => f.endsWith('.sql') && f !== '002_add_indexes.sql')
-      .sort();
+    await mongoose.connection.db.collection('users').createIndex({ email: 1 }, { unique: true });
+    await mongoose.connection.db.collection('users').createIndex({ is_active: 1 });
 
-    if (files.length === 0) {
-      logger.warn('No migration files found');
-      return;
-    }
+    await mongoose.connection.db.collection('sessions').createIndex({ user_id: 1 });
+    await mongoose.connection.db.collection('sessions').createIndex({ refresh_token: 1 });
+    await mongoose.connection.db.collection('sessions').createIndex({ expires_at: 1 });
 
-    // Execute each migration
-    for (const file of files) {
-      const filePath = path.join(migrationsDir, file);
-      const sql = fs.readFileSync(filePath, 'utf-8');
+    await mongoose.connection.db.collection('conversations').createIndex({ user_id: 1, updated_at: -1 });
+    await mongoose.connection.db.collection('messages').createIndex({ conversation_id: 1, created_at: 1 });
 
-      logger.info(`Running migration: ${file}`);
+    await mongoose.connection.db.collection('agent_memories').createIndex({ memory_key: 1, user_id: 1 });
+    await mongoose.connection.db.collection('agent_memories').createIndex({ user_id: 1, is_active: 1 });
 
-      try {
-        await pool.query(sql);
-        logger.info(`Migration completed: ${file}`);
-      } catch (error) {
-        logger.error(`Migration failed: ${file}`, {
-          error: error.message,
-        });
-        throw error;
-      }
-    }
-
-    logger.info('All migrations completed successfully');
+    logger.info('MongoDB indexes created successfully');
   } catch (error) {
-    logger.error('Migration process failed', {
-      error: error.message,
-    });
+    logger.error('MongoDB setup failed', { error: error.message });
     process.exit(1);
-  } finally {
-    await pool.end();
   }
 }
 
-// Run migrations if called directly
 if (require.main === module) {
   runMigrations();
 }

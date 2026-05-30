@@ -951,3 +951,47 @@
 {"level":"error","message":"NewsApiTool failed: Request failed with status code 404","service":"xro-agent-backend","timestamp":"2026-05-29 01:29:12"}
 {"level":"error","message":"NewsApiTool failed: Request failed with status code 404","service":"xro-agent-backend","timestamp":"2026-05-29 01:37:21"}
 {"level":"error","message":"NewsApiTool failed: Request failed with status code 404","service":"xro-agent-backend","timestamp":"2026-05-29 01:55:44"}
+{"level":"error","message":"NewsApiTool failed: Request failed with status code 404","service":"xro-agent-backend","timestamp":"2026-05-30 13:39:22"}
+{"error":"Server selection timed out after 10000 ms","level":"error","message":"MongoDB connection failed","retriesLeft":4,"service":"xro-agent-backend","timestamp":"2026-05-30 14:11:41"}
+{"error":"Could not connect to any servers in your MongoDB Atlas cluster. One common reason is that you're trying to access the database from an IP that isn't whitelisted. Make sure your current IP address is on your Atlas cluster's IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/","level":"error","message":"MongoDB connection failed","retriesLeft":4,"service":"xro-agent-backend","timestamp":"2026-05-30 14:12:43"}
+{"error":"querySrv ETIMEOUT _mongodb._tcp.cluster0.keqvzit.mongodb.net","level":"error","message":"MongoDB connection failed","retriesLeft":4,"service":"xro-agent-backend","timestamp":"2026-05-30 14:57:09"}
+{"error":"Invalid email or password","level":"error","message":"Unhandled error","path":"/api/auth/login","service":"xro-agent-backend","timestamp":"2026-05-30 15:10:31"}
+{"error":"Invalid email or password","level":"error","message":"Unhandled error","path":"/api/auth/login","service":"xro-agent-backend","timestamp":"2026-05-30 15:10:32"}
+{"error":"Validation error: \"username\" with value \"bdprotick@gmail.com\" fails to match the required pattern: /^[a-zA-Z0-9_-]+$/","level":"error","message":"Unhandled error","path":"/api/auth/register","service":"xro-agent-backend","timestamp":"2026-05-30 15:11:19"}
+{"level":"error","message":"Calculator execution failed: Invalid expression","service":"xro-agent-backend","timestamp":"2026-05-30 16:16:53"}
+{"level":"error","message":"Calculator execution failed: Expression is required","service":"xro-agent-backend","timestamp":"2026-05-30 16:16:53"}
+{"level":"error","message":"JSON parsing failed: Expected property name or '}' in JSON at position 1 (line 1 column 2)","service":"xro-agent-backend","timestamp":"2026-05-30 16:16:53"}
+{"level":"error","message":"JSON parsing failed: JSON string is required","service":"xro-agent-backend","timestamp":"2026-05-30 16:16:53"}
+{"level":"error","message":"Timer operation failed: Timer unknown not started","service":"xro-agent-backend","timestamp":"2026-05-30 16:16:53"}
+{"level":"error","message":"Calculator execution failed: Invalid expression","service":"xro-agent-backend","timestamp":"2026-05-30 16:17:01"}
+{"level":"error","message":"Calculator execution failed: Expression is required","service":"xro-agent-backend","timestamp":"2026-05-30 16:17:01"}
+{"level":"error","message":"JSON parsing failed: Expected property name or '}' in JSON at position 1 (line 1 column 2)","service":"xro-agent-backend","timestamp":"2026-05-30 16:17:01"}
+{"level":"error","message":"JSON parsing failed: JSON string is required","service":"xro-agent-backend","timestamp":"2026-05-30 16:17:01"}
+{"level":"error","message":"Timer operation failed: Timer unknown not started","service":"xro-agent-backend","timestamp":"2026-05-30 16:17:01"}
+{"level":"error","message":"DnsLookupTool error: queryA ENOTFOUND test","service":"xro-agent-backend","timestamp":"2026-05-30 16:22:55"}
+{"level":"error","message":"MxLookupTool error: queryMx ENOTFOUND test","service":"xro-agent-backend","timestamp":"2026-05-30 16:22:55"}
+{"level":"error","message":"SslCheckTool error: getaddrinfo ENOTFOUND test","service":"xro-agent-backend","timestamp":"2026-05-30 16:22:55"}
+{"level":"error","message":"HttpDeleteTool failed: Request failed with status code 405","service":"xro-agent-backend","timestamp":"2026-05-30 16:23:00"}
+{"level":"error","message":"HttpPostTool failed: Request failed with status code 405","service":"xro-agent-backend","timestamp":"2026-05-30 16:23:00"}
+{"level":"error","message":"HttpPutTool failed: Request failed with status code 405","service":"xro-agent-backend","timestamp":"2026-05-30 16:23:00"}
+{"level":"error","message":"WebhookTool failed: Request failed with status code 405","service":"xro-agent-backend","timestamp":"2026-05-30 16:23:00"}
+{"level":"error","message":"DnsLookupTool error: queryA ENOTFOUND test","service":"xro-agent-backend","timestamp":"2026-05-30 16:23:49"}
+{"level":"error","message":"MxLookupTool error: queryMx ENOTFOUND test","service":"xro-agent-backend","timestamp":"2026-05-30 16:23:49"}
+{"level":"error","message":"SslCheckTool error: getaddrinfo ENOTFOUND test","service":"xro-agent-backend","timestamp":"2026-05-30 16:23:49"}
+{"level":"error","message":"HttpDeleteTool failed: Request failed with status code 405","service":"xro-agent-backend","timestamp":"2026-05-30 16:23:52"}
+{"level":"error","message":"HttpPostTool failed: Request failed with status code 405","service":"xro-agent-backend","timestamp":"2026-05-30 16:23:52"}
+{"level":"error","message":"HttpPutTool failed: Request failed with status code 405","service":"xro-agent-backend","timestamp":"2026-05-30 16:23:52"}
+{"level":"error","message":"WebhookTool failed: Request failed with status code 405","service":"xro-agent-backend","timestamp":"2026-05-30 16:23:52"}
+{"level":"error","message":"Calculator execution failed: Invalid expression","service":"xro-agent-backend","timestamp":"2026-05-30 16:34:34"}
+{"level":"error","message":"Calculator execution failed: Expression is required","service":"xro-agent-backend","timestamp":"2026-05-30 16:34:34"}
+{"level":"error","message":"JSON parsing failed: Expected property name or '}' in JSON at position 1 (line 1 column 2)","service":"xro-agent-backend","timestamp":"2026-05-30 16:34:34"}
+{"level":"error","message":"JSON parsing failed: JSON string is required","service":"xro-agent-backend","timestamp":"2026-05-30 16:34:34"}
+{"level":"error","message":"Timer operation failed: Timer unknown not started","service":"xro-agent-backend","timestamp":"2026-05-30 16:34:34"}
+{"level":"error","message":"Calculator execution failed: Invalid expression","service":"xro-agent-backend","timestamp":"2026-05-30 16:34:36"}
+{"level":"error","message":"Calculator execution failed: Expression is required","service":"xro-agent-backend","timestamp":"2026-05-30 16:34:36"}
+{"level":"error","message":"JSON parsing failed: Expected property name or '}' in JSON at position 1 (line 1 column 2)","service":"xro-agent-backend","timestamp":"2026-05-30 16:34:36"}
+{"level":"error","message":"JSON parsing failed: JSON string is required","service":"xro-agent-backend","timestamp":"2026-05-30 16:34:36"}
+{"level":"error","message":"Timer operation failed: Timer unknown not started","service":"xro-agent-backend","timestamp":"2026-05-30 16:34:36"}
+{"error":"Invalid or expired refresh token","level":"error","message":"Unhandled error","path":"/api/auth/refresh","service":"xro-agent-backend","timestamp":"2026-05-30 22:51:22"}
+{"error":"Invalid or expired refresh token","level":"error","message":"Unhandled error","path":"/api/auth/refresh","service":"xro-agent-backend","timestamp":"2026-05-30 22:51:23"}
+{"level":"error","message":"NewsApiTool failed: Request failed with status code 404","service":"xro-agent-backend","timestamp":"2026-05-30 23:01:19"}

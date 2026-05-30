@@ -1,6 +1,30 @@
-const { query } = require('../config/database');
+const { mongoose } = require('../config/mongodb');
 const { v4: uuidv4 } = require('uuid');
 const logger = require('../config/logger');
+
+const executionStateSchema = new mongoose.Schema({
+  _id: { type: String, default: uuidv4 },
+  execution_id: { type: String, required: true, unique: true, index: true },
+  agent_name: { type: String },
+  status: { type: String },
+  mode: { type: String },
+  checkpoint: { type: mongoose.Schema.Types.Mixed, default: {} },
+  timeline: { type: mongoose.Schema.Types.Mixed, default: {} },
+  current_step: { type: Number, default: 0 },
+  total_steps: { type: Number, default: 0 },
+  completed_steps: { type: mongoose.Schema.Types.Mixed, default: [] },
+  user_id: { type: String },
+  conversation_id: { type: String },
+  expires_at: { type: Date },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
+}, { versionKey: false });
+
+executionStateSchema.index({ status: 1, expires_at: 1 });
+executionStateSchema.index({ user_id: 1 });
+
+const ExecutionState = mongoose.models.ExecutionState
+  || mongoose.model('ExecutionState', executionStateSchema, 'execution_states');
 
 /**
  * ExecutionManager - Pause/Resume/Cancel agent execution lifecycle
@@ -9,15 +33,10 @@ const logger = require('../config/logger');
 class ExecutionManager {
   constructor() {
     this.activeExecutions = new Map();
-    this.checkpointInterval = 10000; // Checkpoint every 10s
+    this.checkpointInterval = 10000;
     this.MAX_PAUSED_PER_USER = 10;
   }
 
-  /**
-   * Start tracking an execution
-   * @param {object} execution - Execution info
-   * @returns {object}
-   */
   start(execution) {
     const { executionId, agentName, conversationId, userId, mode = 'automatic' } = execution;
     const id = executionId || uuidv4();
@@ -50,11 +69,6 @@ class ExecutionManager {
     return state;
   }
 
-  /**
-   * Pause a running execution
-   * @param {string} id - Execution ID
-   * @returns {Promise<object>}
-   */
   async pause(id) {
     const execution = this.activeExecutions.get(id);
     if (!execution) throw new Error(`Execution not found: ${id}`);
@@ -70,12 +84,6 @@ class ExecutionManager {
     return execution;
   }
 
-  /**
-   * Resume a paused execution
-   * @param {string} id - Execution ID
-   * @param {object} modifications - Optional modifications
-   * @returns {Promise<object>}
-   */
   async resume(id, modifications = {}) {
     const execution = this.activeExecutions.get(id);
     if (!execution) throw new Error(`Execution not found: ${id}`);
@@ -98,12 +106,6 @@ class ExecutionManager {
     return execution;
   }
 
-  /**
-   * Cancel an execution
-   * @param {string} id - Execution ID
-   * @param {object} options - Cancel options
-   * @returns {Promise<object>}
-   */
   async cancel(id, options = {}) {
     const execution = this.activeExecutions.get(id);
     if (!execution) throw new Error(`Execution not found: ${id}`);
@@ -122,11 +124,6 @@ class ExecutionManager {
     return execution;
   }
 
-  /**
-   * Advance to next step (for step-through mode)
-   * @param {string} id - Execution ID
-   * @returns {Promise<object>}
-   */
   async nextStep(id) {
     const execution = this.activeExecutions.get(id);
     if (!execution) throw new Error(`Execution not found: ${id}`);
@@ -140,13 +137,6 @@ class ExecutionManager {
     return execution;
   }
 
-  /**
-   * Mark a step as completed
-   * @param {string} id - Execution ID
-   * @param {number} step - Step number
-   * @param {object} result - Step result
-   * @returns {Promise<void>}
-   */
   async completeStep(id, step, result) {
     const execution = this.activeExecutions.get(id);
     if (!execution) return;
@@ -165,12 +155,6 @@ class ExecutionManager {
     }
   }
 
-  /**
-   * Modify execution while paused
-   * @param {string} id - Execution ID
-   * @param {object} modifications - Modifications
-   * @returns {Promise<object>}
-   */
   async modify(id, modifications) {
     const execution = this.activeExecutions.get(id);
     if (!execution) throw new Error(`Execution not found: ${id}`);
@@ -192,10 +176,6 @@ class ExecutionManager {
     return execution;
   }
 
-  /**
-   * Mark execution as completed
-   * @param {string} id - Execution ID
-   */
   complete(id) {
     const execution = this.activeExecutions.get(id);
     if (!execution) return;
@@ -206,11 +186,6 @@ class ExecutionManager {
     this.activeExecutions.delete(id);
   }
 
-  /**
-   * Mark execution as failed
-   * @param {string} id - Execution ID
-   * @param {Error} error - Error
-   */
   fail(id, error) {
     const execution = this.activeExecutions.get(id);
     if (!execution) return;
@@ -221,37 +196,20 @@ class ExecutionManager {
     this.activeExecutions.delete(id);
   }
 
-  /**
-   * Get execution status
-   * @param {string} id - Execution ID
-   * @returns {object|null}
-   */
   getStatus(id) {
     return this.activeExecutions.get(id) || null;
   }
 
-  /**
-   * List all active executions
-   * @returns {Array}
-   */
   listActive() {
     return Array.from(this.activeExecutions.values())
       .filter(e => e.status === 'processing' || e.status === 'paused');
   }
 
-  /**
-   * List paused executions
-   * @returns {Array}
-   */
   listPaused() {
-    return Array.from(this.activeExecutions.values())
+    return Array.from(this.activeExecutions.values)
       .filter(e => e.status === 'paused');
   }
 
-  /**
-   * Pause all executions for a user
-   * @param {string} userId - User ID
-   */
   async pauseByUser(userId) {
     const userExecutions = Array.from(this.activeExecutions.values())
       .filter(e => e.userId === userId && e.status === 'processing');
@@ -261,10 +219,6 @@ class ExecutionManager {
     }
   }
 
-  /**
-   * Resume all paused executions for a user
-   * @param {string} userId - User ID
-   */
   async resumeByUser(userId) {
     const userExecutions = Array.from(this.activeExecutions.values())
       .filter(e => e.userId === userId && e.status === 'paused');
@@ -274,16 +228,14 @@ class ExecutionManager {
     }
   }
 
-  /**
-   * Recover paused executions after restart
-   */
   async recoverPausedExecutions() {
     try {
-      const result = await query(
-        `SELECT * FROM execution_states WHERE status = 'paused' AND expires_at > NOW()`
-      );
+      const states = await ExecutionState.find({
+        status: 'paused',
+        expires_at: { $gt: new Date() }
+      }).lean();
 
-      for (const state of result.rows) {
+      for (const state of states) {
         this.activeExecutions.set(state.execution_id, {
           id: state.execution_id,
           agentName: state.agent_name,
@@ -299,16 +251,12 @@ class ExecutionManager {
         });
       }
 
-      logger.info(`Recovered ${result.rows.length} paused executions`);
+      logger.info(`Recovered ${states.length} paused executions`);
     } catch (err) {
       logger.error(`Failed to recover paused executions: ${err.message}`);
     }
   }
 
-  /**
-   * Cleanup expired executions
-   * @param {object} options - Cleanup options
-   */
   async cleanupExpired(options = {}) {
     const olderThan = options.olderThan || '24h';
 
@@ -319,9 +267,11 @@ class ExecutionManager {
       }
     }
 
-    await query(
-      `DELETE FROM execution_states WHERE status = 'paused' AND expires_at < NOW()`
-    );
+    const oneHourAgo = new Date(Date.now() - 3600000);
+    await ExecutionState.deleteMany({
+      status: 'paused',
+      expires_at: { $lt: new Date() }
+    });
   }
 
   _emit(execution, event, data) {
@@ -333,18 +283,27 @@ class ExecutionManager {
 
   async _saveState(execution) {
     try {
-      const { query } = require('../config/database');
-      const promise = query(
-        `INSERT INTO execution_states (execution_id, agent_name, status, mode, checkpoint, timeline,
-          current_step, total_steps, completed_steps, user_id, conversation_id, expires_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW() + INTERVAL '1 hour')
-         ON CONFLICT (execution_id) DO UPDATE
-         SET status = $3, checkpoint = $5, timeline = $6, current_step = $7, updated_at = NOW()`,
-        [execution.id, execution.agentName, execution.status, execution.mode,
-         JSON.stringify(execution.checkpoint), JSON.stringify(execution.timeline),
-         execution.currentStep, execution.totalSteps,
-         JSON.stringify(execution.completedSteps), execution.userId, execution.conversationId]
+      const promise = ExecutionState.findOneAndUpdate(
+        { execution_id: execution.id },
+        {
+          $set: {
+            agent_name: execution.agentName,
+            status: execution.status,
+            mode: execution.mode,
+            checkpoint: execution.checkpoint,
+            timeline: execution.timeline,
+            current_step: execution.currentStep,
+            total_steps: execution.totalSteps,
+            completed_steps: execution.completedSteps,
+            user_id: execution.userId,
+            conversation_id: execution.conversationId,
+            expires_at: new Date(Date.now() + 3600000),
+            updated_at: new Date(),
+          }
+        },
+        { upsert: true, new: true }
       );
+
       await Promise.race([
         promise,
         new Promise((_, reject) => setTimeout(() => reject(new Error('DB timeout')), 2000))

@@ -127,10 +127,14 @@ function ChatApp() {
     const finishStream = () => {
       const store  = useChatStore.getState();
       const key    = store.activeConvId || initialKey;
-      const finalContent = (store.streamSegments || [])
-        .filter(s => s.type === 'content')
-        .map(s => s.content)
-        .join('');
+      let finalContent = '';
+      for (const s of store.streamSegments || []) {
+        if (s.type === 'reasoning') {
+          finalContent += `<think>\n${s.content}\n</think>\n`;
+        } else if (s.type === 'content') {
+          finalContent += s.content;
+        }
+      }
 
       updateMessage(key, streamMsgId, {
         content:   finalContent,
@@ -138,6 +142,7 @@ function ChatApp() {
       });
 
       setTyping(false);
+      clearStream();
     };
 
     const failStream = (errMsg) => {

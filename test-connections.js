@@ -1,20 +1,21 @@
 const logger = require('./config/logger');
 const env = require('./config/env');
-const { pool } = require('./config/database');
+const { connectMongo, mongoose } = require('./config/mongodb');
 const llmManager = require('./llm/providers/LLMManager');
 const axios = require('axios');
 
 async function testConnections() {
   console.log('\n========== SYSTEM DIAGNOSTICS ==========\n');
 
-  // Test 1: Database Connection
-  console.log('1️⃣  Testing Database Connection...');
+  // Test 1: MongoDB Connection
+  console.log('1️⃣  Testing MongoDB Connection...');
   try {
-    const result = await pool.query('SELECT NOW()');
-    console.log('✅ Database connection successful');
-    console.log(`   Time: ${result.rows[0].now}`);
+    await connectMongo();
+    const result = await mongoose.connection.db.admin().ping();
+    console.log('✅ MongoDB connection successful');
+    console.log(`   Status: ${result.ok === 1 ? 'OK' : 'Unknown'}`);
   } catch (error) {
-    console.log('❌ Database connection failed');
+    console.log('❌ MongoDB connection failed');
     console.log(`   Error: ${error.message}`);
   }
 
@@ -23,16 +24,25 @@ async function testConnections() {
   const required = [
     'NIM_API_KEY',
     'NIM_BASE_URL',
-    'DB_HOST',
+    'MONGODB_URI',
     'JWT_SECRET',
   ];
 
   let allVarsPresent = true;
   for (const varName of required) {
-    const value = process.env[varName];
+    let value;
+    if (varName === 'MONGODB_URI') {
+      value = env.MONGO?.uri;
+    } else {
+      value = process.env[varName];
+    }
     if (value) {
-      const masked = varName === 'NIM_API_KEY' ? value.substring(0, 10) + '...' : value;
-      console.log(`✅ ${varName}: ${masked}`);
+      const displayValue = varName === 'NIM_API_KEY'
+        ? value.substring(0, 10) + '...'
+        : varName === 'MONGODB_URI'
+        ? value.substring(0, 30) + '...'
+        : value;
+      console.log(`✅ ${varName}: ${displayValue}`);
     } else {
       console.log(`❌ ${varName}: MISSING`);
       allVarsPresent = false;
@@ -52,7 +62,6 @@ async function testConnections() {
     if (!nimKey) {
       console.log('❌ NIM_API_KEY not configured');
     } else {
-      // Try the correct endpoint for chat completions
       const response = await axios.post(
         `${nimUrl}/chat/completions`,
         {
@@ -83,11 +92,9 @@ async function testConnections() {
   } catch (error) {
     if (error.response?.status === 401) {
       console.log('❌ NVIDIA NIM API - Authentication failed (invalid API key)');
-      console.log(`   Make sure API key is correct: ${process.env.NIM_API_KEY.substring(0, 20)}...`);
     } else if (error.response?.status === 404) {
       console.log('❌ NVIDIA NIM API - 404 Not Found');
       console.log(`   Check the endpoint URL: ${process.env.NIM_BASE_URL}`);
-      console.log(`   Or model name: meta/llama-2-70b-chat-hf`);
       console.log(`   Response: ${JSON.stringify(error.response?.data)}`);
     } else if (error.response?.status === 429) {
       console.log('❌ NVIDIA NIM API - Rate limited');
@@ -118,12 +125,9 @@ async function testConnections() {
 
   console.log('\n========================================\n');
 
-  // Cleanup
-  await pool.end();
   process.exit(0);
 }
 
-// Run diagnostics
 testConnections().catch((error) => {
   console.error('Diagnostic failed:', error);
   process.exit(1);

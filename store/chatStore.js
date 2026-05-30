@@ -28,6 +28,7 @@ export const useChatStore = create((set) => ({
     const fromMsgs = s.messages[fromKey] || [];
     const next = { ...s.messages };
     if (fromMsgs.length > 0) next[toId] = fromMsgs;
+    delete next[fromKey];
     return { activeConvId: toId, messages: next };
   }),
 

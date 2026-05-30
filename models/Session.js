@@ -1,53 +1,74 @@
-const { query, getOne, getMany } = require('../config/database');
+const { mongoose } = require('../config/mongodb');
 const { v4: uuidv4 } = require('uuid');
+
+const schema = new mongoose.Schema({
+  _id: { type: String, default: uuidv4 },
+  user_id: { type: String, required: true, index: true },
+  refresh_token: { type: String, required: true },
+  expires_at: { type: Date, required: true, index: true },
+  created_at: { type: Date, default: Date.now },
+  is_revoked: { type: Boolean, default: false },
+}, { _id: false, versionKey: false });
+
+schema.index({ user_id: 1, is_revoked: 1 });
+
+const Model = mongoose.models.Session || mongoose.model('Session', schema, 'sessions');
+
+function row(doc) {
+  if (!doc) return null;
+  const o = doc.toObject ? doc.toObject() : { ...doc };
+  o.id = o._id;
+  return o;
+}
 
 class Session {
   static async create(userId, refreshToken, expiresAt) {
     const id = uuidv4();
-    const result = await query(
-      `INSERT INTO sessions (id, user_id, refresh_token, expires_at, created_at)
-       VALUES ($1, $2, $3, $4, NOW())
-       RETURNING id, user_id, expires_at, created_at`,
-      [id, userId, refreshToken, expiresAt]
-    );
-    return result.rows[0];
+    const doc = await Model.create({
+      _id: id,
+      user_id: userId,
+      refresh_token: refreshToken,
+      expires_at: expiresAt,
+      created_at: new Date(),
+    });
+    return { id: doc._id, user_id: doc.user_id, expires_at: doc.expires_at, created_at: doc.created_at };
   }
 
   static async findById(id) {
-    return getOne(
-      `SELECT id, user_id, refresh_token, expires_at, created_at, is_revoked
-       FROM sessions WHERE id = $1 AND is_revoked = false`,
-      [id]
-    );
+    const doc = await Model.findOne({ _id: id, is_revoked: false }).lean();
+    if (!doc) return null;
+    return row(doc);
   }
 
   static async findByRefreshToken(token) {
-    return getOne(
-      `SELECT id, user_id, refresh_token, expires_at
-       FROM sessions WHERE refresh_token = $1 AND is_revoked = false AND expires_at > NOW()`,
-      [token]
-    );
+    const doc = await Model.findOne({
+      refresh_token: token,
+      is_revoked: false,
+      expires_at: { $gt: new Date() }
+    }).lean();
+    if (!doc) return null;
+    return row(doc);
   }
 
   static async findByUserId(userId) {
-    return getMany(
-      `SELECT id, expires_at, created_at, is_revoked
-       FROM sessions WHERE user_id = $1 AND is_revoked = false
-       ORDER BY created_at DESC`,
-      [userId]
-    );
+    const docs = await Model
+      .find({ user_id: userId, is_revoked: false })
+      .sort({ created_at: -1 })
+      .lean();
+    return docs.map(d => ({ ...d, id: d._id }));
   }
 
   static async revoke(id) {
-    await query('UPDATE sessions SET is_revoked = true WHERE id = $1', [id]);
+    await Model.findByIdAndUpdate(id, { is_revoked: true });
   }
 
   static async revokeAllByUser(userId) {
-    await query('UPDATE sessions SET is_revoked = true WHERE user_id = $1', [userId]);
+    await Model.updateMany({ user_id: userId }, { $set: { is_revoked: true } });
   }
 
   static async deleteExpired() {
-    return await query('DELETE FROM sessions WHERE expires_at < NOW()');
+    const result = await Model.deleteMany({ expires_at: { $lt: new Date() } });
+    return result.deletedCount;
   }
 }
 

@@ -1,12 +1,46 @@
-const { query, getOne, getMany } = require('../config/database');
+const { mongoose } = require('../config/mongodb');
 const { v4: uuidv4 } = require('uuid');
 const axios = require('axios');
 const logger = require('../config/logger');
 
-/**
- * IntegrationManager - External service integration hub
- * Part of External Integrations skill
- */
+const integrationSchema = new mongoose.Schema({
+  _id: { type: String, default: uuidv4 },
+  type: { type: String, required: true },
+  name: { type: String, required: true },
+  config: { type: mongoose.Schema.Types.Mixed, default: {} },
+  permissions: { type: mongoose.Schema.Types.Mixed, default: {} },
+  triggers: { type: mongoose.Schema.Types.Mixed, default: [] },
+  created_by: { type: String },
+  is_active: { type: Boolean, default: true },
+  last_health_check: { type: Date, default: null },
+  last_error: { type: String, default: null },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
+}, { versionKey: false });
+
+const webhookEventSchema = new mongoose.Schema({
+  _id: { type: String, default: uuidv4 },
+  integration_type: { type: String, required: true },
+  event_type: { type: String, required: true },
+  payload: { type: mongoose.Schema.Types.Mixed, default: {} },
+  created_at: { type: Date, default: Date.now },
+}, { versionKey: false });
+
+const integrationLogSchema = new mongoose.Schema({
+  _id: { type: String, default: uuidv4 },
+  integration_id: { type: String, required: true, index: true },
+  action: { type: String, required: true },
+  params: { type: mongoose.Schema.Types.Mixed, default: {} },
+  result: { type: mongoose.Schema.Types.Mixed, default: {} },
+  status: { type: String, required: true },
+  execution_time_ms: { type: Number, default: 0 },
+  created_at: { type: Date, default: Date.now },
+}, { versionKey: false });
+
+const Integration = mongoose.models.Integration || mongoose.model('Integration', integrationSchema, 'integrations');
+const WebhookEvent = mongoose.models.WebhookEvent || mongoose.model('WebhookEvent', webhookEventSchema, 'webhook_events');
+const IntegrationLog = mongoose.models.IntegrationLog || mongoose.model('IntegrationLog', integrationLogSchema, 'integration_logs');
+
 class IntegrationManager {
   constructor() {
     this.integrations = new Map();
@@ -27,11 +61,6 @@ class IntegrationManager {
     };
   }
 
-  /**
-   * Register a new integration
-   * @param {object} config - Integration configuration
-   * @returns {Promise<object>}
-   */
   async register(config) {
     const { type, name, config: serviceConfig, permissions, triggers, createdBy } = config;
 
@@ -39,12 +68,15 @@ class IntegrationManager {
     if (!this.clientFactories[type]) throw new Error(`Unsupported integration type: ${type}`);
 
     const id = uuidv4();
-    await query(
-      `INSERT INTO integrations (id, type, name, config, permissions, triggers, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      [id, type, name, JSON.stringify(serviceConfig), JSON.stringify(permissions || {}),
-       JSON.stringify(triggers || []), createdBy || null]
-    );
+    await Integration.create({
+      _id: id,
+      type,
+      name,
+      config: serviceConfig || {},
+      permissions: permissions || {},
+      triggers: triggers || [],
+      created_by: createdBy || null,
+    });
 
     const client = await this.clientFactories[type](id, serviceConfig);
     this.clients.set(id, client);
@@ -54,13 +86,6 @@ class IntegrationManager {
     return { id, type, name };
   }
 
-  /**
-   * Execute an integration action
-   * @param {string} id - Integration ID
-   * @param {string} action - Action name
-   * @param {object} params - Action parameters
-   * @returns {Promise<object>}
-   */
   async execute(id, action, params = {}) {
     const client = this.clients.get(id);
     if (!client) throw new Error(`Integration not found: ${id}`);
@@ -69,7 +94,6 @@ class IntegrationManager {
     const startTime = Date.now();
     try {
       const result = await client[action](params);
-
       await this._logExecution(id, action, params, result, 'success', Date.now() - startTime);
       return result;
     } catch (error) {
@@ -78,20 +102,14 @@ class IntegrationManager {
     }
   }
 
-  /**
-   * Handle incoming webhook
-   * @param {string} type - Integration type
-   * @param {object} payload - Webhook payload
-   * @returns {Promise<object>}
-   */
   async handleWebhook(type, payload) {
     const eventType = payload.type || payload.action || 'unknown';
 
-    await query(
-      `INSERT INTO webhook_events (integration_type, event_type, payload)
-       VALUES ($1, $2, $3) RETURNING id`,
-      [type, eventType, JSON.stringify(payload)]
-    );
+    await WebhookEvent.create({
+      integration_type: type,
+      event_type: eventType,
+      payload: payload || {},
+    });
 
     for (const [id, integration] of this.integrations) {
       if (integration.type !== type) continue;
@@ -109,11 +127,6 @@ class IntegrationManager {
     return { received: true, eventType };
   }
 
-  /**
-   * Test integration connectivity
-   * @param {string} id - Integration ID
-   * @returns {Promise<object>}
-   */
   async test(id) {
     const client = this.clients.get(id);
     if (!client) throw new Error(`Integration not found: ${id}`);
@@ -123,28 +136,26 @@ class IntegrationManager {
       const result = await client.healthCheck();
       const latency = Date.now() - startTime;
 
-      await query(
-        `UPDATE integrations SET last_health_check = NOW(), last_error = NULL WHERE id = $1`,
-        [id]
-      );
+      await Integration.findByIdAndUpdate(id, {
+        last_health_check: new Date(),
+        last_error: null,
+        updated_at: new Date(),
+      });
 
       return { status: 'healthy', latency, result };
     } catch (error) {
       const latency = Date.now() - startTime;
 
-      await query(
-        `UPDATE integrations SET last_health_check = NOW(), last_error = $1 WHERE id = $2`,
-        [error.message, id]
-      );
+      await Integration.findByIdAndUpdate(id, {
+        last_health_check: new Date(),
+        last_error: error.message,
+        updated_at: new Date(),
+      });
 
       return { status: 'unhealthy', latency, error: error.message };
     }
   }
 
-  /**
-   * Get overall integration system status
-   * @returns {object}
-   */
   getStatus() {
     return {
       total: this.integrations.size,
@@ -157,67 +168,41 @@ class IntegrationManager {
     };
   }
 
-  /**
-   * List all registered integrations
-   * @returns {Promise<Array>}
-   */
   async list() {
-    const result = await query(
-      `SELECT id, type, name, permissions, is_active, last_health_check, last_error, created_at
-       FROM integrations ORDER BY created_at DESC`
-    );
-    return result.rows;
+    const docs = await Integration
+      .find({})
+      .sort({ created_at: -1 })
+      .lean();
+
+    return docs.map(d => ({ ...d, id: d._id }));
   }
 
-  /**
-   * Update integration configuration
-   * @param {string} id - Integration ID
-   * @param {object} updates - Update fields
-   * @returns {Promise<object>}
-   */
   async update(id, updates) {
     const { config, permissions, triggers, isActive } = updates;
-    const fields = [];
-    const values = [];
-    let idx = 1;
+    const $set = {};
 
-    if (config) { fields.push(`config = $${idx}`); values.push(JSON.stringify(config)); idx++; }
-    if (permissions) { fields.push(`permissions = $${idx}`); values.push(JSON.stringify(permissions)); idx++; }
-    if (triggers) { fields.push(`triggers = $${idx}`); values.push(JSON.stringify(triggers)); idx++; }
-    if (isActive !== undefined) { fields.push(`is_active = $${idx}`); values.push(isActive); idx++; }
+    if (config) $set.config = config;
+    if (permissions) $set.permissions = permissions;
+    if (triggers) $set.triggers = triggers;
+    if (isActive !== undefined) $set.is_active = isActive;
+    $set.updated_at = new Date();
 
-    if (fields.length === 0) return null;
-    fields.push('updated_at = NOW()');
-    values.push(id);
+    const result = await Integration.findByIdAndUpdate(id, { $set }, { new: true }).lean();
 
-    const result = await query(
-      `UPDATE integrations SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`,
-      values
-    );
-
-    if (result.rows[0]) {
-      if (config) {
-        const client = await this.clientFactories[result.rows[0].type](id, config);
-        this.clients.set(id, client);
-      }
+    if (result && config) {
+      const client = await this.clientFactories[result.type](id, config);
+      this.clients.set(id, client);
     }
 
-    return result.rows[0];
+    return result ? { ...result, id: result._id } : null;
   }
 
-  /**
-   * Remove an integration
-   * @param {string} id - Integration ID
-   * @returns {Promise<boolean>}
-   */
   async remove(id) {
-    const result = await query('DELETE FROM integrations WHERE id = $1', [id]);
+    const result = await Integration.findByIdAndDelete(id);
     this.clients.delete(id);
     this.integrations.delete(id);
-    return result.rowCount > 0;
+    return !!result;
   }
-
-  // ─── Client Factories ────────────────────────────────────────────
 
   async _createSlackClient(id, config) {
     const { SlackClient } = require('../services/integrations/SlackClient');
@@ -239,15 +224,16 @@ class IntegrationManager {
     return new JiraClient(config);
   }
 
-  // ─── Internal ────────────────────────────────────────────────────
-
   async _logExecution(integrationId, action, params, result, status, duration) {
     try {
-      await query(
-        `INSERT INTO integration_logs (integration_id, action, params, result, status, execution_time_ms)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [integrationId, action, JSON.stringify(params), JSON.stringify(result), status, duration]
-      );
+      await IntegrationLog.create({
+        integration_id: integrationId,
+        action,
+        params: params || {},
+        result: result || {},
+        status,
+        execution_time_ms: duration,
+      });
     } catch (err) {
       logger.error(`Failed to log integration execution: ${err.message}`);
     }

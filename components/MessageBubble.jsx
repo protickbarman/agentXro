@@ -129,7 +129,7 @@ export default function MessageBubble({ msg, isStreaming }) {
         <div className={`msg-bubble msg-bubble--agent${isStreaming ? ' msg-bubble--streaming' : ''}`}>
           {showTyping ? (
             <TypingDots />
-          ) : isSegmentStreaming || (!isStreaming && streamSegments.length > 0) ? (
+          ) : isSegmentStreaming ? (
             <div className="seg-list">
               {streamSegments.map((seg) => {
                 if (seg.type === 'reasoning') {
@@ -149,7 +149,26 @@ export default function MessageBubble({ msg, isStreaming }) {
               })}
             </div>
           ) : (
-            <MarkdownBlock content={msg.content || ''} contentRef={contentRef} />
+            (() => {
+              let displayContent = msg.content || '';
+              let extractedReasonings = [];
+              const thinkRegex = /<think>([\s\S]*?)(?:<\/think>|$)/g;
+              let match;
+              let index = 0;
+              while ((match = thinkRegex.exec(displayContent)) !== null) {
+                extractedReasonings.push({ id: `hist-think-${index++}`, content: match[1].trim() });
+              }
+              displayContent = displayContent.replace(thinkRegex, '').trim();
+
+              return (
+                <>
+                  {extractedReasonings.map(r => (
+                    <AccordionItem key={r.id} label="Thinking..." content={r.content} defaultOpen={false} />
+                  ))}
+                  <MarkdownBlock content={displayContent} contentRef={contentRef} />
+                </>
+              );
+            })()
           )}
         </div>
 

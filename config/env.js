@@ -24,17 +24,6 @@ module.exports = {
   PORT: getInt('PORT', 3000),
   LOG_LEVEL: get('LOG_LEVEL', 'info'),
 
-  DB: {
-    host: get('DB_HOST'),
-    port: getInt('DB_PORT'),
-    database: get('DB_NAME'),
-    user: get('DB_USER'),
-    password: get('DB_PASSWORD'),
-    ssl: getBool('DB_SSL', false),
-    poolMin: getInt('DB_POOL_MIN', 2),
-    poolMax: getInt('DB_POOL_MAX', 10),
-  },
-
   REDIS: (() => {
     const url = get('REDIS_URL');
     if (url) {

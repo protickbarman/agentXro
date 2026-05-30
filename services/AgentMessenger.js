@@ -1,12 +1,30 @@
-const { query } = require('../config/database');
+const { mongoose } = require('../config/mongodb');
 const { v4: uuidv4 } = require('uuid');
 const logger = require('../config/logger');
 const agentRegistry = require('../agents/AgentRegistry');
 
-/**
- * AgentMessenger - Agent-to-Agent communication system
- * Part of Agent-to-Agent Communication skill
- */
+const agentMessageSchema = new mongoose.Schema({
+  _id: { type: String, default: uuidv4 },
+  message_type: { type: String, required: true },
+  from_agent: { type: String, required: true },
+  to_agent: { type: mongoose.Schema.Types.Mixed, required: true },
+  intent: { type: String },
+  payload: { type: mongoose.Schema.Types.Mixed, default: {} },
+  correlation_id: { type: String },
+  conversation_id: { type: String },
+  requires_response: { type: Boolean, default: true },
+  status: { type: String, default: 'pending' },
+  responded_at: { type: Date, default: null },
+  created_at: { type: Date, default: Date.now },
+}, { versionKey: false });
+
+agentMessageSchema.index({ from_agent: 1 });
+agentMessageSchema.index({ to_agent: 1 });
+agentMessageSchema.index({ conversation_id: 1 });
+
+const AgentMessage = mongoose.models.AgentMessage
+  || mongoose.model('AgentMessage', agentMessageSchema, 'agent_messages');
+
 class AgentMessenger {
   constructor() {
     this.handlers = new Map();
@@ -14,13 +32,6 @@ class AgentMessenger {
     this.DEFAULT_TIMEOUT = 30000;
   }
 
-  /**
-   * Send a message from one agent to another
-   * @param {string} from - Source agent name
-   * @param {string|string[]} to - Target agent(s)
-   * @param {object} message - Message content
-   * @returns {Promise<object>}
-   */
   async send(from, to, message) {
     if (typeof from === 'object') {
       const opts = from;
@@ -76,14 +87,6 @@ class AgentMessenger {
     return responses.length === 1 ? responses[0] : responses;
   }
 
-  /**
-   * Send and wait for a specific response
-   * @param {string} from - Source agent
-   * @param {string} to - Target agent
-   * @param {object} message - Message
-   * @param {number} timeout - Timeout in ms
-   * @returns {Promise<object>}
-   */
   async sendAndWait(from, to, message, timeout = this.DEFAULT_TIMEOUT) {
     const correlationId = uuidv4();
     const wrappedMessage = {
@@ -107,40 +110,21 @@ class AgentMessenger {
     });
   }
 
-  /**
-   * Broadcast message to all agents of a type
-   * @param {string} from - Source agent
-   * @param {string} agentType - Agent type to target
-   * @param {object} message - Message
-   * @returns {Promise<Array>}
-   */
   async broadcastByType(from, agentType, message) {
     const targets = [];
-    for (const [name, agent] of agentRegistry.getAll()) {
+    for (const [, agent] of agentRegistry.getAll()) {
       if (agent.type === agentType) {
-        targets.push(name);
+        targets.push(agent.name || agent.id);
       }
     }
     return this.send(from, targets, message);
   }
 
-  /**
-   * Broadcast to all agents
-   * @param {string} from - Source agent
-   * @param {object} message - Message
-   * @returns {Promise<Array>}
-   */
   async broadcastAll(from, message) {
     const targets = Array.from(agentRegistry.getNames()).filter(n => n !== from);
     return this.send(from, targets, { ...message, metadata: { ...message.metadata, broadcast: true } });
   }
 
-  /**
-   * Reply to a message
-   * @param {object} originalMessage - Original message
-   * @param {object} response - Response data
-   * @returns {Promise<object>}
-   */
   async reply(originalMessage, response) {
     const correlationId = originalMessage.metadata?.correlationId;
 
@@ -173,21 +157,10 @@ class AgentMessenger {
     return replyMsg;
   }
 
-  /**
-   * Check if an agent is available
-   * @param {string} agentName - Agent name
-   * @returns {boolean}
-   */
   isAvailable(agentName) {
     return agentRegistry.has(agentName);
   }
 
-  /**
-   * Register a message handler for an agent
-   * @param {string} agentName - Agent name
-   * @param {string} intent - Message intent to handle
-   * @param {Function} handler - Handler function
-   */
   registerHandler(agentName, intent, handler) {
     const key = `${agentName}:${intent}`;
     this.handlers.set(key, handler);
@@ -196,15 +169,17 @@ class AgentMessenger {
 
   async _logMessage(message) {
     try {
-      await query(
-        `INSERT INTO agent_messages (id, message_type, from_agent, to_agent, intent, payload, 
-          correlation_id, conversation_id, requires_response)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-        [message.id, message.type, message.from, message.to,
-         message.content.intent, JSON.stringify(message.content.payload),
-         message.metadata.correlationId, message.conversation?.id,
-         message.metadata.requiresResponse !== false]
-      );
+      await AgentMessage.create({
+        _id: message.id,
+        message_type: message.type,
+        from_agent: message.from,
+        to_agent: message.to,
+        intent: message.content.intent,
+        payload: message.content.payload || {},
+        correlation_id: message.metadata.correlationId,
+        conversation_id: message.conversation?.id,
+        requires_response: message.metadata.requiresResponse !== false,
+      });
     } catch (err) {
       logger.error(`Failed to log agent message: ${err.message}`);
     }
@@ -213,36 +188,30 @@ class AgentMessenger {
   async _logResponse(messageId, responses) {
     try {
       const status = responses.some(r => r.error) ? 'partial' : 'success';
-      await query(
-        `UPDATE agent_messages SET status = $1, responded_at = NOW() WHERE id = $2`,
-        [status, messageId]
-      );
+      await AgentMessage.findByIdAndUpdate(messageId, {
+        $set: { status, responded_at: new Date() }
+      });
     } catch (err) {
       logger.error(`Failed to log message response: ${err.message}`);
     }
   }
 
-  /**
-   * Get message history
-   * @param {object} filters - Filter options
-   * @returns {Promise<Array>}
-   */
   async getHistory(filters = {}) {
     const { from, to, intent, conversationId, limit = 50 } = filters;
-    let sql = 'SELECT * FROM agent_messages WHERE 1=1';
-    const params = [];
-    let idx = 1;
+    const filter = {};
 
-    if (from) { sql += ` AND from_agent = $${idx}`; params.push(from); idx++; }
-    if (to) { sql += ` AND $${idx} = ANY(to_agent)`; params.push(to); idx++; }
-    if (intent) { sql += ` AND intent = $${idx}`; params.push(intent); idx++; }
-    if (conversationId) { sql += ` AND conversation_id = $${idx}`; params.push(conversationId); idx++; }
+    if (from) filter.from_agent = from;
+    if (to) filter.to_agent = to;
+    if (intent) filter.intent = intent;
+    if (conversationId) filter.conversation_id = conversationId;
 
-    sql += ' ORDER BY created_at DESC LIMIT $' + idx;
-    params.push(limit);
+    const docs = await AgentMessage
+      .find(filter)
+      .sort({ created_at: -1 })
+      .limit(limit)
+      .lean();
 
-    const result = await query(sql, params);
-    return result.rows;
+    return docs.map(d => ({ ...d, id: d._id }));
   }
 }
 

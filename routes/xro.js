@@ -12,18 +12,7 @@ const CloudflareProvider = require('../llm/providers/CloudflareProvider');
 
 const router = express.Router();
 
-function injectReceivedAt(line) {
-  if (!line.startsWith('data: ')) return line;
-  const raw = line.slice(6);
-  if (raw === '[DONE]') return line;
-  try {
-    const parsed = JSON.parse(raw);
-    parsed.received_at = Date.now();
-    return 'data: ' + JSON.stringify(parsed);
-  } catch {
-    return line;
-  }
-}
+
 
 function startSSE(res) {
   res.writeHead(200, {
@@ -102,6 +91,7 @@ router.post('/v1', authMiddleware, async (req, res) => {
 
   const useTools = payload.tools === true || payload.tools === 'true' || Array.isArray(payload.tools);
   let fullContent = '';
+  let fullReasoning = '';
 
   // Build NIM payload - ensure tools is always a list or omitted
   const nimPayload = {
@@ -131,13 +121,17 @@ router.post('/v1', authMiddleware, async (req, res) => {
     try {
       await orchestrator.run(payload.messages, payload, {
         onSSE: (line) => {
-          sseWrite(res, injectReceivedAt(line) + '\n\n');
+          sseWrite(res, line + '\n\n');
           try {
             const jsonStr = line.startsWith('data: ') ? line.slice(6) : null;
             if (jsonStr && jsonStr !== '[DONE]') {
               const parsed = JSON.parse(jsonStr);
-              const content = parsed.choices?.[0]?.delta?.content;
-              if (content) fullContent += content;
+              const delta = parsed.choices?.[0]?.delta;
+              if (delta) {
+                if (delta.content) fullContent += delta.content;
+                const rChunk = delta.reasoning || delta.reasoning_content;
+                if (rChunk) fullReasoning += rChunk;
+              }
             }
           } catch {}
         },
@@ -156,7 +150,7 @@ router.post('/v1', authMiddleware, async (req, res) => {
           QueueManager.add('saveMessage', {
             conversationId: convId,
             role: 'agent',
-            content: fullContent || '',
+            content: (fullReasoning ? '<think>\n' + fullReasoning + '\n</think>\n' : '') + (fullContent || ''),
           }).catch(() => {});
         },
         onError: (err) => {
@@ -248,8 +242,10 @@ router.post('/v1', authMiddleware, async (req, res) => {
                   const parsed = JSON.parse(trimmed.slice(6));
                   const delta = parsed.choices?.[0]?.delta || {};
                   if (delta.content) fullContent += delta.content;
+                  const rChunk = delta.reasoning || delta.reasoning_content;
+                  if (rChunk) fullReasoning += rChunk;
                 } catch {}
-                sseWrite(res, injectReceivedAt(trimmed) + '\n\n');
+                sseWrite(res, trimmed + '\n\n');
               }
             }
           }
@@ -261,8 +257,10 @@ router.post('/v1', authMiddleware, async (req, res) => {
                 const parsed = JSON.parse(trimmed.slice(6));
                 const delta = parsed.choices?.[0]?.delta || {};
                 if (delta.content) fullContent += delta.content;
+                const rChunk = delta.reasoning || delta.reasoning_content;
+                if (rChunk) fullReasoning += rChunk;
               } catch {}
-              sseWrite(res, injectReceivedAt(trimmed) + '\n\n');
+              sseWrite(res, trimmed + '\n\n');
             }
           }
           sseWrite(res, 'data: [DONE]\n\n');
@@ -277,7 +275,7 @@ router.post('/v1', authMiddleware, async (req, res) => {
             conversationId: convId, role: 'user', content: userContent,
           }).catch(() => {});
           QueueManager.add('saveMessage', {
-            conversationId: convId, role: 'agent', content: fullContent || '',
+            conversationId: convId, role: 'agent', content: (fullReasoning ? '<think>\n' + fullReasoning + '\n</think>\n' : '') + (fullContent || ''),
           }).catch(() => {});
         } catch (err) {
           logger.error('Stream pump error', { error: err.message });
@@ -341,6 +339,7 @@ router.post('/chat', authMiddleware, async (req, res) => {
   sseWrite(res, `data: ${JSON.stringify({ conversationId: convId })}\n\n`);
 
   let fullContent = '';
+  let fullReasoning = '';
   const msgPayload = {
     messages: [{ role: 'user', content: message }],
     tools: true,
@@ -365,8 +364,12 @@ router.post('/chat', authMiddleware, async (req, res) => {
           const jsonStr = line.startsWith('data: ') ? line.slice(6) : null;
           if (jsonStr && jsonStr !== '[DONE]') {
             const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content;
-            if (content) fullContent += content;
+            const delta = parsed.choices?.[0]?.delta;
+            if (delta) {
+              if (delta.content) fullContent += delta.content;
+              const rChunk = delta.reasoning || delta.reasoning_content;
+              if (rChunk) fullReasoning += rChunk;
+            }
           }
         } catch {}
       },
@@ -376,7 +379,7 @@ router.post('/chat', authMiddleware, async (req, res) => {
         QueueManager.add('saveMessage', {
           conversationId: convId,
           role: 'agent',
-          content: fullContent || '',
+          content: (fullReasoning ? '<think>\n' + fullReasoning + '\n</think>\n' : '') + (fullContent || ''),
         }).catch(() => {});
       },
       onError: (err) => {

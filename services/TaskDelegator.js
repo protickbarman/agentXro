@@ -1,25 +1,34 @@
-const { query } = require('../config/database');
+const { mongoose } = require('../config/mongodb');
 const { v4: uuidv4 } = require('uuid');
 const logger = require('../config/logger');
 const agentRegistry = require('../agents/AgentRegistry');
 const AgentMessenger = require('./AgentMessenger');
 
-/**
- * TaskDelegator - Agent task delegation system
- * Part of Agent-to-Agent Communication skill
- */
+const taskDelegationSchema = new mongoose.Schema({
+  _id: { type: String, default: uuidv4 },
+  from_agent: { type: String },
+  to_agent: { type: String, required: true },
+  task_description: { type: String },
+  context: { type: mongoose.Schema.Types.Mixed, default: {} },
+  status: { type: String, default: 'pending' },
+  priority: { type: String, default: 'medium' },
+  result: { type: mongoose.Schema.Types.Mixed, default: null },
+  error_message: { type: String, default: null },
+  retry_count: { type: Number, default: 0 },
+  conversation_id: { type: String },
+  created_at: { type: Date, default: Date.now },
+  completed_at: { type: Date, default: null },
+}, { versionKey: false });
+
+const TaskDelegation = mongoose.models.TaskDelegation
+  || mongoose.model('TaskDelegation', taskDelegationSchema, 'task_delegations');
+
 class TaskDelegator {
   constructor() {
     this.activeDelegations = new Map();
     this.MAX_RETRIES = 3;
   }
 
-  /**
-   * Delegate a task to another agent
-   * @param {string|object} fromAgent - Delegating agent (or single config object)
-   * @param {object} [task] - Task definition
-   * @returns {Promise<object>}
-   */
   async delegate(fromAgent, task) {
     if (typeof fromAgent === 'object') {
       task = fromAgent;
@@ -27,7 +36,6 @@ class TaskDelegator {
     }
     const {
       task: taskDescription, assignee, to, context, from: fromAlt,
-      deadline = null, requiredCapabilities = [],
       priority = 'medium', maxRetries = this.MAX_RETRIES,
     } = task || {};
 
@@ -47,19 +55,23 @@ class TaskDelegator {
       priority,
       retryCount: 0,
       maxRetries,
-      deadline,
+      conversationId: context?.conversationId,
       createdAt: new Date().toISOString(),
     };
 
     this.activeDelegations.set(delegationId, delegation);
 
     try {
-      await query(
-        `INSERT INTO task_delegations (id, from_agent, to_agent, task_description, context, status, priority, conversation_id)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-        [delegationId, delegator, targetAgent, taskDescription, JSON.stringify(context),
-         'pending', priority, context?.conversationId]
-      );
+      await TaskDelegation.create({
+        _id: delegationId,
+        from_agent: delegator,
+        to_agent: targetAgent,
+        task_description: taskDescription,
+        context: context || {},
+        status: 'pending',
+        priority,
+        conversation_id: context?.conversationId,
+      });
     } catch (err) {
       logger.warn(`Failed to persist delegation (non-blocking): ${err.message}`);
     }
@@ -99,11 +111,13 @@ class TaskDelegator {
 
         this._updateStatus(id, 'completed', result);
 
-        await query(
-          `UPDATE task_delegations SET status = 'completed', result = $1, completed_at = NOW()
-           WHERE id = $2`,
-          [JSON.stringify(result), id]
-        );
+        await TaskDelegation.findByIdAndUpdate(id, {
+          $set: {
+            status: 'completed',
+            result: result,
+            completed_at: new Date(),
+          }
+        });
 
         logger.info(`Delegation completed: ${id}`);
         return result;
@@ -113,10 +127,9 @@ class TaskDelegator {
 
         if (attempt < maxRetries) {
           try {
-            await query(
-              `UPDATE task_delegations SET retry_count = $1 WHERE id = $2`,
-              [attempt + 1, id]
-            );
+            await TaskDelegation.findByIdAndUpdate(id, {
+              $set: { retry_count: attempt + 1 }
+            });
           } catch (dbErr) {
             logger.warn(`Failed to update retry count (non-blocking): ${dbErr.message}`);
           }
@@ -127,11 +140,13 @@ class TaskDelegator {
     this._updateStatus(id, 'failed', null, lastError.message);
 
     try {
-      await query(
-        `UPDATE task_delegations SET status = 'failed', error_message = $1, completed_at = NOW()
-         WHERE id = $2`,
-        [lastError.message, id]
-      );
+      await TaskDelegation.findByIdAndUpdate(id, {
+        $set: {
+          status: 'failed',
+          error_message: lastError.message,
+          completed_at: new Date(),
+        }
+      });
     } catch (dbErr) {
       logger.warn(`Failed to persist failure (non-blocking): ${dbErr.message}`);
     }
@@ -148,20 +163,10 @@ class TaskDelegator {
     }
   }
 
-  /**
-   * Get delegation status
-   * @param {string} id - Delegation ID
-   * @returns {object|null}
-   */
   getStatus(id) {
     return this.activeDelegations.get(id) || null;
   }
 
-  /**
-   * Cancel a delegation
-   * @param {string} id - Delegation ID
-   * @returns {Promise<boolean>}
-   */
   async cancel(id) {
     const delegation = this.activeDelegations.get(id);
     if (!delegation) return false;
@@ -169,34 +174,26 @@ class TaskDelegator {
     this._updateStatus(id, 'cancelled');
     this.activeDelegations.delete(id);
 
-    await query(
-      `UPDATE task_delegations SET status = 'cancelled', completed_at = NOW() WHERE id = $1`,
-      [id]
-    );
+    await TaskDelegation.findByIdAndUpdate(id, {
+      $set: { status: 'cancelled', completed_at: new Date() }
+    });
 
     return true;
   }
 
-  /**
-   * List delegations for an agent
-   * @param {string} agentName - Agent name
-   * @param {string} status - Filter by status
-   * @returns {Promise<Array>}
-   */
   async listForAgent(agentName, status = null) {
-    let sql = 'SELECT * FROM task_delegations WHERE (from_agent = $1 OR to_agent = $1)';
-    const params = [agentName];
-    let idx = 2;
+    const filter = {
+      $or: [{ from_agent: agentName }, { to_agent: agentName }]
+    };
+    if (status) filter.status = status;
 
-    if (status) {
-      sql += ` AND status = $${idx}`;
-      params.push(status);
-      idx++;
-    }
+    const docs = await TaskDelegation
+      .find(filter)
+      .sort({ created_at: -1 })
+      .limit(50)
+      .lean();
 
-    sql += ' ORDER BY created_at DESC LIMIT 50';
-    const result = await query(sql, params);
-    return result.rows;
+    return docs.map(d => ({ ...d, id: d._id }));
   }
 }
 

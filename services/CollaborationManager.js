@@ -1,23 +1,29 @@
-const { query } = require('../config/database');
+const { mongoose } = require('../config/mongodb');
 const { v4: uuidv4 } = require('uuid');
 const logger = require('../config/logger');
-const AgentMessenger = require('./AgentMessenger');
 const TaskDelegator = require('./TaskDelegator');
 
-/**
- * CollaborationManager - Multi-agent workflow orchestration
- * Part of Agent-to-Agent Communication skill
- */
+const workflowSchema = new mongoose.Schema({
+  _id: { type: String, default: uuidv4 },
+  name: { type: String, required: true },
+  status: { type: String, default: 'pending' },
+  steps: { type: mongoose.Schema.Types.Mixed, default: [] },
+  conversation_id: { type: String },
+  result: { type: mongoose.Schema.Types.Mixed, default: null },
+  error_message: { type: String, default: null },
+  current_step: { type: Number, default: 0 },
+  created_at: { type: Date, default: Date.now },
+  completed_at: { type: Date, default: null },
+}, { versionKey: false });
+
+const Workflow = mongoose.models.Workflow
+  || mongoose.model('Workflow', workflowSchema, 'collaboration_workflows');
+
 class CollaborationManager {
   constructor() {
     this.activeWorkflows = new Map();
   }
 
-  /**
-   * Start a multi-agent collaboration workflow
-   * @param {object} workflow - Workflow definition
-   * @returns {Promise<object>}
-   */
   async startWorkflow(workflow) {
     const { name, agents, task, conversationId, goal, mode } = workflow;
     const id = uuidv4();
@@ -47,11 +53,13 @@ class CollaborationManager {
     this.activeWorkflows.set(id, workflowDef);
 
     try {
-      await query(
-        `INSERT INTO collaboration_workflows (id, name, status, steps, conversation_id)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [id, workflowDef.name, 'pending', JSON.stringify(workflowDef.steps), conversationId]
-      );
+      await Workflow.create({
+        _id: id,
+        name: workflowDef.name,
+        status: 'pending',
+        steps: workflowDef.steps,
+        conversation_id: conversationId,
+      });
     } catch (err) {
       logger.warn(`Failed to persist workflow (non-blocking): ${err.message}`);
     }
@@ -96,11 +104,13 @@ class CollaborationManager {
       workflow.status = 'completed';
       workflow.completedAt = new Date().toISOString();
 
-      await query(
-        `UPDATE collaboration_workflows SET status = 'completed', result = $1, completed_at = NOW()
-         WHERE id = $2`,
-        [JSON.stringify(workflow.results), workflowId]
-      );
+      await Workflow.findByIdAndUpdate(workflowId, {
+        $set: {
+          status: 'completed',
+          result: workflow.results,
+          completed_at: new Date(),
+        }
+      });
 
       this._emit(workflowId, 'completed', {
         workflowId,
@@ -111,11 +121,13 @@ class CollaborationManager {
       workflow.status = 'failed';
       workflow.error = error.message;
 
-      await query(
-        `UPDATE collaboration_workflows SET status = 'failed', error_message = $1, completed_at = NOW()
-         WHERE id = $2`,
-        [error.message, workflowId]
-      );
+      await Workflow.findByIdAndUpdate(workflowId, {
+        $set: {
+          status: 'failed',
+          error_message: error.message,
+          completed_at: new Date(),
+        }
+      });
 
       this._emit(workflowId, 'failed', { workflowId, error: error.message });
     }
@@ -144,14 +156,13 @@ class CollaborationManager {
           step: i, agent: step.agent, result,
         });
 
-        await query(
-          `UPDATE collaboration_workflows SET current_step = $1 WHERE id = $2`,
-          [i, workflow.id]
-        );
+        await Workflow.findByIdAndUpdate(workflow.id, {
+          $set: { current_step: i, updated_at: new Date() }
+        });
       } catch (error) {
         workflow.errors.push({ step: i, agent: step.agent, error: error.message });
 
-        this._emit(workflowId, 'step:failed', {
+        this._emit(workflow.id, 'step:failed', {
           step: i, agent: step.agent, error: error.message,
         });
 
@@ -201,7 +212,7 @@ class CollaborationManager {
 
     const handlers = workflow.listeners.get(event) || [];
     for (const handler of handlers) {
-      try { handler(data); } catch (e) { /* ignore listener errors */ }
+      try { handler(data); } catch (e) {}
     }
   }
 
@@ -217,28 +228,16 @@ class CollaborationManager {
     });
   }
 
-  /**
-   * Get workflow status
-   * @param {string} id - Workflow ID
-   * @returns {Promise<object>}
-   */
   async getStatus(id) {
     try {
-      const result = await query(
-        `SELECT * FROM collaboration_workflows WHERE id = $1`, [id]
-      );
-      return result.rows[0] || null;
+      const doc = await Workflow.findById(id).lean();
+      return doc ? { ...doc, id: doc._id } : null;
     } catch (err) {
       logger.warn(`Failed to get workflow status: ${err.message}`);
       return null;
     }
   }
 
-  /**
-   * Cancel a workflow
-   * @param {string} id - Workflow ID
-   * @returns {Promise<boolean>}
-   */
   async cancel(id) {
     const workflow = this.activeWorkflows.get(id);
     if (!workflow) return false;
@@ -246,10 +245,9 @@ class CollaborationManager {
     workflow.status = 'cancelled';
     this.activeWorkflows.delete(id);
 
-    await query(
-      `UPDATE collaboration_workflows SET status = 'cancelled', completed_at = NOW() WHERE id = $1`,
-      [id]
-    );
+    await Workflow.findByIdAndUpdate(id, {
+      $set: { status: 'cancelled', completed_at: new Date() }
+    });
 
     return true;
   }

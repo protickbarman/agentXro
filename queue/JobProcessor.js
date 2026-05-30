@@ -1,11 +1,10 @@
 const { v4: uuidv4 } = require('uuid');
-const { pool } = require('../config/database');
 const logger = require('../config/logger');
 const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
+const Session = require('../models/Session');
 
 class JobProcessor {
-  /* ── Conversations → MongoDB (uses the ID the route already sent to the client) ── */
   static async processSaveConversation(job) {
     const { id, userId, title, description } = job.data;
     await Conversation.create(userId, title, description, id);
@@ -13,7 +12,6 @@ class JobProcessor {
     return { conversationId: id };
   }
 
-  /* ── Messages → MongoDB ── */
   static async processSaveMessage(job) {
     const { conversationId, role, content, metadata, reasoningSteps, toolCalls } = job.data;
     const msg = await Message.create(
@@ -24,7 +22,6 @@ class JobProcessor {
     return { messageId: msg.id, conversationId, role };
   }
 
-  /* ── Tool executions → MongoDB ── */
   static async processSaveToolExecution(job) {
     const { conversationId, toolName, input, output, duration, status } = job.data;
     const id = uuidv4();
@@ -45,7 +42,6 @@ class JobProcessor {
     return { executionId: id };
   }
 
-  /* ── Agent executions → MongoDB ── */
   static async processSaveAgentExecution(job) {
     const { conversationId, agentName, input, output, duration, status, parentExecutionId } = job.data;
     const id = uuidv4();
@@ -67,13 +63,9 @@ class JobProcessor {
     return { executionId: id };
   }
 
-  /* ── Sessions → PostgreSQL (auth stays in PG) ── */
   static async processUpdateSession(job) {
-    const { sessionId, data } = job.data;
-    await pool.query(
-      `UPDATE sessions SET data = $1, updated_at = NOW() WHERE id = $2`,
-      [JSON.stringify(data), sessionId]
-    );
+    const { sessionId } = job.data;
+    await Session.revoke(sessionId);
     return { sessionId };
   }
 }

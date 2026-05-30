@@ -115,21 +115,7 @@ export async function getMessages(convId, limit = 100) {
   return data.data || [];
 }
 
-/* ─── Yield to browser (macrotask via MessageChannel) ─ */
-let _yieldPort1 = null;
-let _yieldPort2 = null;
-function yieldControl() {
-  if (!_yieldPort1) {
-    const ch = new MessageChannel();
-    _yieldPort1 = ch.port1;
-    _yieldPort2 = ch.port2;
-    _yieldPort1.start();
-  }
-  return new Promise(resolve => {
-    _yieldPort1.onmessage = () => { resolve(); };
-    _yieldPort2.postMessage(null);
-  }).then(() => { _yieldPort1.onmessage = null; });
-}
+
 
 /* ─── AI Send (SSE via /xro/v1) ──────────── */
 async function _doSSE(token, message, convId, callbacks, extraBody = {}) {
@@ -155,6 +141,8 @@ async function _doSSE(token, message, convId, callbacks, extraBody = {}) {
   const decoder = new TextDecoder();
   let buf = '';
   let convIdReceived = false;
+  let isThinking = false;
+  let contentBuf = '';
 
   while (true) {
     const { done, value } = await reader.read();
@@ -185,7 +173,6 @@ async function _doSSE(token, message, convId, callbacks, extraBody = {}) {
       if (!convIdReceived && parsed.conversationId) {
         convIdReceived = true;
         callbacks.onConversationCreated?.(parsed.conversationId, parsed.isNew);
-        await yieldControl();
         continue;
       }
 
@@ -195,8 +182,8 @@ async function _doSSE(token, message, convId, callbacks, extraBody = {}) {
 
       let didWork = false;
 
-      if (delta.reasoning) {
-        callbacks.onReasoning?.(delta.reasoning);
+      if (delta.reasoning || delta.reasoning_content) {
+        callbacks.onReasoning?.(delta.reasoning || delta.reasoning_content);
         didWork = true;
       }
 
@@ -213,15 +200,67 @@ async function _doSSE(token, message, convId, callbacks, extraBody = {}) {
       }
 
       if (delta.content != null) {
-        callbacks.onContent?.(delta.content);
+        contentBuf += delta.content;
+        let didConsume = true;
+        while (didConsume) {
+          didConsume = false;
+          if (!isThinking) {
+            const idx = contentBuf.indexOf('<think>');
+            if (idx !== -1) {
+              if (idx > 0) callbacks.onContent?.(contentBuf.slice(0, idx));
+              isThinking = true;
+              contentBuf = contentBuf.slice(idx + 7);
+              didConsume = true;
+            } else {
+              let safeLen = contentBuf.length;
+              for (let i = 1; i < 7; i++) {
+                if (contentBuf.endsWith('<think>'.slice(0, i))) {
+                  safeLen = contentBuf.length - i;
+                  break;
+                }
+              }
+              if (safeLen > 0) {
+                callbacks.onContent?.(contentBuf.slice(0, safeLen));
+                contentBuf = contentBuf.slice(safeLen);
+              }
+            }
+          } else {
+            const idx = contentBuf.indexOf('</think>');
+            if (idx !== -1) {
+              if (idx > 0) callbacks.onReasoning?.(contentBuf.slice(0, idx));
+              isThinking = false;
+              contentBuf = contentBuf.slice(idx + 8);
+              didConsume = true;
+            } else {
+              let safeLen = contentBuf.length;
+              for (let i = 1; i < 8; i++) {
+                if (contentBuf.endsWith('</think>'.slice(0, i))) {
+                  safeLen = contentBuf.length - i;
+                  break;
+                }
+              }
+              if (safeLen > 0) {
+                callbacks.onReasoning?.(contentBuf.slice(0, safeLen));
+                contentBuf = contentBuf.slice(safeLen);
+              }
+            }
+          }
+        }
         didWork = true;
       }
 
-      if (didWork) {
-        await yieldControl();
-      }
+      // processed chunk instantly
     }
   }
+
+  if (contentBuf.length > 0) {
+    if (isThinking) {
+      callbacks.onReasoning?.(contentBuf);
+    } else {
+      callbacks.onContent?.(contentBuf);
+    }
+  }
+
   return 'OK';
 }
 

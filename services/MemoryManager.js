@@ -1,23 +1,51 @@
-const { query, getOne, getMany } = require('../config/database');
+const { mongoose } = require('../config/mongodb');
 const { v4: uuidv4 } = require('uuid');
 const logger = require('../config/logger');
 
-/**
- * MemoryManager - Persistent agent memory system
- * Part of Agent Memory System skill
- */
+const memorySchema = new mongoose.Schema({
+  _id: { type: String, default: uuidv4 },
+  type: { type: String, default: 'semantic' },
+  scope: { type: String, default: 'user' },
+  memory_key: { type: String, required: true },
+  content: { type: mongoose.Schema.Types.Mixed, default: {} },
+  context: { type: mongoose.Schema.Types.Mixed, default: {} },
+  importance: { type: Number, default: 5 },
+  confidence: { type: Number, default: 0.5 },
+  user_id: { type: String },
+  conversation_id: { type: String },
+  agent_name: { type: String },
+  expires_at: { type: Date },
+  is_active: { type: Boolean, default: true },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
+}, { versionKey: false });
+
+memorySchema.index({ memory_key: 1, user_id: 1 });
+memorySchema.index({ user_id: 1, is_active: 1 });
+memorySchema.index({ agent_name: 1 });
+
+const Memory = mongoose.models.Memory || mongoose.model('Memory', memorySchema, 'agent_memories');
+
+const consolidationLogSchema = new mongoose.Schema({
+  _id: { type: String, default: uuidv4 },
+  strategy: { type: String, required: true },
+  memories_processed: { type: Number, default: 0 },
+  memories_merged: { type: Number, default: 0 },
+  memories_pruned: { type: Number, default: 0 },
+  user_id: { type: String },
+  created_at: { type: Date, default: Date.now },
+}, { versionKey: false });
+
+const ConsolidationLog = mongoose.models.ConsolidationLog
+  || mongoose.model('ConsolidationLog', consolidationLogSchema, 'memory_consolidation_log');
+
 class MemoryManager {
   constructor() {
     this.cache = new Map();
-    this.CACHE_TTL = 60000; // 1 minute
+    this.CACHE_TTL = 60000;
     this.MAX_CONTEXT_MEMORIES = 10;
   }
 
-  /**
-   * Store a memory
-   * @param {object} memory - Memory object
-   * @returns {Promise<object>}
-   */
   async store(memory) {
     const id = uuidv4();
     const {
@@ -28,102 +56,73 @@ class MemoryManager {
 
     if (!key) throw new Error('Memory key is required');
 
-    const result = await query(
-      `INSERT INTO agent_memories (id, type, scope, memory_key, content, context, 
-        importance, confidence, user_id, conversation_id, agent_name, expires_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-       ON CONFLICT (memory_key, user_id) WHERE scope = 'user' 
-       DO UPDATE SET content = $5, importance = $7, confidence = $8, updated_at = NOW()
-       RETURNING id, type, scope, memory_key, created_at`,
-      [id, type, scope, key, JSON.stringify(content), JSON.stringify(context),
-       importance, confidence, userId, conversationId, agentName, expiresAt]
-    );
+    try {
+      const existing = await Memory.findOne({ memory_key: key, user_id: userId });
+      if (existing) {
+        const doc = await Memory.findByIdAndUpdate(existing._id, {
+          $set: {
+            content: content,
+            importance,
+            confidence,
+            context,
+            updated_at: new Date(),
+          }
+        }, { new: true }).lean();
 
-    this._invalidateCache(userId);
-    logger.info(`Memory stored: ${key} (${type}, importance: ${importance})`);
-    return result.rows[0];
+        this._invalidateCache(userId);
+        return { id: doc._id, type, scope, memory_key: key, created_at: doc.created_at };
+      }
+
+      const doc = await Memory.create({
+        _id: id, type, scope, memory_key: key, content,
+        context, importance, confidence, user_id: userId,
+        conversation_id: conversationId, agent_name: agentName, expires_at: expiresAt,
+      });
+
+      this._invalidateCache(userId);
+      logger.info(`Memory stored: ${key} (${type}, importance: ${importance})`);
+      return { id: doc._id, type, scope, memory_key: key, created_at: doc.created_at };
+    } catch (err) {
+      logger.error(`Failed to store memory: ${err.message}`);
+      throw err;
+    }
   }
 
-  /**
-   * Get a memory by key
-   * @param {string} key - Memory key
-   * @param {object} options - Query options
-   * @returns {Promise<object|null>}
-   */
   async get(key, options = {}) {
     const { userId, scope } = options;
-    let sql = 'SELECT * FROM agent_memories WHERE memory_key = $1 AND is_active = true';
-    const params = [key];
+    const filter = { memory_key: key, is_active: true };
+    if (scope) filter.scope = scope;
 
-    if (scope) {
-      sql += ' AND scope = $2';
-      params.push(scope);
-    }
-
-    const result = await query(sql, params);
-    return result.rows[0] || null;
+    const doc = await Memory.findOne(filter).lean();
+    return doc ? { ...doc, id: doc._id } : null;
   }
 
-  /**
-   * Search memories semantically
-   * @param {string} query - Search query
-   * @param {object} options - Search options
-   * @returns {Promise<Array>}
-   */
   async search(query, options = {}) {
     const {
-      userId, scope, agentName, types, categories,
+      userId, scope, agentName, types,
       limit = 5, minConfidence = 0.3, minImportance = 1,
     } = options;
 
-    let sql = 'SELECT * FROM agent_memories WHERE is_active = true';
-    const params = [];
-    let paramIdx = 1;
+    const filter = { is_active: true };
 
     if (userId) {
-      sql += ` AND (user_id = $${paramIdx} OR scope = 'global')`;
-      params.push(userId);
-      paramIdx++;
+      filter.$or = [{ user_id: userId }, { scope: 'global' }];
     }
-    if (scope) {
-      sql += ` AND scope = $${paramIdx}`;
-      params.push(scope);
-      paramIdx++;
-    }
-    if (agentName) {
-      sql += ` AND agent_name = $${paramIdx}`;
-      params.push(agentName);
-      paramIdx++;
-    }
-    if (types && types.length > 0) {
-      sql += ` AND type = ANY($${paramIdx})`;
-      params.push(types);
-      paramIdx++;
-    }
-    if (minConfidence) {
-      sql += ` AND confidence >= $${paramIdx}`;
-      params.push(minConfidence);
-      paramIdx++;
-    }
-    if (minImportance) {
-      sql += ` AND importance >= $${paramIdx}`;
-      params.push(minImportance);
-      paramIdx++;
-    }
+    if (scope) filter.scope = scope;
+    if (agentName) filter.agent_name = agentName;
+    if (types && types.length > 0) filter.type = { $in: types };
+    if (minConfidence) filter.confidence = { $gte: minConfidence };
+    if (minImportance) filter.importance = { $gte: minImportance };
 
-    sql += ' ORDER BY importance DESC, confidence DESC, updated_at DESC LIMIT $' + paramIdx;
-    params.push(limit);
+    const docs = await Memory
+      .find(filter)
+      .sort({ importance: -1, confidence: -1, updated_at: -1 })
+      .limit(limit)
+      .lean();
 
-    const result = await query(sql, params);
-    return result.rows;
+    return docs.map(d => ({ ...d, id: d._id }));
   }
 
-  /**
-   * Get context for agent execution
-   * @param {string} userId - User ID
-   * @param {object} options - Context options
-   * @returns {Promise<Array>}
-   */
   async getContext(userId, options = {}) {
     const cacheKey = `context:${userId}:${JSON.stringify(options)}`;
     const cached = this._getCache(cacheKey);
@@ -144,114 +143,78 @@ class MemoryManager {
     return memories;
   }
 
-  /**
-   * Update a memory
-   * @param {string} id - Memory ID
-   * @param {object} updates - Fields to update
-   * @returns {Promise<object>}
-   */
   async update(id, updates) {
-    const fields = [];
-    const values = [];
-    let idx = 1;
+    const $set = { updated_at: new Date() };
+    const allowed = ['content', 'importance', 'confidence', 'context'];
 
     for (const [key, value] of Object.entries(updates)) {
-      if (['content', 'importance', 'confidence', 'context'].includes(key)) {
-        fields.push(`${key} = $${idx}`);
-        values.push(typeof value === 'object' ? JSON.stringify(value) : value);
-        idx++;
+      if (allowed.includes(key)) {
+        $set[key] = value;
       }
     }
 
-    if (fields.length === 0) return null;
+    if (Object.keys($set).length === 1) return null;
 
-    fields.push('updated_at = NOW()');
-    values.push(id);
-
-    const result = await query(
-      `UPDATE agent_memories SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`,
-      values
-    );
-
-    if (result.rows[0]) {
-      this._invalidateCache(result.rows[0].user_id);
+    const doc = await Memory.findByIdAndUpdate(id, { $set }, { new: true }).lean();
+    if (doc) {
+      this._invalidateCache(doc.user_id);
     }
 
-    return result.rows[0];
+    return doc ? { ...doc, id: doc._id } : null;
   }
 
-  /**
-   * Delete a memory
-   * @param {string} id - Memory ID
-   * @returns {Promise<boolean>}
-   */
   async delete(id) {
-    const result = await query(
-      'UPDATE agent_memories SET is_active = false WHERE id = $1 RETURNING user_id',
-      [id]
-    );
-    if (result.rows[0]) {
-      this._invalidateCache(result.rows[0].user_id);
+    const doc = await Memory.findByIdAndUpdate(id, {
+      $set: { is_active: false }
+    }).lean();
+
+    if (doc) {
+      this._invalidateCache(doc.user_id);
     }
-    return result.rowCount > 0;
+    return !!doc;
   }
 
-  /**
-   * Get all memories for a user
-   * @param {string} userId - User ID
-   * @param {object} options - Filter options
-   * @returns {Promise<Array>}
-   */
   async getByUser(userId, options = {}) {
-    const { types, categories, limit = 50 } = options;
-    let sql = 'SELECT * FROM agent_memories WHERE user_id = $1 AND is_active = true';
-    const params = [userId];
-    let idx = 2;
+    const { types, limit = 50 } = options;
 
-    if (types?.length) {
-      sql += ` AND type = ANY($${idx})`;
-      params.push(types);
-      idx++;
-    }
+    const filter = { user_id: userId, is_active: true };
+    if (types?.length) filter.type = { $in: types };
 
-    sql += ' ORDER BY importance DESC, updated_at DESC LIMIT $' + idx;
-    params.push(limit);
+    const docs = await Memory
+      .find(filter)
+      .sort({ importance: -1, updated_at: -1 })
+      .limit(limit)
+      .lean();
 
-    const result = await query(sql, params);
-    return result.rows;
+    return docs.map(d => ({ ...d, id: d._id }));
   }
 
-  /**
-   * Consolidate memories for a user
-   * @param {object} options - Consolidation options
-   * @returns {Promise<object>}
-   */
   async consolidate(options = {}) {
     const { userId, strategy = 'prune', minImportance = 3 } = options;
     let processed = 0, merged = 0, pruned = 0;
 
     if (strategy === 'prune' || strategy === 'all') {
-      const result = await query(
-        `UPDATE agent_memories SET is_active = false 
-         WHERE user_id = $1 AND is_active = true 
-         AND importance < $2 AND updated_at < NOW() - INTERVAL '30 days'`,
-        [userId, minImportance]
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const result = await Memory.updateMany(
+        { user_id: userId, is_active: true, importance: { $lt: minImportance }, updated_at: { $lt: thirtyDaysAgo } },
+        { $set: { is_active: false, updated_at: new Date() } }
       );
-      pruned = result.rowCount;
+      pruned = result.modifiedCount || 0;
     }
 
     if ((strategy === 'merge-related' || strategy === 'all') && userId) {
-      const result = await this._mergeRelated(userId);
-      merged = result;
+      merged = await this._mergeRelated(userId);
     }
 
     this._invalidateCache(userId);
 
-    await query(
-      `INSERT INTO memory_consolidation_log (strategy, memories_processed, memories_merged, memories_pruned, user_id)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [strategy, processed, merged, pruned, userId]
-    );
+    await ConsolidationLog.create({
+      strategy,
+      memories_processed: processed,
+      memories_merged: merged,
+      memories_pruned: pruned,
+      user_id: userId,
+    });
 
     logger.info(`Memory consolidation: ${strategy} - processed=${processed}, merged=${merged}, pruned=${pruned}`);
     return { strategy, processed, merged, pruned };
@@ -301,8 +264,8 @@ class MemoryManager {
   _setCache(key, data) {
     this.cache.set(key, { data, timestamp: Date.now() });
     if (this.cache.size > 100) {
-      const oldest = this.cache.keys().next().value;
-      this.cache.delete(oldest);
+      const firstKey = this.cache.keys().next().value;
+      this.cache.delete(firstKey);
     }
   }
 

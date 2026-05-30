@@ -1,10 +1,23 @@
-const { query } = require('../config/database');
+const { mongoose } = require('../config/mongodb');
 const logger = require('../config/logger');
 
-/**
- * CostTracker - LLM token usage and cost tracking
- * Part of LLM & Prompt Management skill
- */
+const tokenUsageSchema = new mongoose.Schema({
+  _id: { type: String, default: () => require('uuid').v4() },
+  provider: { type: String, required: true },
+  model: { type: String, required: true },
+  prompt_tokens: { type: Number, default: 0 },
+  completion_tokens: { type: Number, default: 0 },
+  total_tokens: { type: Number, default: 0 },
+  cost: { type: Number, default: 0 },
+  user_id: { type: String },
+  agent_name: { type: String },
+  conversation_id: { type: String },
+  duration_ms: { type: Number, default: 0 },
+  created_at: { type: Date, default: Date.now },
+}, { versionKey: false });
+
+const TokenUsage = mongoose.models.TokenUsage || mongoose.model('TokenUsage', tokenUsageSchema, 'token_usage');
+
 class CostTracker {
   constructor() {
     this.PROVIDER_COSTS = {
@@ -17,11 +30,6 @@ class CostTracker {
     };
   }
 
-  /**
-   * Record token usage
-   * @param {object} usage - Usage data
-   * @returns {Promise<object>}
-   */
   async recordUsage(usage) {
     const {
       provider, model, promptTokens, completionTokens,
@@ -32,27 +40,28 @@ class CostTracker {
     const cost = this._calculateCost(provider, model, promptTokens, completionTokens);
 
     try {
-      const result = await query(
-        `INSERT INTO token_usage (provider, model, prompt_tokens, completion_tokens, total_tokens, cost, user_id, agent_name, conversation_id, duration_ms)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
-        [provider || 'unknown', model || 'unknown', promptTokens || 0, completionTokens || 0,
-         totalTokens, cost, userId, agentName, conversationId, durationMs || 0]
-      );
+      const result = await TokenUsage.create({
+        provider: provider || 'unknown',
+        model: model || 'unknown',
+        prompt_tokens: promptTokens || 0,
+        completion_tokens: completionTokens || 0,
+        total_tokens: totalTokens,
+        cost,
+        user_id: userId,
+        agent_name: agentName,
+        conversation_id: conversationId,
+        duration_ms: durationMs || 0,
+      });
 
-      return { id: result.rows[0].id, totalTokens, cost };
+      return { id: result._id, totalTokens, cost };
     } catch (err) {
       logger.error(`Failed to record token usage: ${err.message}`);
       return { totalTokens, cost };
     }
   }
 
-  /**
-   * Get cost report grouped by dimension
-   * @param {object} options - Report options
-   * @returns {Promise<object>}
-   */
   async getReport(options = {}) {
-    const { groupBy = 'agent', period = 'daily', startDate, endDate } = options;
+    const { groupBy = 'agent', period = 'daily', startDate, endDate, provider } = options;
 
     const groupMap = {
       agent: 'agent_name',
@@ -63,47 +72,42 @@ class CostTracker {
 
     const groupField = groupMap[groupBy] || 'agent_name';
 
-    let sql = `
-      SELECT ${groupField} as dimension,
-             COUNT(*) as requests,
-             SUM(total_tokens) as total_tokens,
-             SUM(cost) as total_cost,
-             AVG(total_tokens) as avg_tokens_per_request
-      FROM token_usage WHERE 1=1`;
-
-    const params = [];
-    let idx = 1;
-
-    if (startDate) {
-      sql += ` AND created_at >= $${idx}`;
-      params.push(startDate);
-      idx++;
-    }
+    let filter = {};
+    if (startDate) filter.created_at = { $gte: new Date(startDate) };
     if (endDate) {
-      sql += ` AND created_at <= $${idx}`;
-      params.push(endDate);
-      idx++;
+      filter.created_at = filter.created_at || {};
+      filter.created_at.$lte = new Date(endDate);
     }
-    if (options.provider) {
-      sql += ` AND provider = $${idx}`;
-      params.push(options.provider);
-      idx++;
-    }
+    if (provider) filter.provider = provider;
 
-    sql += ` GROUP BY ${groupField} ORDER BY total_cost DESC`;
+    const pipeline = [
+      { $match: filter },
+      {
+        $group: {
+          _id: `$${groupField}`,
+          requests: { $sum: 1 },
+          total_tokens: { $sum: '$total_tokens' },
+          total_cost: { $sum: '$cost' },
+          avg_tokens: { $avg: '$total_tokens' },
+        }
+      },
+      { $sort: { total_cost: -1 } }
+    ];
+
+    if (!groupField) pipeline.shift();
 
     try {
-      const result = await query(sql, params);
-      const grandTotal = result.rows.reduce((s, r) => ({
-        requests: s.requests + parseInt(r.requests || 0),
-        tokens: s.tokens + parseInt(r.total_tokens || 0),
-        cost: s.cost + parseFloat(r.total_cost || 0),
+      const result = await TokenUsage.aggregate(pipeline);
+      const grandTotal = result.reduce((s, r) => ({
+        requests: s.requests + (r.requests || 0),
+        tokens: s.tokens + (r.total_tokens || 0),
+        cost: s.cost + (r.total_cost || 0),
       }), { requests: 0, tokens: 0, cost: 0 });
 
       return {
         period,
         groupBy,
-        dimensions: result.rows,
+        dimensions: result,
         summary: grandTotal,
       };
     } catch (err) {
@@ -112,14 +116,6 @@ class CostTracker {
     }
   }
 
-  /**
-   * Get real-time cost estimate
-   * @param {string|object} provider - LLM provider or config object
-   * @param {string} [model] - Model name
-   * @param {number} [promptTokens] - Prompt token count
-   * @param {number} [completionTokens] - Completion token count
-   * @returns {object}
-   */
   estimateCost(provider, model, promptTokens, completionTokens) {
     if (typeof provider === 'object') {
       const opts = provider;
@@ -140,29 +136,24 @@ class CostTracker {
     };
   }
 
-  /**
-   * Alert if cost exceeds threshold
-   * @param {object} threshold - Cost threshold config
-   * @returns {Promise<boolean>}
-   */
   async checkThreshold(threshold = {}) {
     const { maxDaily = 10, maxWeekly = 50, maxMonthly = 200 } = threshold;
 
     const periods = [
-      { name: 'daily', interval: '24 hours', limit: maxDaily },
-      { name: 'weekly', interval: '7 days', limit: maxWeekly },
-      { name: 'monthly', interval: '30 days', limit: maxMonthly },
+      { name: 'daily', ms: 24 * 60 * 60 * 1000, limit: maxDaily },
+      { name: 'weekly', ms: 7 * 24 * 60 * 60 * 1000, limit: maxWeekly },
+      { name: 'monthly', ms: 30 * 24 * 60 * 60 * 1000, limit: maxMonthly },
     ];
 
     const alerts = [];
     for (const period of periods) {
-      const result = await query(
-        `SELECT COALESCE(SUM(cost), 0) as total FROM token_usage 
-         WHERE created_at > NOW() - $1::interval`,
-        [period.interval]
-      );
+      const since = new Date(Date.now() - period.ms);
+      const result = await TokenUsage.aggregate([
+        { $match: { created_at: { $gt: since } } },
+        { $group: { _id: null, total: { $sum: '$cost' } } }
+      ]);
 
-      const total = parseFloat(result.rows[0].total);
+      const total = result[0]?.total || 0;
       if (total > period.limit) {
         alerts.push({
           period: period.name,
